@@ -1,0 +1,214 @@
+
+extern int16_t pwr_left;
+extern int16_t pwr_right;
+
+extern uint32_t enc_l;
+extern uint32_t enc_r;
+extern uint8_t impasse;
+
+////////////////////////////////////////////////////////////////////////////////
+//System
+void init_sys(void)
+{
+	//Pins bzw. Ports als Ein-/Ausgänge konfigurieren
+	//PORT A ADC
+	DDRB |= 0xff;	//SPI, PWM
+	DDRC |= 0xff;	//Taster (LCD), LCD Hintergund LED, SS1/SS2
+	DDRD |= 0xff;	//UART1, I²C
+	DDRE |= 0xd0;	//11010000 => PWM, INT4, ENC M1/M2
+	DDRF |= 0x00; //herausgeführt auf Micromatch
+	DDRG |= 0x20; //00100000 => NC, Opfer LED
+	DDRH |= 0xff; //UART2 (Bluetooth), RGB LED, PWM (RGB LED)
+	//PORT K ADC
+	DDRL |= 0xff; //Motortreiber
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//ADC
+
+void init_adc(void)
+{
+	//http://bennthomsen.wordpress.com/embedded-design/peripherals/analogue-input/
+	//16MHz/128 = 125kHz the ADC reference clock
+	ADCSRA |= ((1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0));
+	ADMUX |= (1<<REFS0);       //Set Voltage reference to Avcc (5v)
+	ADCSRA |= (1<<ADEN);       //Turn on ADC
+	ADCSRA |= (1<<ADSC);       //Do an initial conversion
+}
+
+uint16_t adc_read(uint8_t channel)
+{
+	ADMUX &= 0xE0;           //Clear bits MUX0-4
+	ADMUX |= channel&0x07;   //Defines the new ADC channel to be read by setting bits MUX0-2
+	ADCSRB = channel&(1<<3); //Set MUX5
+	ADCSRA |= (1<<ADSC);      //Starts a new conversion
+	while(ADCSRA & (1<<ADSC));  //Wait until the conversion is done
+	return ADCW;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+//Initialisierung der PWM/ des Timers
+void init_pwm(void)	//Initialisierung des Timers für Erzeugung des PWM-Signals
+{
+  //OC0A/B:
+	//normale 8-bit PWM aktivieren
+  TCCR0A = (1<<COM0A1)
+					|(1<<COM0B1) //nicht invertierend
+					|(1<<WGM00);   //Fast PWM 8bit
+		 			
+  //Einstellen der PWM-Frequenz
+  TCCR0B = (1<<CS00); //Clk/1
+	
+	//OC1A/B:
+	TCCR1A = (1<<COM1A1)
+					|(1<<COM1B1)
+					|(1<<WGM10);//Fast PWM 8bit
+		
+	TCCR1B = (1<<CS10); //Clk/1
+
+	//OC2A/B:
+	TCCR2A = (1<<COM2A1)
+					|(1<<COM2B1)
+					|(1<<WGM00);
+					
+	TCCR2B = (1<<CS20);
+
+	//OC4A/B/C:
+	TCCR4A = (1<<COM4A1)
+					|(1<<COM4B1)
+					|(1<<COM4C1)
+					|(1<<WGM40);
+
+	TCCR4B = (1<<CS40); //Clk/1
+
+	//OC5A/B:
+	TCCR5A = (1<<COM5B1)
+					|(1<<COM5C1)
+					|(1<<WGM50);
+
+	TCCR5B = (1<<CS50); //Clk/1
+
+	///////////////////////////////////
+	OCR0A = 0; //herausgeführt
+	OCR0B = 0; //Opfer LED
+	OCR1A = 0; //herausgeführt
+	OCR1B = 0; //herausgeführt
+	OCR2A = 0; //herausgeführt
+	OCR2B = 0; //herausgeführt
+	OCR5B = 0; //PWM B
+	OCR5C = 0; //PWM A
+	//Zuweisung von OCR4x in hsv zu rgb (RGB LED)
+}
+
+void init_timer(void)
+{
+	//OC3:
+	TCCR3B = (1<<WGM32)
+					|(1<<CS30)
+					|(1<<CS31); //Prescaler 64
+
+	TIMSK3 = (1<<OCIE3A);
+
+	OCR3A = 6250; //alle 25ms
+}
+////////////////////////////////////////////////////////////////////////////////
+//Initialisierung der Interrupt Eingänge (Motortacho)
+void init_INT(void)
+{
+	EICRB = (1<<ISC40) //Sackgassensensor
+				 |(1<<ISC61) //Encoder
+				 |(1<<ISC71);//Encoder
+
+	EIMSK = (1<<INT4)
+				 |(1<<INT6)
+				 |(1<<INT7);
+}
+
+ISR (INT4_vect)
+{
+	impasse = 1;
+}
+
+ISR (INT6_vect)
+{
+	enc_l++;
+}
+
+ISR (INT7_vect)
+{
+	enc_r++;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+void set_speed(void)
+{
+	PORTL |= (1<<6); //kein Standby
+
+	if(pwr_left > 0)
+	{
+		PORTL &= ~(1<<1); //DIRB1
+		PORTL |= (1<<0); //DIRB2
+	}
+	else if(pwr_left == 0)
+	{
+		PORTL &= ~(1<<1); //DIRB1
+		PORTL &= ~(1<<0); //DIRB2
+	}
+	else if(pwr_left < 0)
+	{
+		PORTL |= (1<<1); //DIRB1
+		PORTL &= ~(1<<0); //DIRB2
+	}
+
+	if(pwr_right > 0)
+	{
+		PORTL &= ~(1<<2); //DIRA1
+		PORTL |= (1<<3); //DIRA2; //Rechter Motor vorwärts
+	}
+	else if(pwr_right == 0)
+	{
+		PORTL &= ~(1<<3); //DIRA1
+		PORTL &= ~(1<<2); //DIRA2 Motor aus
+	}
+	else if(pwr_right < 0)
+	{
+		PORTL |= (1<<2); //DIRA2 //rechter Motor rückwärts
+		PORTL &= ~(1<<3); //DIRA1
+  }
+
+	if(pwr_left < 0)
+	{
+		pwr_left *= -1;
+	}
+	if(pwr_right < 0)
+	{
+		pwr_right *= -1;
+	}
+	uint8_t pwr_left_lined = pwr_left; //((0.37*pwr_left)+160);
+	uint8_t pwr_right_lined = pwr_right; //((0.31*pwr_right)+176);
+
+	OCR5B = pwr_left_lined; //PWMB (Geschwindigkeit) linker Motor
+  OCR5C = pwr_right_lined; //PWMA (Geschwindigkeit) rechter Motor
+}
+
+////////////////////////////////////////////////////////
+//Einzelne IOs
+
+//Hintergrundbeleuchtung Display
+void display_setBGLED(uint8_t state)
+{
+	if(state == 1)
+	{
+		PORTC |= (1<<4);
+	}
+	else
+	{
+		PORTC &= ~(1<<4);
+	}
+}
+
+//Opfer LED
+void victim_setLED(uint8_t brightness)
+{
+	OCR0B = brightness;
+}

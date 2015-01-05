@@ -1,0 +1,111 @@
+#define PT_HAS_DATA        0x80  //10000000
+#define PT_IS_BATCH        0x40  //01000000
+
+extern uint16_t um6_data[16]; //Wenn batch abgefragt wird, werden hier hintereinander die Daten abgelegt
+
+uint8_t um8_getRegister(uint8_t um6_register, uint8_t batch)
+{
+	uint8_t checksum0 = 0;
+	uint8_t checksum1 = 0;
+	uint16_t checksum = 0;
+	uint8_t pt_is_batch = 0x00;
+	if(batch > 0)
+	{
+		pt_is_batch = PT_IS_BATCH;
+	}
+
+	checksum = ('s'+'n'+'p' + pt_is_batch + batch + um6_register);
+	checksum1 = checksum >> 8;
+	checksum0 = checksum & 0xff;
+
+	uart1_putc('s');
+	uart1_putc('n');
+	uart1_putc('p');
+	uart1_putc(pt_is_batch + batch); //PT
+	uart1_putc(um6_register); //ADR
+	uart1_putc(checksum1); //Checksum1
+	uart1_putc(checksum0); //Checksum1
+
+
+	uint8_t data[32] = {0};
+	uint16_t data_sum = 0;
+	
+	if(uart1_getc() == 's')
+	{
+		if(uart1_getc() == 'n')
+		{
+			if(uart1_getc() == 'p')
+			{
+				if(uart1_getc() == (PT_HAS_DATA + pt_is_batch + batch))
+				{
+					if(uart1_getc() == um6_register)
+					{	
+						uint8_t i_stop = 0;
+						if(batch > 0)
+						{
+							i_stop = batch*4;
+						}
+						else
+						{
+							i_stop = 4; //1 Register
+						}
+
+						for(uint8_t i = 0; i<8; i++)
+						{
+							data[i] = uart1_getc();
+							data_sum += data[i];
+						}
+						checksum1 = uart1_getc();
+						checksum0 = uart1_getc();
+						checksum = ((checksum1 << 8) | checksum0);
+						//if (checksum == ('s' + 'n' + 'p' + (PT_HAS_DATA | pt_is_batch | batch) + um6_register + data_sum))
+						//{
+							um6_data[0] = (data[1] | (data[0]<<8));
+							um6_data[1] = (data[3] | (data[2]<<8));
+							um6_data[2] = (data[5] | (data[4]<<8));
+							um6_data[3] = (data[7] | (data[6]<<8));
+							um6_data[4] = (data[9] | (data[8]<<8));
+							um6_data[5] = (data[11] | (data[10]<<8));
+							um6_data[6] = (data[13] | (data[12]<<8));
+							um6_data[7] = (data[15] | (data[14]<<8));
+							um6_data[8] = (data[17] | (data[16]<<8));
+							um6_data[9] = (data[19] | (data[18]<<8));
+							um6_data[10] = (data[21] | (data[20]<<8));
+							um6_data[11] = (data[23] | (data[22]<<8));
+							um6_data[12] = (data[25] | (data[24]<<8));
+							um6_data[13] = (data[27] | (data[26]<<8));
+							um6_data[14] = (data[29] | (data[28]<<8));
+							um6_data[15] = (data[31] | (data[30]<<8));
+
+							return 1;
+						/*}
+						else
+						{
+							return 2;
+						}*/
+					}
+					else
+					{
+						return 3;
+					}
+				}
+				else
+				{
+					return 4;
+				}
+			}
+			else
+			{
+				return 5;
+			}
+		}
+		else
+		{
+			return 6;
+		}
+	}
+	else
+	{
+		return 7;
+	}
+}
