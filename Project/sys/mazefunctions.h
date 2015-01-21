@@ -88,7 +88,7 @@ extern void maze_clear(TILE *clear);
 
 extern void maze_setCheckpoint(COORD *_coord, int8_t dir);
 
-extern COORD *maze_getCheckpoint(uint8_t pos_z, uint8_t index);
+extern COORD *maze_getCheckpoint(COORD *_coord);
 
 extern void maze_setRamp(COORD *_coord, int8_t ramp_dir, int8_t tile_dir, int8_t set);
 

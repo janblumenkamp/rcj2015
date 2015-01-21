@@ -10,6 +10,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#define SERVO_T_MIN 1800
+#define SERVO_T_FUL 2000
+#define SERVO_T_LOW 3800
+#define SERVO_T_MAX 4100
+
 #include "main.h"
 #include "system.h"
 #include "u8g.h"
@@ -188,9 +193,11 @@ uint8_t get_bumpR(void) //Bumper right
 
 //////////////////////////////Servo////////////
 
+
 void servo_setPos(uint8_t angle)
 {
-	uint16_t servo_time = -21*angle+SERVO_T_LOW;
+    displayvar[2] = angle;
+    uint16_t servo_time = -21*angle+SERVO_T_LOW;
 	if(servo_time < SERVO_T_MIN)
 		servo_time = SERVO_T_MIN;
 	else if(servo_time > SERVO_T_MAX)
@@ -302,50 +309,73 @@ void groundSens_setLED(uint8_t brightness)
 
 ///////////////////////////////////////////////////////////////////////////////
 int32_t enc_start[2];
+int16_t mot_reg_integral[2]; //I-Part of the speed regulator
 
 MOTOR_ROB_t mot;
 
 #define SPEED_MAX 255
 
-void controlSpeed(void) //eigentliche Geschwindigkeitsregelung, muss mit 40Hz aufgerufen werden!
+void controlSpeed(void) //eigentliche Geschwindigkeitsregelung, muss mit 25Hz aufgerufen werden!
 {
-	for(uint8_t i = 0; i < 2; i++)
-	{
-		mot.d[i].speed.is = (mot.d[i].enc - enc_start[i]);
-		enc_start[i] = mot.d[i].enc;
+    for(uint8_t i = 0; i < 2; i++)
+        {
+            mot.d[i].speed.is = (mot.d[i].enc - enc_start[i]);
+            enc_start[i] = mot.d[i].enc;
 
-		if(mot.d[i].speed.to != 0)
-		{
-			pwr[i] = ((mot.d[i].speed.to - mot.d[i].speed.is)*2.4);
-			if(pwr[i] > SPEED_MAX)
-				pwr[i] = SPEED_MAX;
-			if(pwr[i] < -SPEED_MAX)
-				pwr[i] = -SPEED_MAX;
-		}
-		else
-		{
-			pwr[i] = 0;
-		}
-	}
+            if(mot.d[i].speed.to != 0)
+            {
+                pwr[i] = ((mot.d[i].speed.to - mot.d[i].speed.is)*2.4);
+                if(pwr[i] > SPEED_MAX)
+                    pwr[i] = SPEED_MAX;
+                if(pwr[i] < -SPEED_MAX)
+                    pwr[i] = -SPEED_MAX;
+            }
+            else
+            {
+                pwr[i] = 0;
+            }
+        }
 
-	set_speed();
+        set_speed();
 
-	//bt_putStr("\e[2J"); //clear//
-	//bt_putStr("\e[H");
-	/*bt_putLong(speed.l.is);
-	bt_putStr("\n\r");
-	bt_putLong(speed.r.is);
-	bt_putStr("\n\r");
-	bt_putStr("\n\r");*/
-	/*bt_putStr("\n\r");
-	bt_putLong(e_speed_l);
-	bt_putStr("\n\r");
-	bt_putStr("\n\r");
-	bt_putLong(i_speed_l);
-	bt_putStr("\n\r");
-	bt_putLong(i_speed_r);*/
-	/*bt_putStr("\n\r");
-	bt_putLong(timer);
-	bt_putStr(" ");
-	bt_putLong(pwr_left);*/
+    /* for(uint8_t i = 0; i < 2; i++)
+    {
+        mot.d[i].speed.is = mot.d[i].enc - enc_start[i]; //Ticks per 40ms (full speed (pwm ~200): 31
+        enc_start[i] = mot.d[i].enc;
+
+        if(mot.d[i].speed.to != 0)
+        {
+            if(mot.d[i].speed.to > 35)
+                mot.d[i].speed.to = 35;
+            if(mot.d[i].speed.to < -35)
+                mot.d[i].speed.to = -35;
+
+            int16_t e = mot.d[i].speed.to - mot.d[i].speed.is;
+
+            if(abs(mot_reg_integral[i] + e) < 200)
+                mot_reg_integral[i] += e;
+
+            pwr[i] = (e * (abs(mot.d[i].speed.to) / 3)) + (mot_reg_integral[i]*((abs(mot.d[i].speed.to) / 10) + 1));
+
+            if(pwr[i] > SPEED_MAX)
+                pwr[i] = SPEED_MAX;
+            if(pwr[i] < -SPEED_MAX)
+                pwr[i] = -SPEED_MAX;
+        }
+        else
+        {
+            mot_reg_integral[i] = 0;
+            pwr[i] = 0;
+        }
+    }
+
+    set_speed();*/
+
+    //bt_putStr("\e[2J"); //clear//
+    //bt_putStr("\e[H");
+    /*bt_putLong(mot.d[LEFT].speed.to); bt_putStr("\t"); bt_putLong(mot.d[RIGHT].speed.to); bt_putStr("\n");
+    bt_putLong(mot.d[LEFT].speed.is); bt_putStr("\t"); bt_putLong(mot.d[RIGHT].speed.is); bt_putStr("\n");
+    bt_putLong(mot_reg_integral[LEFT]);bt_putStr("\t"); bt_putLong(mot_reg_integral[RIGHT]); bt_putStr("\n");
+    bt_putLong(pwr[LEFT]);bt_putStr("\t"); bt_putLong(pwr[RIGHT]); bt_putStr("\n");
+    bt_putStr("\n");*/
 }

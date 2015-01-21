@@ -188,22 +188,38 @@ uint8_t drive_oneTile(uint8_t abort)
 							////////////////////////////////////////////////////////////////////////
 							////////Ziel erreicht? Kollision? Sollgeschwindigkeiten berechnen///////
 
-							if(((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
-								(dist[LIN][RIGHT][FRONT] < 15)))
-							{
-								dot_aligned_turn = WEST;
+                            if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+                                (dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+                                (mot.enc < (enc_lr_start_dot + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + enc_lr_add_dot)) &&
+                                (rel_angle < 20)) ||
 
-								mot.d[LEFT].speed.to = -SPEED_COLLISION_AVOIDANCE;
-								mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
-							}
-							else if(((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
-									 (dist[LIN][LEFT][FRONT] < 15)))
-							{
+                                get_bumpR() ||
+
+                               ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
+                                (dist[LIN][RIGHT][FRONT] < 15)))
+                            {
+                                dot_aligned_turn = WEST;
+
+                                displayvar[0]++;
+                                mot.d[LEFT].speed.to = -SPEED_COLLISION_AVOIDANCE;
+                                mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
+                            }
+                            else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+                                     (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+                                     (mot.enc < (enc_lr_start_dot + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + enc_lr_add_dot)) &&
+                                     (rel_angle < 20)) ||
+
+                                    get_bumpL() ||
+
+                                    ((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
+                                     (dist[LIN][LEFT][FRONT] < 15)))
+                            {
 								dot_aligned_turn = EAST;
 
-								mot.d[LEFT].speed.to = SPEED_COLLISION_AVOIDANCE;
+                                displayvar[1]++;
+                                mot.d[LEFT].speed.to = SPEED_COLLISION_AVOIDANCE;
 								mot.d[RIGHT].speed.to = -SPEED_COLLISION_AVOIDANCE;
-							}
+                            }
 							else if(dot_aligned_turn == WEST)
 							{
 								sm_dot = DOT_ROT_WEST;

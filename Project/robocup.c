@@ -56,14 +56,8 @@
 ///			(Winkel zur Wand groß, vordere Sensoren kleine Distanz) korrigieren
 ////////////////////////////////////////////////////////////////////////////////
 /// Zeitplan:
-///		- Mitte Juni:
-///			- Opferabwurf funktioniert komplett
-///			- Silberne Flächen funktionieren komplett
-///		- Ende Juni:
-///			- Rampe funktioniert komplett
-///		- Juli:
-///			- evtl. SLAM
-///			- ALLES TESTEN!
+///		- 17. Januar: Untergrundsensor funktioniert wieder
+///     - danach: sonstige Tests
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -242,7 +236,7 @@ int main(void)
 	//init_m2(); //Menu lib
 	init_adc();
 	init_i2c();
-	init_srf10();
+    //init_srf10();
 	maze_init();
 	victim_init();
 
@@ -317,11 +311,6 @@ int main(void)
 	}
 
 	//wdt_enable(WDTO_8S); //activate watchdog
-
-	uint8_t doonce = 0;
-
-
-	servo_setPos(30);
 
 	while(1)
     {
@@ -494,98 +483,13 @@ int main(void)
 int8_t testvar = 0;
 uint8_t groundvar = 0;
 
-#define DRIVE_TILE_1_L	8
-#define DRIVE_TILE_2_L	8
-#define DRIVE_TILE_3_L	14
-#define DRIVE_TILE_4_L	12
-#define DRIVE_TILE_5_L	12
-#define DRIVE_TILE_6_L	18
-
-char drive_tile_1[DRIVE_TILE_1_L] = "frdrflul";
-char drive_tile_2[DRIVE_TILE_2_L] = "fdrrflul";
-char drive_tile_3[DRIVE_TILE_3_L] = "ffrfdrrflfflul";
-char drive_tile_4[DRIVE_TILE_4_L] = "fffrdrffflul";
-char drive_tile_5[DRIVE_TILE_5_L] = "fffdrrffflul";
-char drive_tile_6[DRIVE_TILE_6_L] = "ffffrfdrrflfffflul";
-
-char drive_tile_7[DRIVE_TILE_1_L] = "fldlfrur";
-char drive_tile_8[DRIVE_TILE_2_L] = "fdllfrur";
-char drive_tile_9[DRIVE_TILE_3_L] = "fflfdllfrffrur";
-char drive_tile_10[DRIVE_TILE_4_L] = "fffldlfffrur";
-char drive_tile_11[DRIVE_TILE_5_L] = "fffdllfffrur";
-char drive_tile_12[DRIVE_TILE_6_L] = "fffflfdllfrffffrur";
-
 int8_t task_maze(int8_t state)
 {
 	if(setup == 0)
 	{
 		maze_solve();
 		//victim_check();
-	}
-	///////////////////////////////////Opfer////////////////////////////////////////
-
-/*	if(!mot.off)
-	{
-		switch(testvar)
-		{
-			case 0: if(!drive_turn(-90, 1)) testvar = 1; break;
-			case 1: 
-			case 2: if(!drive_oneTile(0)) testvar ++; break;
-			case 3: testvar = 0;
-		}
-	}*/
-	//drive_ramp(80);
-
-	/*if((testvar == 0))// && !mot.off)
-	{
-		if(!drive_instructions(drive_tile_1, DRIVE_TILE_1_L))
-		{
-			testvar = 1;
-		}
-		if(get_incrOk())
-		{
-			displayvar[1] = 1;
-		}
-	}
-	else
-	{
-		displayvar[1] = 0;
-		mot.d[LEFT].speed.to = 0;
-		mot.d[RIGHT].speed.to = 0;
-	}
-	if(get_incrOk())
-	{
-		testvar = 0;
-	}*/
-
-	if(!mot.off)
-	{
-		if(robot.pos.z == 0)
-		{
-			switch (testvar) {
-			case 0:	if(!drive_instructions(drive_tile_1, DRIVE_TILE_1_L)) testvar ++; break;
-			case 1:	if(!drive_instructions(drive_tile_2, DRIVE_TILE_2_L)) testvar ++; break;
-			case 2:	if(!drive_instructions(drive_tile_3, DRIVE_TILE_3_L)) testvar ++; break;
-			case 3:	if(!drive_instructions(drive_tile_4, DRIVE_TILE_4_L)) testvar ++; break;
-			case 4:	if(!drive_instructions(drive_tile_5, DRIVE_TILE_5_L)) testvar ++; break;
-			case 5:	if(!drive_instructions(drive_tile_6, DRIVE_TILE_6_L)) testvar ++; break;
-			default: testvar = 0; break;
-			}
-		}
-		else
-		{
-			switch (testvar) {
-			case 0:	if(!drive_instructions(drive_tile_7, DRIVE_TILE_1_L)) testvar ++; break;
-			case 1:	if(!drive_instructions(drive_tile_8, DRIVE_TILE_2_L)) testvar ++; break;
-			case 2:	if(!drive_instructions(drive_tile_9, DRIVE_TILE_3_L)) testvar ++; break;
-			case 3:	if(!drive_instructions(drive_tile_10, DRIVE_TILE_4_L)) testvar ++; break;
-			case 4:	if(!drive_instructions(drive_tile_11, DRIVE_TILE_5_L)) testvar ++; break;
-			case 5:	if(!drive_instructions(drive_tile_12, DRIVE_TILE_6_L)) testvar ++; break;
-			default: testvar = 0; break;
-			}
-		}
-
-	}
+    }
 
 	return 0;
 }

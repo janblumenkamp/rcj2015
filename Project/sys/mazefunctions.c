@@ -1261,6 +1261,50 @@ void maze_clear(TILE *clear)
 // @return: 	void
 ////////////////////////////////////////////////////////////////////////////////
 
+void maze_setCheckpoint(COORD *_coord, int8_t dir)
+{
+	COORD c = *_coord;
+
+	switch(dir)
+	{
+		case NONE:	break; //Positionen müssen nicht geändert werden
+		case NORTH:
+							c.y ++;	break;
+		case EAST:
+							c.x ++;	break;
+		case SOUTH:
+							if((c.y - 1) < 0)
+							{
+								maze_chgOffset(Y, c.z, -1);
+								_coord->y ++;
+								c.y ++;
+							}
+
+							c.y --;
+
+						break;
+		case WEST:
+							if((c.x - 1) < 0)
+							{
+								maze_chgOffset(X, c.z, -1);
+								_coord->x ++;
+								c.x ++;
+							}
+
+							c.x --;
+
+						break;
+		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.44]:DEFAULT_CASE"));}
+							fatal_err = 1;
+	}
+
+	if(maze_adaptOffset(&c)) //Adapt position to offset of the map in the memory (RAM)
+	{
+		checkpoint.pos = c;
+		checkpoint.dir = robot.dir; //Mark checkpoint as set, of this is NONE the checkpoint is represented by the start tile!
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Returns the checkpoint.
@@ -1271,10 +1315,38 @@ void maze_clear(TILE *clear)
 // @return: Pointer to the coordinates of the checkpoint
 ////////////////////////////////////////////////////////////////////////////////
 
-COORD *maze_getCheckpoint(uint8_t pos_z, uint8_t index)
+COORD *maze_getCheckpoint(COORD *_coord)
 {
-	return &checkpoint[pos_z][index].pos;
+	static COORD checkpointPos;
+
+	if(checkpoint.dir == NONE)
+		checkpointPos = *maze_getStartPos();
+	else
+	{
+		checkpointPos = checkpoint.pos;
+
+		if(offset_z != 0)
+		{
+			if(checkpointPos.z == 0)
+				checkpointPos.z = 1;
+			else
+				checkpointPos.z = 0;
+		}
+
+		checkpointPos.x = checkpoint.pos.x;
+		checkpointPos.x -= offset[checkpointPos.z].x;
+		while(checkpointPos.x >= MAZE_SIZE_X)
+			checkpointPos.x -= MAZE_SIZE_X;
+
+		checkpointPos.y = checkpoint.pos.y;
+		checkpointPos.y -= offset[checkpointPos.z].y;
+		while(checkpointPos.y >= MAZE_SIZE_Y)
+			checkpointPos.y -= MAZE_SIZE_Y;
+	}
+
+	return &checkpointPos;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Checks if there is a ramp at the given coordinate and returns the direction
@@ -1545,6 +1617,9 @@ void maze_init(void)
 	robot.pos.z = ROB_START_MAZE_Z;
 	robot.dir = ROB_START_DIR;
 
+    checkpoint.pos = robot.pos;
+    checkpoint.dir = NONE;
+
 	off_start.x = 0;
 	off_start.y = 0;
 	off_start.z = 0;
@@ -1555,201 +1630,11 @@ void maze_init(void)
 		ramp[i].pos.y = -1;
 		ramp[i].pos.z = -1;
 		ramp[i].dir = NONE;
-	}
-	
-	checkpoint[0][0].pos.x = 2;
-	checkpoint[0][0].pos.y = 2;
-
-	checkpoint[0][1].pos.x = 3;
-	checkpoint[0][1].pos.y = 3;
-
-	checkpoint[0][2].pos.x = 3;
-	checkpoint[0][2].pos.y = 1;
-
-	checkpoint[0][3].pos.x = 4;
-	checkpoint[0][3].pos.y = 2;
-
-	checkpoint[0][4].pos.x = 5;
-	checkpoint[0][4].pos.y = 3;
-
-	checkpoint[0][5].pos.x = 4;
-	checkpoint[0][5].pos.y = 2;
-
-	checkpoint[1][0].pos.x = 3;
-	checkpoint[1][0].pos.y = 3;
-
-	checkpoint[1][1].pos.x = 3;
-	checkpoint[1][1].pos.y = 1;
-
-	checkpoint[1][2].pos.x = 2;
-	checkpoint[1][2].pos.y = 3;
-
-	checkpoint[1][3].pos.x = 2;
-	checkpoint[1][3].pos.y = 1;
-
-	checkpoint[1][4].pos.x = 1;
-	checkpoint[1][4].pos.y = 3;
-
-	checkpoint[1][5].pos.x = 1;
-	checkpoint[1][5].pos.y = 1;
-
+    }
 
 	maze_solve_state_path = DRIVE_READY;
 	
-	routeRequest = 0;
-
-	robot.pos.x = 1;
-	robot.pos.y = 3;
-	robot.pos.z = 0;
-
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, 10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.y --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, 10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.y --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, 10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.y ++;
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	///////////////////////////////////////////////////////////////
-
-	robot.pos.x = 1;
-	robot.pos.y = 1;
-	robot.pos.z = 1;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.y ++;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.y ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, NORTH, 10);
-	maze_setWall(&robot.pos, EAST, 10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.y --;
-	maze_setWall(&robot.pos, WEST, 10);
-
-	robot.pos.y --;
-
-	robot.pos.x --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, 10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x --;
-	maze_setWall(&robot.pos, NORTH, -10);
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, SOUTH, 10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.y ++;
-	maze_setWall(&robot.pos, EAST, -10);
-
-	robot.pos.x ++;
-	maze_setWall(&robot.pos, EAST, -10);
-	maze_setWall(&robot.pos, WEST, -10);
-
-	robot.pos.x = 1;
-	robot.pos.y = 3;
-	robot.dir = EAST;
-	robot.pos.z = 0;
-	wall_size_part = 8;
+    routeRequest = 0;
 }
 
 //////////////////////////////////////////////////

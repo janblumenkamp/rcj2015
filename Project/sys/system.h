@@ -40,11 +40,6 @@ typedef struct {
 
 extern MOTOR_ROB_t mot;
 
-#define SERVO_T_MIN 1800
-#define SERVO_T_FUL 2000
-#define SERVO_T_LOW 4000
-#define SERVO_T_MAX 4100
-
 //-> x = mot.d[LEFT].speed.is;
 //-> mot.d[RIGHT].speed.to = y;
 //-> _enc = motor.d[LEFT].enc;

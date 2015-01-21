@@ -132,7 +132,7 @@ extern OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset
 extern COORD rr_result; //RouteRequest startpositions
 extern COORD off_start; //offset startposition (change startposition via rotary-encoder)
 extern POS robot; //Positionsdaten über Roboter
-extern POS checkpoint[2][6]; //Last passed checkpoint
+extern POS checkpoint; //Last passed checkpoint
 extern POS ramp[MAZE_SIZE_Z];	//Rampenanschlüsse
 
 extern MATCHINGWALLS matchingWalls;

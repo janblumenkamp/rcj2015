@@ -443,7 +443,7 @@ uint8_t sm_groundSens = 0;
 
 void get_groundSens(void)
 {
-	/*switch (sm_groundSens)
+    switch (sm_groundSens)
 	{
 	case 0:
 		groundSens_setLED(255);
@@ -456,9 +456,7 @@ void get_groundSens(void)
 		sm_groundSens = 0;
 	default:
 		break;
-	}*/
-	groundSens_setLED(0);
-
+    }
 }
 
 void get_analogSensors(void)

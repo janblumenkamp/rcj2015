@@ -32,7 +32,7 @@ COORD off_start; //offset startposition (change startposition via rotary-encoder
 POS robot; //Positionsdaten über Roboter
 POS robot_save;
 	int8_t rob_z_lost; //Stage in which the robot lost his position
-POS checkpoint[2][6];
+POS checkpoint;
 POS ramp[MAZE_SIZE_Z];		//Rampenanschlüsse
 
 /////////////////////////////////////////////////////////////////
@@ -127,19 +127,19 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										case DR_UPDATEWALLS:
 
-													//if(maze_updateWalls()) //Save the walls around the robot in the MAZE_SAVESTAGE to compare it later with the environment
-													//{
+                                                    if(maze_updateWalls()) //Save the walls around the robot in the MAZE_SAVESTAGE to compare it later with the environment
+                                                    {
 														maze_solve_state_ready = DR_UPDATEVICTIMS;
-													//}
+                                                    }
 
 												break;
 
 										case DR_UPDATEVICTIMS:
 
-													/*if(victim_check())
-													{*/
+                                                    //if(victim_check())
+                                                    //{
 														maze_solve_state_ready = DR_CHECK;
-													//}
+                                                    //}
 
 												//break;
 
@@ -415,16 +415,36 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						
 								break;
 
-			case LOP_INIT:
+        case LOP_INIT:
 
-									maze_solve_state_path = LOP_WAIT;
+                                drive_reset(); //Reset Drive Functions...
+                                maze_clearDepthsearch();
 
-			case LOP_WAIT:
+                                robot.pos = *maze_getCheckpoint(&robot.pos);
 
-									maze_solve_state_path = DRIVE_READY;
+                                mot.off_invisible = 1;
 
-								break;
+                                wall_size_part = WALL_SIZE_MEDIUM; //Detailed view of the tile
 
+                                maze_solve_state_path = LOP_WAIT;
+
+        case LOP_WAIT:
+                                if(dist_down > GROUNDDIST_TH_NORMAL)
+                                {
+                                    if(timer_lop == -1)
+                                    {
+                                        timer_lop = TIMER_LOP_RESET;
+                                    }
+                                    else if(timer_lop == 0)
+                                    {
+                                        mot.off_invisible = 0;
+                                        wall_size_part = WALL_SIZE_STD;
+                                        timer_lop = -1;
+                                        maze_solve_state_path = DRIVE_READY;
+                                    }
+                                }
+
+                            break;
 			///////////////////////////////////////////////////////////////////////////////
 			///////////////////////Drivefunctions//////////////////////////////////////////
 			///////////////////////////////////////////////////////////////////////////////
@@ -457,7 +477,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										{}
 										else if((driveVar == AB_15) || (driveVar == UD_15)) //Driving... Dont change! See rotations in drive_oneTile...
 										{
-											/*if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && (dot_abort == 0))
+                                            if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && (dot_abort == 0))
 											{
 												maze_solve_state_path = CHECK_BLACKTILE;
 											}
@@ -465,7 +485,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											//	maze_corrGround(&robot.pos, robot.dir, -1);
 
 											if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveVar == AB_15))
-												groundsens_cnt ++;*/
+                                                groundsens_cnt ++;
 										}
 										else if((driveVar == NOW_15) || (driveVar == AT_15)) //Mitte beim Geradeausfahren (Übergang 2 Fliesen)
 										{
@@ -530,14 +550,14 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											{
 												//////////////////////////Checkpoint///////////////////
 
-												/*if(groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT) //Checkpoint detected
+                                                if(groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT) //Checkpoint detected
 												{
 													if(dot_driven_oneTile == 1)
 														maze_setCheckpoint(&robot.pos, NONE);
-												}*/
+                                                }
 
 												/////////////////Rampe/////////////////////////
-												/*ramp_stop = ramp_start - um6.theta_t;
+                                                ramp_stop = ramp_start - um6.theta_t;
 
 												if((maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir) &&
 													 (robot.pos.z == 0))
@@ -577,7 +597,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 													maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
 
 													maze_solve_state_path = RAMP_DOWN;
-												}*/
+                                                }
 											}
 
 											dot_driven_oneTile = 0;
@@ -590,41 +610,107 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									
 								break;
 								
-			case TURN_RIGHT:
-									//Rechts drehen
-									if(drive_turn(90, 1) == 0)
-									{
-										robot.dir = maze_alignDir(robot.dir + 1);
+            case TURN_RIGHT:
+                                            //Rechts drehen
+                                            if(drive_turn(90, 1) == 0)
+                                            {
+                                                robot.dir = maze_alignDir(robot.dir + 1);
 
-										maze_solve_state_path = DRIVE_READY;
-									}
-								
-								break;
-								
-			case TURN_LEFT:
+                                                if(maze_solve_depl_kit)
+                                                    maze_solve_state_path = VIC_DEPL;
+                                                else
+                                                    maze_solve_state_path = DRIVE_READY;
+                                            }
 
-									if(drive_turn(-90, 1) == 0)
-									{
-										robot.dir = maze_alignDir(robot.dir + 3);
+                                        break;
 
-										maze_solve_state_path = DRIVE_READY;
-									}
-									
-								break;
-								
-			case RAMP_UP:
+            case TURN_LEFT:
 
-									maze_solve_state_path = DRIVE_READY;
-								
-								break;
-								
-			case RAMP_DOWN:
-			
+                                            if(drive_turn(-90, 1) == 0)
+                                            {
+                                                robot.dir = maze_alignDir(robot.dir + 3);
 
-										maze_solve_state_path = DRIVE_READY;
-									
-								break;
-			
+                                                if(maze_solve_depl_kit)
+                                                    maze_solve_state_path = VIC_DEPL;
+                                                else
+                                                    maze_solve_state_path = DRIVE_READY;
+                                            }
+
+                                        break;
+								
+            case RAMP_UP:
+                                if(drive_ramp(RAMP_UP_SPEED) == 0)
+                                {
+                                    robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
+
+                                    if(maze_getRampDir(robot.pos.z) == NONE) //Rampe oben noch nicht gesetzt
+                                    {
+                                        robot.pos.x = ROB_POS_X_MIN;
+                                        robot.pos.y = ROB_POS_Y_MIN;
+
+                                        maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
+                                        maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
+                                    }
+                                    else
+                                    {
+                                        robot.pos = *maze_getRamp(robot.pos.z);
+
+                                        switch(maze_getRampDir(robot.pos.z))
+                                        {
+                                            case NORTH:	robot.pos.y--;	break;
+                                            case EAST:	robot.pos.x--;	break;
+                                            case SOUTH:	robot.pos.y++;	break;
+                                            case WEST:	robot.pos.x++;	break;
+                                            default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
+                                                                fatal_err = 1;
+                                        }
+                                    }
+
+                                    maze_solve_state_path = DRIVE_READY;
+                                }
+
+                            break;
+
+        case RAMP_DOWN:
+
+                                if(drive_ramp(-RAMP_DOWN_SPEED) == 0) //Herunterfahren
+                                {
+                                    robot.pos.z --; //Muss jetzt 0 sein, wurde schon oben angepasst
+
+                                    if(robot.pos.z < 0)
+                                    {
+                                        maze_chgOffset(Z, NONE, -1);
+                                        robot.pos.z = 0;
+                                    }
+
+                                    if(maze_getRampDir(robot.pos.z) == NONE) //Rampe unten noch nicht gesetzt
+                                    {
+                                        robot.pos.x = ROB_POS_X_MIN;
+                                        robot.pos.y = ROB_POS_Y_MIN;
+
+                                        maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
+                                        maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
+                                    }
+                                    else
+                                    {
+                                        robot.pos = *maze_getRamp(robot.pos.z);
+
+                                        switch(maze_getRampDir(robot.pos.z))
+                                        {
+                                            case NORTH:	robot.pos.y--;	break;
+                                            case EAST:	robot.pos.x--;	break;
+                                            case SOUTH:	robot.pos.y++;	break;
+                                            case WEST:	robot.pos.x++;	break;
+                                            default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
+                                                                fatal_err = 1;
+                                        }
+                                    }
+
+                                    maze_solve_state_path = DRIVE_READY;
+                                }
+
+                            break;
+
 			case DRIVE_NEUTRPOS:
 									
 									if(!drive_neutralPos())
@@ -718,8 +804,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										case 2:
 												if(!drive_dist(0,20,3))
 												{
-													displayvar[3] = abs(ramp_start - um6.theta_t);
-
 													if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) &&
 															(abs(ramp_start - um6.theta_t) < 4))
 													{
@@ -760,7 +844,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////Victim//////////////////////////////////
 
-		/*if((maze_solve_state_path >= DRIVE_DOT) &&
+        if((maze_solve_state_path >= DRIVE_DOT) &&
 			(maze_solve_state_path <= RAMP_DOWN))
 		{
 			if(timer_victim_led < 0) //Timer not running
@@ -772,7 +856,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 				{
 					if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
 					{
-						if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
+                        if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
 							//	(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
 							//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
 								(maze_getVictim(&robot.pos, robot.dir+3) == 0))
@@ -877,7 +961,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 			ui_setLED(-1, 255);
 			ui_setLED(1, 255);
-		}*/
+        }
 	}
 
 	return returnvar;
@@ -1040,8 +1124,8 @@ void maze_localize(void)
 	MATCHSTAGES matchStages;
 	COORD sizediff[MAZE_SIZE_Z];
 
-	COORD savestage_size;
-	COORD overwrite_orig, overwrite_pos_save;
+//	COORD savestage_size;
+//	COORD overwrite_orig, overwrite_pos_save;
 
 	switch(locRequest)
 	{
@@ -1351,26 +1435,23 @@ void u8g_DrawMaze(void)
 								u8g_DrawPixel(&u8g,disp_x + wall_size_part - 2, disp_y - wall_size_part + 2);
 							}
 
-							uint8_t ramp_dir = maze_getRampPosDir(&_maze);
+                         //   uint8_t ramp_dir = maze_getRampPosDir(&_maze);
 
-							for(uint8_t i = 0; i < 6; i++)
-							{
-								COORD checkpoint_disp = *maze_getCheckpoint(robot.pos.z, i);
+                            COORD checkpoint_disp = *maze_getCheckpoint(&robot.pos);
 
-								if((_maze.x == checkpoint_disp.x) && (_maze.y == checkpoint_disp.y)) //Where is the checkpoint?
-								{
-									u8g_DrawLine(&u8g, disp_x, disp_y, disp_x + wall_size_part, disp_y - wall_size_part);
-									u8g_DrawLine(&u8g, disp_x, disp_y - wall_size_part, disp_x + wall_size_part, disp_y);
-								}
-								else if((maze_getDepthsearch(&_maze, NONE) < 0xff) && (wall_size_part > 6))
-								{
-									if((disp_x + wall_size_part < MAPEND_PART_X) &&
-									   (disp_y - wall_size_part > MAPEND_PART_Y_TOP))
-									{
-										u8g_DrawLong(disp_x+2, 	disp_y-2, maze_getDepthsearch(&_maze, NONE));
-									}
-								}
-							}
+                            if((_maze.x == checkpoint_disp.x) && (_maze.y == checkpoint_disp.y)) //Where is the checkpoint?
+                            {
+                                u8g_DrawLine(&u8g, disp_x, disp_y, disp_x + wall_size_part, disp_y - wall_size_part);
+                                u8g_DrawLine(&u8g, disp_x, disp_y - wall_size_part, disp_x + wall_size_part, disp_y);
+                            }
+                            else if((maze_getDepthsearch(&_maze, NONE) < 0xff) && (wall_size_part > 6))
+                            {
+                                if((disp_x + wall_size_part < MAPEND_PART_X) &&
+                                   (disp_y - wall_size_part > MAPEND_PART_Y_TOP))
+                                {
+                                    u8g_DrawLong(disp_x+2, 	disp_y-2, maze_getDepthsearch(&_maze, NONE));
+                                }
+                            }
 						}
 					}
 
