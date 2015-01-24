@@ -1605,7 +1605,7 @@ void maze_init(void)
 		maze_clearStage(maze_z, &clear);
 	}
 	
-	for(int8_t i = 0; i < MAZE_SIZE_Y; i++)
+	for(int8_t i = 0; i < MAZE_SIZE_Z; i++)
 	{
 		offset[i].x = 0;
 		offset[i].y = 0;

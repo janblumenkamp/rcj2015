@@ -7,7 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-enum DOT_RETURN_STATES  {DOT_RET_READY, AB_15, NOW_15, UD_15, DOT_RET_ALIGN, DOT_RET_INIT, AT_15}; //AB = ABove, UD = UnDer, AT = AborT
+#ifndef DRIVE_H
+#define DRIVE_H
+
 enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT_WEST, DOT_ROT_EAST, DOT_COMP_ENC, DOT_CORR, DOT_ALIGN_WALL, DOT_END};
 
 #define MAXSPEED 100
@@ -49,6 +51,31 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define STEER_ALIGN_BACK_END	2	//Below this steering the alignment on the back is good and stops.
 #define STEER_DOT_ALIGN_TOP_END		2	//----------------"----------------------- top --------"---------
 
+
+#define TIMER_DOT_ALIGN			3000 //So lange wird maximal vorne/hinten angepasst
+
+typedef struct _dot DOT;
+
+struct _dot {
+	unsigned state:7; //statemachine
+	unsigned abort:1; //abort driving one tile, drive back!
+
+	uint32_t timer; //Timer for all drive functions (to abort after time...)
+
+	int16_t dist_r_old; //Last sensor distance (avoid huge jumps)
+	int16_t dist_l_old;
+
+	uint8_t aligned_turn; //The robot had to align via the front Sensors (collision avoidance)?
+
+	int32_t enc_comp[2]; //Compare angle of robot (driven not straight? Has to correct angle (important if there is no wall)?)
+	int16_t corr_angle;
+
+	int32_t enc_lr_start;
+	int16_t enc_lr_add; //Add this length to the distance-to-drive after an (avoided) collision
+
+	int16_t um6_phi_t_start; //Slow down when getting odd (Ramp etc.)
+};
+
 /////////////////////////////////////////////////////////////////////////////////////
 ///
 /// drive align
@@ -66,9 +93,13 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 
 #define STEER_ALIGN_DONE 1
 
+#define TIMER_ALIGN	500 //Maximal so lange ausrichten, dann abbrechen
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 ///drive_rotate
+
+#define TIMER_ROTATE	1000 //Wenn steer zu klein und Opfererkennung => zurücksetzen => dreht nicht => abbrechen
 
 #define ENC_DEGROTFAC 4.8
 extern uint8_t rotate_progress;
@@ -76,9 +107,13 @@ extern uint8_t rotate_progress;
 extern int8_t ramp_checkpoint;
 
 ////////////////////////////////////////////////////////////////////////////////////
+
+#define TIMER_ALIGN_BACK 2000
+
+////////////////////////////////////////////////////////////////////////////////////
 extern int32_t enc_lr_start_dot;
 
-extern uint8_t drive_oneTile(uint8_t abort);
+extern uint8_t drive_oneTile(DOT *d);
 
 extern uint8_t drive_ramp(int8_t speed_ramp_to);
 
@@ -104,4 +139,6 @@ extern uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width);
 
 extern uint8_t drive_dist(int8_t motor, int8_t speed_dd_to, int8_t dist_cm); //motor: <0 links, 0 beide, >0 rechts
 
-extern void drive_reset(void);
+extern void drive_reset(DOT *d);
+
+#endif

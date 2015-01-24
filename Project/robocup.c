@@ -172,7 +172,6 @@ int8_t timer_entpr_tast = 0;
 int8_t timer_incr_entpr = 0;
 int8_t timer_bt_is_busy = 0;
 int8_t timer_disp_msg = 0;
-int16_t timer_drive = -1; //Universaltimer
 int8_t timer_get_tast = 0;
 int16_t timer_rdy_restart = -1;
 int8_t timer_map_wall_r = 0;
@@ -187,8 +186,6 @@ uint32_t timer = 0; //Timer, resolution 1ms, continuisly incrementing in the sch
 
 ISR(TIMER1_COMPA_vect) //1kHz
 {
-	timer++;
-
 	for(uint8_t i = 0; i < TASKS_NUM; i++) 					// Heart of scheduler code
 	{
 		if((tasks[i].elapsedTime >= tasks[i].period)	// Task ready
@@ -333,7 +330,7 @@ int main(void)
 			}
 			else if((timer_get_tast == 0) && hold_t1)
 			{
-				drive_reset(); //Fahrfunktionen zurücksetzen
+				drive_reset(&dot); //Fahrfunktionen zurücksetzen
 				maze_clearDepthsearch();
 					maze_solve_state_path = DRIVE_READY;
 					routeRequest = RR_WAIT;
@@ -483,13 +480,32 @@ int main(void)
 int8_t testvar = 0;
 uint8_t groundvar = 0;
 
+DOT testdot;
+
 int8_t task_maze(int8_t state)
 {
 	if(setup == 0)
 	{
 		maze_solve();
 		//victim_check();
-    }
+	}
+
+	/*if(testvar == 1)
+	{
+		drive_oneTile(&testdot);
+		if(testdot.state == DOT_END)
+			testvar = 0;
+		if(mot.enc > (dot.enc_lr_start + dot.enc_lr_add + (1 * ENC_FAC_CM_LR)))
+		{
+			if(get_incrOk())
+				testdot.abort = 1;
+		}
+	}
+	else
+	{
+		if(get_incrOk())
+			testvar = 1;
+	}*/
 
 	return 0;
 }
@@ -588,6 +604,7 @@ int8_t task_timer(int8_t state)
 
 	//////Timer/////////////
 
+	timer++;
 	timer_25ms ++;
 	if(timer_25ms == 25) //40Hz
 	{
@@ -599,8 +616,6 @@ int8_t task_timer(int8_t state)
 			timer_incr_entpr --;
 		if(timer_bt_is_busy > 0)
 			timer_bt_is_busy --;
-		if(timer_drive > 0)
-			timer_drive --;
 		if(timer_disp_msg > 0)
 			timer_disp_msg --;
 		if(timer_get_tast > 0)

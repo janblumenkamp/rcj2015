@@ -75,11 +75,8 @@ extern int32_t incremental;
 #define TIMER_GET_TAST		50/25	//So lange muss der Taster gedrückt werden, bis eine Eingabe registriert wird
 #define TIMER_ENTPR_INCR	500/25  //Timer zum Entprellen von incr_ok
 #define TIMER_BT_IS_BUSY	127 //Timer für Bluetooth DIsplayanzeige (Nach Funkstille Anzeige deaktivieren)
-#define TIMER_ALIGN_DEAD	500/25 //Maximal so lange ausrichten, dann abbrechen
 #define TIMER_DISP_MSG		127 //Bei mehreren Statusmeldungen werden die der Reihe nach oben angezeigt.
-#define TIMER_ROTATE_DEAD	1000/25 //Wenn steer zu klein und Opfererkennung => zurücksetzen => dreht nicht => abbrechen
 #define TIMER_RDY_RESTART	15000/25 //Nachdem Labyrinth (vermeintlich?) fertig, wrid nach TIMER neugestartet.
-#define TIMER_ALIGN			3000/25 //So lange wird maximal vorne/hinten angepasst
 #define TIMER_MAP_WALL_R	50/25		//Wait this time until the wallvalues will be refreshed again (let the distance sensros time to refresh)
 #define TIMER_LOP_SENSOR	1000/25 //The groundsens has to be above it’s threshold for this time
 #define TIMER_LOP_RESET		5000/25 //After an LOP was detected (the robot was lifted) and set down again, the robot waits this time until it proceeds
@@ -91,7 +88,6 @@ extern int8_t timer_entpr_tast;
 extern int8_t timer_incr_entpr;
 extern int8_t timer_bt_is_busy;
 extern int8_t timer_disp_msg;
-extern int16_t timer_drive;
 extern int8_t timer_get_tast;
 extern int16_t timer_rdy_restart;
 extern int8_t timer_map_wall_r;

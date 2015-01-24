@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "drive.h"
 
 enum QUARTERS {NONE, NORTH, EAST, SOUTH, WEST};
 
@@ -137,6 +138,7 @@ extern POS ramp[MAZE_SIZE_Z];	//Rampenanschlüsse
 
 extern MATCHINGWALLS matchingWalls;
 
+extern DOT dot; //drive one tail main struct!
 //Display
 
 #define WALL_SIZE_MAX 40
@@ -148,7 +150,7 @@ extern MATCHINGWALLS matchingWalls;
 
 ///////
 enum MAZE_STATE_SOLVE { DRIVE_READY, FOLLOW_RIGHTWALL, FOLLOW_DFS, MAZE_ERR, RESTART, LOP_INIT, LOP_WAIT,
-												DRIVE_DOT, TURN_RIGHT, TURN_LEFT, RAMP_UP, RAMP_DOWN, DRIVE_NEUTRPOS,
+												DRIVE_DOT, DRIVE_DOT_DRIVE, TURN_RIGHT, TURN_LEFT, RAMP_UP, RAMP_DOWN, DRIVE_NEUTRPOS,
 												VIC_DEPL_L, VIC_DEPL_R, VIC_DEPL, CHECK_BLACKTILE};
 
 enum MAZE_STATE_DRIVE_READY { DR_INIT, DR_UPDATEWALLS, DR_UPDATEVICTIMS, DR_CHECK, DR_MATCH}; //DR = DriveReady
