@@ -472,83 +472,51 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								drive_oneTile(&dot);
 
-								switch(driveDot_state)
+								//We are driving straight (direction defined by dot.abort) and are in the first segment of the tile.
+								if((mot.enc > (dot.enc_lr_start + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort && !driveDot_state)
 								{
-									case 0:
-												//We are driving straight (direction defined by dot.abort) and are in the first segment of the tile.
-												if((mot.enc > (dot.enc_lr_start + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort)
-												{
-													switch(robot.dir)
-													{
-														case NORTH:	robot.pos.y++;	break;
-														case EAST:	robot.pos.x++;	break;
-														case SOUTH:	robot.pos.y--;	break;
-														case WEST:	robot.pos.x--;	break;
-														default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-																			fatal_err = 1;
-													}
-													driveDot_state = 2; //Check for nessesary map shiftings
-												}
-											break;
+									switch(robot.dir)
+									{
+										case NORTH:	robot.pos.y++;	break;
+										case EAST:	robot.pos.x++;	break;
+										case SOUTH:	robot.pos.y--;	break;
+										case WEST:	robot.pos.x--;	break;
+										default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
+															fatal_err = 1;
+									}
 
-									case 1: //We already changed the position (we are still driving (dot.abort indicates in which direction) and if we already changed the position we will re-change it on the right point
-												if((mot.enc < (dot.enc_lr_start + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && dot.abort)
-												{
-													switch(robot.dir)
-													{
-														case NORTH:	robot.pos.y++;	break;
-														case EAST:	robot.pos.x++;	break;
-														case SOUTH:	robot.pos.y--;	break;
-														case WEST:	robot.pos.x--;	break;
-														default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-																			fatal_err = 1;
-													}
-													driveDot_state = 3; //Check for nessesary map shiftings
-												}
-											break;
+									if(robot.pos.x < ROB_POS_X_MIN)
+									{
+										maze_chgOffset(X, robot.pos.z, -1);
+										robot.pos.x ++;
+									}
+									else if(robot.pos.x >= (MAZE_SIZE_X-1))
+									{
+										robot.pos.x = (MAZE_SIZE_X-2);
+										maze_solve_state_path = RESTART;
 
-									case 2: //Check for nessesary map shiftings
-									case 3:
+										if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.x:MEMORY_TOO_SMALL:RESTART"));}
+									}
 
-											if(robot.pos.x < ROB_POS_X_MIN)
-											{
-												maze_chgOffset(X, robot.pos.z, -1);
-												robot.pos.x ++;
-											}
-											else if(robot.pos.x >= (MAZE_SIZE_X-1))
-											{
-												robot.pos.x = (MAZE_SIZE_X-2);
-												maze_solve_state_path = RESTART;
+									if(robot.pos.y < ROB_POS_Y_MIN)
+									{
+										maze_chgOffset(Y, robot.pos.z, -1);
+										robot.pos.y ++;
+									}
+									else if(robot.pos.y >= (MAZE_SIZE_Y-1))
+									{
+										robot.pos.y = (MAZE_SIZE_Y-2);
+										maze_solve_state_path = RESTART;
 
-												if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.x:MEMORY_TOO_SMALL:RESTART"));}
-											}
-
-											if(robot.pos.y < ROB_POS_Y_MIN)
-											{
-												maze_chgOffset(Y, robot.pos.z, -1);
-												robot.pos.y ++;
-											}
-											else if(robot.pos.y >= (MAZE_SIZE_Y-1))
-											{
-												robot.pos.y = (MAZE_SIZE_Y-2);
-												maze_solve_state_path = RESTART;
-
-												if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.y:MEMORY_TOO_SMALL:RESTART"));}
-											}
-
-											if(driveDot_state == 2)
-												driveDot_state = 1;
-											else// if(driveDot_state == 3)
-												driveDot_state = 0;
-
-										break;
-
+										if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.y:MEMORY_TOO_SMALL:RESTART"));}
+									}
+									driveDot_state = 1; //Position changed
 								}
 
 								if(dot.state == DOT_DRIVE) //Driving straight, not aligning -> Check for ground tiles
 								{
 									//////Check for Black and silver tile
-									/*if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && (dot.abort == 0))
+									if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && (dot.abort == 0))
 									{
 										maze_solve_state_path = CHECK_BLACKTILE;
 									}
@@ -556,7 +524,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									//	maze_corrGround(&robot.pos, robot.dir, -1);
 
 									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 1)) //already switched to next tile
-										groundsens_cnt ++;*/
+										groundsens_cnt ++;
 								}
 								else if(dot.state == DOT_END)
 								{
@@ -647,7 +615,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 							break;
 								
-			case RAMP_UP:
+		case RAMP_UP:
 								if(drive_ramp(RAMP_UP_SPEED) == 0)
 								{
 									robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
@@ -720,7 +688,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 							break;
 
-			case DRIVE_NEUTRPOS:
+		case DRIVE_NEUTRPOS:
 									
 									if(!drive_neutralPos())
 									{
@@ -729,7 +697,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									
 								break;
 
-			case VIC_DEPL_L:
+		case VIC_DEPL_L:
 
 									if(!drive_deployResKit(LEFT, 1))
 									{
@@ -744,7 +712,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										}
 									}
 								break;
-			case VIC_DEPL_R:
+		case VIC_DEPL_R:
 
 									//maze_solve_state_path - VIC_DEPL_L == LEFT for VIC_DEPL_L, otherwise RIGHT
 
@@ -762,7 +730,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								break;
 
-			case VIC_DEPL:
+		case VIC_DEPL:
 
 									if(!rescueKit_drop(2))
 									{
@@ -774,13 +742,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								break;
 
-			case CHECK_BLACKTILE:
+		case CHECK_BLACKTILE:
 
 									switch(maze_solve_check_blacktile)
 									{
 										case 0:
 
-												if(!drive_dist(0,20,3))
+												if(!drive_dist(0,20,2))
 												{
 													if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE))
 													{
@@ -796,7 +764,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										case 1:
 
-												if(!drive_dist(0,20,3))
+												if(!drive_dist(0,20,2))
 												{
 													if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE))
 													{
@@ -811,16 +779,30 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											break;
 
 										case 2:
-												if(!drive_dist(0,20,3))
+												if(!drive_dist(0,20,2))
 												{
-													if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) &&
-															(abs(ramp_start - um6.theta_t) < 4))
+													if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) )//&&
+															//(abs(ramp_start - um6.theta_t) < 4))
 													{
 														dot.abort = 1;
 														if(driveDot_state == 0) //We are still on the old tile (bevore the crossing)
+														{
 															maze_corrGround(&robot.pos, robot.dir, 2);
+														}
 														else //We are already on the next tile
+														{
+															driveDot_state = 0;
 															maze_corrGround(&robot.pos, NONE, 2);
+															switch(robot.dir)
+															{
+																case NORTH:	robot.pos.y--;	break;
+																case EAST:	robot.pos.x--;	break;
+																case SOUTH:	robot.pos.y++;	break;
+																case WEST:	robot.pos.x++;	break;
+																default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
+																					fatal_err = 1;
+															}
+														}
 													}
 													else
 													{
@@ -834,7 +816,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										case 3 ... 5:
 
-											if(!drive_dist(0,20,-((maze_solve_check_blacktile-2)*3)))
+											if(!drive_dist(0,20,-((maze_solve_check_blacktile-2)*2)))
 											{
 												maze_solve_state_path = DRIVE_DOT;
 												maze_solve_check_blacktile = 0;

@@ -19,7 +19,7 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define ENC_FAC_CM_R 22
 #define ENC_FAC_CM_LR 22.5
 
-#define TILE1_FRONT_FRONT 		90	//mm
+#define TILE1_FRONT_FRONT 		70	//mm
 #define TILE1_FRONT_TH_FRONT	240
 #define TILE1_BACK_BACK			70	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
 #define TILE1_BACK_TH_BACK		250	//Gibt es eine Wand hinter dem Roboter auf dieser Fliese?
@@ -74,6 +74,8 @@ struct _dot {
 	int16_t enc_lr_add; //Add this length to the distance-to-drive after an (avoided) collision
 
 	int16_t um6_phi_t_start; //Slow down when getting odd (Ramp etc.)
+
+	int16_t steer; //Steering value for all the steering stuff. Has to be global, dont know why.
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

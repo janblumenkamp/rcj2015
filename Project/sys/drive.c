@@ -45,8 +45,6 @@ uint8_t drive_oneTile(DOT *d)
 
 	int16_t rel_angle = 0;
 
-	int16_t steer = 0;
-
 	int16_t robot_angleToRightWall = robot_getAngleToWall(EAST);
 	int16_t robot_angleToLeftWall = robot_getAngleToWall(WEST);
 
@@ -90,19 +88,17 @@ uint8_t drive_oneTile(DOT *d)
 						
 		case DOT_ALIGN_BACK:
 		
-							steer = ((TILE1_BACK_BACK - (dist[LIN][BACK][BACK])) * KP_ALIGN_BACK);
+							d->steer = ((TILE1_BACK_BACK - (dist[LIN][BACK][BACK])) * KP_ALIGN_BACK);
 							
-							mot.d[LEFT].speed.to = steer;
-							mot.d[RIGHT].speed.to = steer;
+							mot.d[LEFT].speed.to = d->steer;
+							mot.d[RIGHT].speed.to = d->steer;
 						
 							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
 						
-							if((abs(steer) <= STEER_ALIGN_BACK_END) || //Aligned well enough
+							if((abs(d->steer) <= STEER_ALIGN_BACK_END) || //Aligned well enough
 							   ((timer - d->timer) > TIMER_DOT_ALIGN) || //Aligned for too long
 								((dist[LIN][BACK][BACK] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][LEFT] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][RIGHT] > TILE1_BACK_TH_BACK)))
 							{
-								displayvar[0] = (timer - d->timer);
-
 								d->state = DOT_ALIGN;
 								d->enc_lr_start = mot.enc;
 								d->timer = 0; //Unactivate timer
@@ -132,12 +128,12 @@ uint8_t drive_oneTile(DOT *d)
 							{
 								if(sensinfo.newDat.left && sensinfo.newDat.right)
 								{
-									if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])								
-										steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
+									if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
+										d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
 									else
-										steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
+										d->steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
 							
-									steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
+									d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
 								
 									sensinfo.newDat.left = 0;
 									sensinfo.newDat.right = 0;
@@ -149,115 +145,122 @@ uint8_t drive_oneTile(DOT *d)
 								if(sensinfo.newDat.left && sensinfo.newDat.right)
 								{
 									if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-										steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
+										d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
 									else
-										steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
+										d->steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
 							
-									steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
+									d->steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
 									
 									sensinfo.newDat.left = 0;
 									sensinfo.newDat.right = 0;
 								}
 							}
-							else	steer = 0;
-							
+							else
+							{
+								d->steer = 0;
+							}
+
 							d->dist_l_old = dist[LIN][LEFT][FRONT];
 							d->dist_r_old = dist[LIN][RIGHT][FRONT];
 							
 							////////////////////////////////////////////////////////////////////////
 							////////Ziel erreicht? Kollision? Sollgeschwindigkeiten berechnen///////
 
-                            if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-                                (dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-								(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add)) &&
-                                (rel_angle < 20)) ||
-
-                                get_bumpR() ||
-
-                               ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
-                                (dist[LIN][RIGHT][FRONT] < 15)))
-                            {
-								d->aligned_turn = WEST;
-
-								mot.d[LEFT].speed.to = -SPEED_COLLISION_AVOIDANCE;
-                                mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
-                            }
-                            else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-                                     (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-									 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add)) &&
-                                     (rel_angle < 20)) ||
-
-                                    get_bumpL() ||
-
-                                    ((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
-                                     (dist[LIN][LEFT][FRONT] < 15)))
-                            {
-								d->aligned_turn = EAST;
-
-								mot.d[LEFT].speed.to = SPEED_COLLISION_AVOIDANCE;
-								mot.d[RIGHT].speed.to = -SPEED_COLLISION_AVOIDANCE;
-                            }
-							else if(d->aligned_turn == WEST) //Robot had to align via front sensors or bumpers. Now add a small alignment (turn a bit more in the corresponding direction)
+							if(d->abort)
 							{
-								d->state = DOT_ROT_WEST;
-							}
-							else if(d->aligned_turn == EAST)
-							{
-								d->state = DOT_ROT_EAST;
-							}
-							else if((dist[LIN][FRONT][LEFT] < TILE1_FRONT_TH_FRONT) &&
-									(dist[LIN][FRONT][FRONT] < TILE1_FRONT_TH_FRONT) &&
-									(dist[LIN][FRONT][RIGHT] < TILE1_FRONT_TH_FRONT))
-							{
-								if(d->timer == 0)
-								{
-									d->timer = timer;
-								}
-								else if((timer - d->timer) > TIMER_DOT_ALIGN)
+								if(mot.enc < d->enc_lr_start) //There is a request to drive back - drive back until we reach the same encoder dist as start
 								{
 									d->state = DOT_COMP_ENC; //End, compare angle of the robot
+									mot.d[LEFT].speed.to = 0;
+									mot.d[RIGHT].speed.to = 0;
 								}
 								else
 								{
-									steer = ((TILE1_FRONT_FRONT - (dist[LIN][FRONT][FRONT])) * (-KP_ALIGN_FRONT));
-					
-									mot.d[LEFT].speed.to = steer;
-									mot.d[RIGHT].speed.to = steer;
-				
-									drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
-				
-									if(abs(steer) <= STEER_ALIGN_BACK_END)
-									{
-										d->state = DOT_COMP_ENC; //End, compare angle of the robot
-										mot.d[LEFT].speed.to = 0;
-										mot.d[RIGHT].speed.to = 0;
-									}
+									maxspeed /= 2;
+									mot.d[LEFT].speed.to = -(maxspeed + d->steer);
+									mot.d[RIGHT].speed.to = -(maxspeed - d->steer);
 								}
 							}
-							else if((mot.enc > (d->enc_lr_start + (TILE_LENGTH * ENC_FAC_CM_LR) + d->enc_lr_add)) &&  //driven 30cm
-											(d->abort == 0)) //And no request to abort?
+							else
 							{
-								d->state = DOT_COMP_ENC; //End, compare angle of the robot
-								mot.d[LEFT].speed.to = 0;
-								mot.d[RIGHT].speed.to = 0;
-							}
-							else if((mot.enc < d->enc_lr_start) && //There is a request to drive back - drive back until we reach the same encoder dist as start
-											(d->abort != 0))
-							{
-								d->state = DOT_COMP_ENC; //End, compare angle of the robot
-								mot.d[LEFT].speed.to = 0;
-								mot.d[RIGHT].speed.to = 0;
-							}
-							else if(d->abort != 0) //Drive back until...
-							{
-								maxspeed /= 2;
-								mot.d[LEFT].speed.to = -(maxspeed + steer);
-								mot.d[RIGHT].speed.to = -(maxspeed - steer);
-							}
-							else //Normal driving forward
-							{
-								mot.d[LEFT].speed.to = (maxspeed - steer);
-								mot.d[RIGHT].speed.to = (maxspeed + steer);
+								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add)) &&
+									(rel_angle < 20)) ||
+
+									get_bumpR() ||
+
+								   ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
+									(dist[LIN][RIGHT][FRONT] < 15)))
+								{
+									d->aligned_turn = WEST;
+
+									mot.d[LEFT].speed.to = -SPEED_COLLISION_AVOIDANCE;
+									mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
+								}
+								else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add)) &&
+										 (rel_angle < 20)) ||
+
+										get_bumpL() ||
+
+										((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
+										 (dist[LIN][LEFT][FRONT] < 15)))
+								{
+									d->aligned_turn = EAST;
+
+									mot.d[LEFT].speed.to = SPEED_COLLISION_AVOIDANCE;
+									mot.d[RIGHT].speed.to = -SPEED_COLLISION_AVOIDANCE;
+								}
+								else if(d->aligned_turn == WEST) //Robot had to align via front sensors or bumpers. Now add a small alignment (turn a bit more in the corresponding direction)
+								{
+									d->state = DOT_ROT_WEST;
+								}
+								else if(d->aligned_turn == EAST)
+								{
+									d->state = DOT_ROT_EAST;
+								}
+								else if((dist[LIN][FRONT][LEFT] < TILE1_FRONT_TH_FRONT) &&
+										(dist[LIN][FRONT][FRONT] < TILE1_FRONT_TH_FRONT) &&
+										(dist[LIN][FRONT][RIGHT] < TILE1_FRONT_TH_FRONT))
+								{
+									if(d->timer == 0)
+									{
+										d->timer = timer;
+									}
+									else if((timer - d->timer) > TIMER_DOT_ALIGN)
+									{
+										d->state = DOT_COMP_ENC; //End, compare angle of the robot
+									}
+									else
+									{
+										d->steer = ((TILE1_FRONT_FRONT - (dist[LIN][FRONT][FRONT])) * (-KP_ALIGN_FRONT));
+
+										mot.d[LEFT].speed.to = d->steer;
+										mot.d[RIGHT].speed.to = d->steer;
+
+										drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
+
+										if(abs(d->steer) <= STEER_ALIGN_BACK_END)
+										{
+											d->state = DOT_COMP_ENC; //End, compare angle of the robot
+											mot.d[LEFT].speed.to = 0;
+											mot.d[RIGHT].speed.to = 0;
+										}
+									}
+								}
+								else if(mot.enc > (d->enc_lr_start + (TILE_LENGTH * ENC_FAC_CM_LR) + d->enc_lr_add))  //driven 30cm
+								{
+									d->state = DOT_COMP_ENC; //End, compare angle of the robot
+									mot.d[LEFT].speed.to = 0;
+									mot.d[RIGHT].speed.to = 0;
+								}
+								else //Normal driving forward
+								{
+									mot.d[LEFT].speed.to = (maxspeed - d->steer);
+									mot.d[RIGHT].speed.to = (maxspeed + d->steer);
+								}
 							}
 
 							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
@@ -271,7 +274,6 @@ uint8_t drive_oneTile(DOT *d)
 								d->state = DOT_DRIVE;
 								d->aligned_turn = NONE;
 
-								displayvar[1] ++;
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
 								{
 									d->enc_lr_add += DIST_ADD_COLLISION * ENC_FAC_CM_LR;
@@ -286,8 +288,6 @@ uint8_t drive_oneTile(DOT *d)
 								d->state = DOT_DRIVE;
 								d->aligned_turn = NONE;
 
-								displayvar[0] ++;
-
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
 								{
 									d->enc_lr_add += DIST_ADD_COLLISION * ENC_FAC_CM_LR;
@@ -298,10 +298,8 @@ uint8_t drive_oneTile(DOT *d)
 
 		case DOT_COMP_ENC:
 
-							if(abs((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT])) > 60)
+							if(abs((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT])) > 100)
 							{
-								displayvar[4] = abs((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT]));
-
 								if(robot_getAngleToWall(NONE) == GETANGLE_NOANGLE)
 								{
 									d->corr_angle = ((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT]))/13;
@@ -310,8 +308,6 @@ uint8_t drive_oneTile(DOT *d)
 										d->corr_angle = 30;
 									else if(d->corr_angle < -30)
 										d->corr_angle = -30;
-
-									displayvar[5] = d->corr_angle;
 
 									d->state = DOT_CORR;
 								}
@@ -871,8 +867,8 @@ uint8_t drive_ramp(int8_t speed)
 	else if((((mot.enc - ramp_checkpoint_enc)/ENC_FAC_CM_LR) >= 30) && (ramp_checkpoint == 2))
 		ramp_checkpoint = 1;
 
-	displayvar[4] = ramp_checkpoint;
-	displayvar[5] = ((mot.enc - ramp_checkpoint_enc)/ENC_FAC_CM_LR);
+	//displayvar[4] = ramp_checkpoint;
+	//displayvar[5] = ((mot.enc - ramp_checkpoint_enc)/ENC_FAC_CM_LR);
 
 /////////////fertig?/////////////
 	uint8_t returnvar = 1;

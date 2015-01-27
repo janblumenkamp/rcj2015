@@ -483,7 +483,7 @@ uint8_t groundvar = 0;
 DOT testdot;
 
 int8_t task_maze(int8_t state)
-{
+{	
 	if(setup == 0)
 	{
 		maze_solve();
@@ -492,12 +492,18 @@ int8_t task_maze(int8_t state)
 
 	/*if(testvar == 1)
 	{
+		COORD c;
+		c.x = 1;
+		c.y = 1;
+		c.z = 0;
+
+		maze_setWall(&c, SOUTH, 100);
 		drive_oneTile(&testdot);
 		if(testdot.state == DOT_END)
 			testvar = 0;
-		if(mot.enc > (dot.enc_lr_start + dot.enc_lr_add + (1 * ENC_FAC_CM_LR)))
+		if(mot.enc > (testdot.enc_lr_start + (0.5 * ENC_FAC_CM_LR)))
 		{
-			if(get_incrOk())
+			//if(get_incrOk())
 				testdot.abort = 1;
 		}
 	}
