@@ -30,8 +30,6 @@ OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset
 COORD rr_result; //RouteRequest result positions
 COORD off_start; //offset startposition (change startposition via rotary-encoder)
 POS robot; //Positionsdaten über Roboter
-POS robot_save;
-	int8_t rob_z_lost; //Stage in which the robot lost his position
 POS checkpoint;
 POS ramp[MAZE_SIZE_Z];		//Rampenanschlüsse
 
@@ -114,128 +112,34 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 													mot.d[LEFT].speed.to = 0;
 													mot.d[RIGHT].speed.to = 0;
 
-													robot_save.dir = robot.dir; //Has to be robot.dir to compare it with robot.pos!!!
-													robot_save.pos.x = MAZE_SIZE_X_USABLE-1; //Upper right tile, the size  has to be dimensioned so that the robot will never reach this tile!
-													robot_save.pos.y = MAZE_SIZE_Y_USABLE-1;
-													robot_save.pos.z = MAZE_SAVESTAGE;
-
 													maze_solve_state_ready = DR_UPDATEWALLS;
 
 										case DR_UPDATEWALLS:
 
 													if(maze_updateWalls()) //Save the walls around the robot in the MAZE_SAVESTAGE to compare it later with the environment
 													{
-														maze_solve_state_ready = DR_UPDATEVICTIMS;
+														maze_solve_state_ready = DR_CHECK;
 													}
 
 												break;
 
-										case DR_UPDATEVICTIMS:
-
-													//if(victim_check())
-													//{
-														maze_solve_state_ready = DR_CHECK;
-													//}
-
-												//break;
-
 										case DR_CHECK:
 
-													matchingWalls.buffer[matchingWalls.next] = 0;
-													for(uint8_t dir = NORTH; dir <= WEST; dir++)
+													maze_setBeenthere(&robot.pos, NONE, TRUE);
+
+													if(((!maze_getBeenthere(&robot.pos, NORTH)) && maze_tileIsVisitable(&robot.pos, NORTH)) ||
+														 ((!maze_getBeenthere(&robot.pos, EAST)) && maze_tileIsVisitable(&robot.pos, EAST)) ||
+														 ((!maze_getBeenthere(&robot.pos, SOUTH)) && maze_tileIsVisitable(&robot.pos, SOUTH)) ||
+														 ((!maze_getBeenthere(&robot.pos, WEST)) && maze_tileIsVisitable(&robot.pos, WEST)))
 													{
-														if(((maze_getWall(&robot.pos, dir) >= 0) && (maze_getWall(&robot_save.pos, dir) >= 0)) ||
-															 ((maze_getWall(&robot.pos, dir) <= 0) && (maze_getWall(&robot_save.pos, dir) <= 0)))
-														{
-															matchingWalls.buffer[matchingWalls.next] ++;
-														}
-													}
-
-													//displayvar[0] = matchingWalls.buffer[matchingWalls.next];
-
-													matchingWalls.lowmatches = 0;
-													for(uint8_t i = 0; i < MATCHINGWALLS_BUFF; i++)
-													{
-														if((matchingWalls.buffer[i] > 0) &&
-																(matchingWalls.buffer[i] < 4))
-															matchingWalls.lowmatches ++;
-													}
-
-													//displayvar[1] = matchingWalls.lowmatches;
-
-													if(1)//(matchingWalls.buffer[matchingWalls.next] > 2) &&  //The last buffer entry shows us enough matches
-													   //(matchingWalls.lowmatches < 4)) //In the last few tiles were not too many unsure mathces
-													{
-														maze_corrTile(&robot_save.pos, &robot.pos); //Copy the information of the savetile into the robots tile
-
-														for(uint8_t dir = NORTH; dir <= WEST; dir++)
-															maze_corrWall(&robot_save.pos, dir, -maze_getWall(&robot_save.pos, dir)); //and delete the information on the savetile
-
-														maze_setBeenthere(&robot.pos, NONE, TRUE);
-
-														if(((!maze_getBeenthere(&robot.pos, NORTH)) && maze_tileIsVisitable(&robot.pos, NORTH)) ||
-															 ((!maze_getBeenthere(&robot.pos, EAST)) && maze_tileIsVisitable(&robot.pos, EAST)) ||
-															 ((!maze_getBeenthere(&robot.pos, SOUTH)) && maze_tileIsVisitable(&robot.pos, SOUTH)) ||
-															 ((!maze_getBeenthere(&robot.pos, WEST)) && maze_tileIsVisitable(&robot.pos, WEST)))
-														{
-															maze_clearDepthsearch();
-															maze_solve_state_path = FOLLOW_RIGHTWALL; //When the program came into RESTART by RR_RTNOPOSS and there is suddenly an option (Wall wrong detected?) proceed!
-														}
-														else
-														{
-															maze_solve_state_path = FOLLOW_DFS; //Statemachine automatically jumps into FOLLOW_RIGHTWALL when there is no path possibility
-														}
+														maze_clearDepthsearch();
+														maze_solve_state_path = FOLLOW_RIGHTWALL; //When the program came into RESTART by RR_RTNOPOSS and there is suddenly an option (Wall wrong detected?) proceed!
 													}
 													else
 													{
-														for(uint8_t i = 0; i < MATCHINGWALLS_BUFF; i++)
-														{
-															matchingWalls.buffer[i] = 0;
-															matchingWalls.next = 0;
-															matchingWalls.lowmatches = 0;
-														}
-
-														//maze_clearStage(MAZE_SAVESTAGE);
-
-													/*	COORD c = robot.pos;
-														uint8_t maze_err_del_radius = 0;
-														uint8_t stage_visitedTiles = maze_stageGetVisitedTiles(robot.pos.z);
-														if(stage_visitedTiles > 15)
-															maze_err_del_radius = MAZE_ERR_DEL_RADIUS_S;
-														else if(stage_visitedTiles > 25)
-															maze_err_del_radius = MAZE_ERR_DEL_RADIUS_L;
-														for(c.y = robot.pos.y-maze_err_del_radius; c.y <= robot.pos.y+maze_err_del_radius; c.y++)
-														{
-															for(c.x = robot.pos.x-maze_err_del_radius; c.x <= robot.pos.x+maze_err_del_radius; c.x++)
-															{
-																if((c.x >= ROB_POS_X_MIN) && (c.x <= MAZE_SIZE_X_USABLE) &&
-																   (c.y >= ROB_POS_Y_MIN) && (c.y <= MAZE_SIZE_Y_USABLE))
-																		maze_clearTile(&c);
-															}
-														}*/
-
-														rob_z_lost = robot.pos.z;
-
-														robot = robot_save;
-														robot.pos.x = ROB_POS_X_MIN;
-														robot.pos.y = ROB_POS_Y_MIN;
-
-														maze_solve_state_path = DRIVE_NEUTRPOS;
+														maze_solve_state_path = FOLLOW_DFS; //Statemachine automatically jumps into FOLLOW_RIGHTWALL when there is no path possibility
 													}
-
-													matchingWalls.next ++; //FIFO
-													if(matchingWalls.next >= MATCHINGWALLS_BUFF)
-														matchingWalls.next = 0;
-
-													if(robot.pos.z == MAZE_SAVESTAGE)
-													{
-														locRequest = LR_MATCH;
-														maze_solve_state_ready = DR_MATCH;
-													}
-													else
-													{
-														maze_solve_state_ready = DR_INIT;
-													}
+													maze_solve_state_ready = DR_INIT;
 												break;
 										case DR_MATCH: //maze_solve_state_ready cleared in LocateRequest
 												break;
@@ -1061,29 +965,29 @@ uint8_t maze_updateWalls(void)
 				   sensinfo.newDat.right &&
 				   sensinfo.newDat.mid)
 				{
-					if((abs(maze_getWall(&robot_save.pos, NORTH)) <= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot_save.pos, EAST)) <= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot_save.pos, SOUTH)) <= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot_save.pos, WEST)) <= MAZE_ISWALL))
+					if((abs(maze_getWall(&robot.pos, NORTH)) <= MAZE_ISWALL) ||
+						 (abs(maze_getWall(&robot.pos, EAST)) <= MAZE_ISWALL) ||
+						 (abs(maze_getWall(&robot.pos, SOUTH)) <= MAZE_ISWALL) ||
+						 (abs(maze_getWall(&robot.pos, WEST)) <= MAZE_ISWALL))
 					{
 						//////////Wand rechts/////////////
-						maze_checkCorrWall(&robot_save.pos, RIGHT, FRONT, robot_save.dir+1, SIDE_TH, DIST_FR_FAC);
-						maze_checkCorrWall(&robot_save.pos, RIGHT, BACK, robot_save.dir+1, SIDE_TH, DIST_BA_FAC);
+						maze_checkCorrWall(&robot.pos, RIGHT, FRONT, robot.dir+1, SIDE_TH, DIST_FR_FAC);
+						maze_checkCorrWall(&robot.pos, RIGHT, BACK, robot.dir+1, SIDE_TH, DIST_BA_FAC);
 
 						//////////Wand links/////////////
 
-						maze_checkCorrWall(&robot_save.pos, LEFT, FRONT, robot_save.dir+3, SIDE_TH, DIST_FR_FAC);
-						maze_checkCorrWall(&robot_save.pos, LEFT, BACK, robot_save.dir+3, SIDE_TH, DIST_BA_FAC);
+						maze_checkCorrWall(&robot.pos, LEFT, FRONT, robot.dir+3, SIDE_TH, DIST_FR_FAC);
+						maze_checkCorrWall(&robot.pos, LEFT, BACK, robot.dir+3, SIDE_TH, DIST_BA_FAC);
 
 						//////////Wand vorne/////////////
-						maze_checkCorrWall(&robot_save.pos, FRONT, LEFT, robot_save.dir, FRONT_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot_save.pos, FRONT, RIGHT, robot_save.dir, FRONT_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot_save.pos, FRONT, FRONT, robot_save.dir, FRONT_FRONT_TH, DIST_FRFR_FAC);
+						maze_checkCorrWall(&robot.pos, FRONT, LEFT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
+						maze_checkCorrWall(&robot.pos, FRONT, RIGHT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
+						maze_checkCorrWall(&robot.pos, FRONT, FRONT, robot.dir, FRONT_FRONT_TH, DIST_FRFR_FAC);
 
 						//////////Wand hinten/////////////
-						maze_checkCorrWall(&robot_save.pos, BACK, LEFT, robot_save.dir+2, BACK_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot_save.pos, BACK, RIGHT, robot_save.dir+2, BACK_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot_save.pos, BACK, BACK, robot_save.dir+2, BACK_BACK_TH, DIST_BABA_FAC);
+						maze_checkCorrWall(&robot.pos, BACK, LEFT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
+						maze_checkCorrWall(&robot.pos, BACK, RIGHT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
+						maze_checkCorrWall(&robot.pos, BACK, BACK, robot.dir+2, BACK_BACK_TH, DIST_BABA_FAC);
 
 						/*sensinfo.newDat.left = 0;
 						sensinfo.newDat.right = 0;
@@ -1099,152 +1003,6 @@ uint8_t maze_updateWalls(void)
 	}
 
 	return returnvar;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Localize the robot, being in the MAZE_SAVESTAGE, in the maze
-////////////////////////////////////////////////////////////////////////////////
-
-uint8_t locRequest = LR_WAIT;
-
-uint8_t loc_ambiguity = 0;
-uint8_t loc_accordance = 0;
-
-void maze_localize(void)
-{
-	MATCHSTAGES matchStages;
-	COORD sizediff[MAZE_SIZE_Z];
-
-//	COORD savestage_size;
-//	COORD overwrite_orig, overwrite_pos_save;
-
-	switch(locRequest)
-	{
-		case LR_WAIT: break; //Has to be checked in maze_solve
-		
-		case LR_MATCH:
-		
-					for(uint8_t i = 0; i < MAZE_SIZE_Z; i++)
-					{
-						sizediff[i].z = i;
-						maze_stageGetSize(&sizediff[i]);
-					}
-					for(uint8_t i = 0; i < MAZE_SAVESTAGE; i++)
-					{
-						sizediff[i].x -= sizediff[MAZE_SAVESTAGE].x;
-						sizediff[i].y -= sizediff[MAZE_SAVESTAGE].y;
-					}
-
-					if((sizediff[rob_z_lost].x < 0) || (sizediff[rob_z_lost].y < 0))
-					{
-						matchStages.stage_a = MAZE_SAVESTAGE;
-						matchStages.stage_b = rob_z_lost;
-					}
-					else
-					{
-						matchStages.stage_a = rob_z_lost;
-						matchStages.stage_b = MAZE_SAVESTAGE;
-					}
-					maze_matchStages(&matchStages);
-
-					loc_ambiguity = matchStages.ambiguity;
-					loc_accordance = matchStages.accordance;
-
-					/*displayvar[0] = matchStages.match.dir;
-					displayvar[1] = matchStages.match.pos.x;
-					displayvar[2] = matchStages.match.pos.y;
-					displayvar[3] = matchStages.accordance;
-					displayvar[4] = matchStages.ambiguity;
-
-					displayvar[5] = sizediff[0].x;
-					displayvar[6] = sizediff[0].y;*/
-
-					if((matchStages.ambiguity == 0) && (matchStages.accordance > 80) && (maze_stageGetVisitedTiles(MAZE_SAVESTAGE) > 5))
-					{
-						if((sizediff[rob_z_lost].x < 0) || (sizediff[rob_z_lost].y < 0))
-						{
-							for(uint8_t i = 0; i < matchStages.match.dir; i++)
-								maze_rotateStage(rob_z_lost);
-
-							maze_chgOffset(X,rob_z_lost,-(matchStages.match.pos.x-ROB_POS_X_MIN-1));
-							maze_chgOffset(Y,rob_z_lost,-(matchStages.match.pos.y-ROB_POS_Y_MIN-1));
-
-							robot.pos.z = rob_z_lost;
-						}
-						else
-						{
-							for(uint8_t i = 0; i < matchStages.match.dir; i++)
-								maze_rotateStage(MAZE_SAVESTAGE);
-
-							/*for(uint8_t i = 0; i < MAZE_SIZE_Z; i++)
-							{
-								sizediff[i].z = i;
-								maze_stageGetSize(&sizediff[i]);
-								sizediff[i].x ++;
-								sizediff[i].y ++;
-							}
-							sizediff[rob_z_lost].x -= sizediff[MAZE_SAVESTAGE].x;
-							sizediff[rob_z_lost].y -= sizediff[MAZE_SAVESTAGE].y;
-
-							maze_chgOffset(X,MAZE_SAVESTAGE,-sizediff[rob_z_lost].x);
-							maze_chgOffset(Y,MAZE_SAVESTAGE,-sizediff[rob_z_lost].y);*/
-
-							robot.pos.x += matchStages.match.pos.x - ROB_POS_X_MIN-1;
-							robot.pos.y += matchStages.match.pos.y - ROB_POS_Y_MIN-1;
-							robot.pos.z = matchStages.match.pos.z;
-						}
-
-						/*
-						//Overwrite stage with new data - does not work yet
-						savestage_size.z = MAZE_SAVESTAGE;
-						maze_stageGetOuterSize(&savestage_size);
-
-						overwrite_orig.z = rob_z_lost;
-
-						for(overwrite_orig.y = ROB_POS_Y_MIN; overwrite_orig.y <= savestage_size.y+1; overwrite_orig.y++)
-						{
-							for(overwrite_orig.x = ROB_POS_X_MIN; overwrite_orig.x <= savestage_size.x+1; overwrite_orig.x++)
-							{
-								overwrite_pos_save = overwrite_orig;
-								overwrite_pos_save.z = MAZE_SAVESTAGE;
-
-								if(maze_getBeenthere(&overwrite_pos_save, NONE) ||
-								   maze_getBeenthere(&overwrite_pos_save, SOUTH) ||
-								   maze_getBeenthere(&overwrite_pos_save, WEST))
-								{
-									maze_setTile(&overwrite_orig, maze_getTile(&overwrite_pos_save));
-								}
-								maze_clearTile(&overwrite_pos_save);
-							}
-						}*/
-
-						//Alignment to the border (let ROB_POS_n_MIN be what it says)
-					/*	sizediff[rob_z_lost].z = rob_z_lost;
-						maze_stageGetInnerSize(&sizediff[rob_z_lost]);
-
-						sizediff[rob_z_lost].x -= ROB_POS_X_MIN;
-						sizediff[rob_z_lost].y -= ROB_POS_Y_MIN;
-
-						robot.pos.x -= sizediff[rob_z_lost].x;
-						robot.pos.y -= sizediff[rob_z_lost].y;
-						maze_chgOffset(X,rob_z_lost,sizediff[rob_z_lost].x);
-						maze_chgOffset(Y,rob_z_lost,sizediff[rob_z_lost].y);*/
-
-						//End
-						locRequest = LR_SUCCESS;
-						loc_ambiguity = 0;
-						loc_accordance = 0;
-					}
-					else
-					{
-						locRequest = LR_FAILURE;
-					}
-				break;
-		
-		case LR_SUCCESS:	break; //Has to be checked in maze_solve
-		case LR_FAILURE:	break; //"
-
-	}
 }
 
 ////Schwarze Fliesen
@@ -1566,7 +1324,6 @@ void u8g_DrawMaze(void)
 			maze_clearDepthsearch();
 				maze_solve_state_path = DRIVE_READY;
 				routeRequest = RR_WAIT;
-				locRequest = LR_WAIT;
 		}
 	}
 
@@ -1678,21 +1435,6 @@ void u8g_DrawMaze(void)
 	u8g_DrawStr(&u8g, MAPEND_PART_X+1, 35, "y"); u8g_DrawStr(&u8g, MAPEND_PART_X+4, 35, ":"); u8g_DrawLong(MAPEND_PART_X+7, 35, robot.pos.y);
 	u8g_DrawStr(&u8g, MAPEND_PART_X+1, 42, "z"); u8g_DrawStr(&u8g, MAPEND_PART_X+4, 42, ":"); u8g_DrawLong(MAPEND_PART_X+7, 42, robot.pos.z);
 
-	if(robot.pos.z == MAZE_SAVESTAGE)
-	{
-		u8g_DrawLong(MAPEND_PART_X+1, 56, loc_ambiguity);
-			if(loc_ambiguity < 10)
-				u8g_DrawStr(&u8g, MAPEND_PART_X+5, 56, "x");
-			else
-				u8g_DrawStr(&u8g, MAPEND_PART_X+9, 56, "x");
-		u8g_DrawLong(MAPEND_PART_X+1, 63, loc_accordance);
-			if(loc_accordance < 10)
-				u8g_DrawStr(&u8g, MAPEND_PART_X+5, 63, "%");
-			else if(loc_accordance < 100)
-				u8g_DrawStr(&u8g, MAPEND_PART_X+9, 63, "%");
-			else
-				u8g_DrawStr(&u8g, MAPEND_PART_X+13, 63, "%");
-	}
 }
 
 ///////////////////////////////////////

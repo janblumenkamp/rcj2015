@@ -318,7 +318,7 @@ int main(void)
 		////////////////////////////////////////////////////////////////////////////
 
 		maze_solveRoutes(); //Has to be called to calculate routes in main-loop, when nessesary (because it needs up to 2s)
-		maze_localize(); //"
+		//maze_localize(); //"
 
 		////////////////////////////////////////////////////////////////////////////
 		if(get_t1())
@@ -334,7 +334,6 @@ int main(void)
 				maze_clearDepthsearch();
 					maze_solve_state_path = DRIVE_READY;
 					routeRequest = RR_WAIT;
-					locRequest = LR_WAIT;
 
 				hold_t1 = 0;
 				mot.off ^= 1;
