@@ -376,47 +376,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								drive_oneTile(&dot);
 
-								//We are driving straight (direction defined by dot.abort) and are in the first segment of the tile.
-								if((mot.enc > (dot.enc_lr_start + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort && !driveDot_state)
-								{
-									switch(robot.dir)
-									{
-										case NORTH:	robot.pos.y++;	break;
-										case EAST:	robot.pos.x++;	break;
-										case SOUTH:	robot.pos.y--;	break;
-										case WEST:	robot.pos.x--;	break;
-										default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-															fatal_err = 1;
-									}
-
-									if(robot.pos.x < ROB_POS_X_MIN)
-									{
-										maze_chgOffset(X, robot.pos.z, -1);
-										robot.pos.x ++;
-									}
-									else if(robot.pos.x >= (MAZE_SIZE_X-1))
-									{
-										robot.pos.x = (MAZE_SIZE_X-2);
-										maze_solve_state_path = RESTART;
-
-										if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.x:MEMORY_TOO_SMALL:RESTART"));}
-									}
-
-									if(robot.pos.y < ROB_POS_Y_MIN)
-									{
-										maze_chgOffset(Y, robot.pos.z, -1);
-										robot.pos.y ++;
-									}
-									else if(robot.pos.y >= (MAZE_SIZE_Y-1))
-									{
-										robot.pos.y = (MAZE_SIZE_Y-2);
-										maze_solve_state_path = RESTART;
-
-										if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.y:MEMORY_TOO_SMALL:RESTART"));}
-									}
-									driveDot_state = 1; //Position changed
-								}
-
 								if(dot.state == DOT_DRIVE) //Driving straight, not aligning -> Check for ground tiles
 								{
 									//////Check for Black and silver tile

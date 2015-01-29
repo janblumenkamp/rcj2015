@@ -97,7 +97,7 @@ uint8_t drive_oneTile(DOT *d)
 						
 							if((abs(d->steer) <= STEER_ALIGN_BACK_END) || //Aligned well enough
 							   ((timer - d->timer) > TIMER_DOT_ALIGN) || //Aligned for too long
-								((dist[LIN][BACK][BACK] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][LEFT] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][RIGHT] > TILE1_BACK_TH_BACK)))
+								((dist[LIN][BACK][BACK] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][LEFT] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][RIGHT] > TILE1_BACK_TH_BACK))) //Don`t align to obstacles!!! (use all three sensors)
 							{
 								d->state = DOT_ALIGN;
 								d->enc_lr_start = mot.enc;
@@ -185,7 +185,7 @@ uint8_t drive_oneTile(DOT *d)
 							{
 								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
 									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add)) &&
+									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
 									(rel_angle < 20)) ||
 
 									get_bumpR() ||
@@ -200,7 +200,7 @@ uint8_t drive_oneTile(DOT *d)
 								}
 								else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
 										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add)) &&
+										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
 										 (rel_angle < 20)) ||
 
 										get_bumpL() ||
@@ -378,7 +378,7 @@ uint8_t rotate_progress = 0; //How much did the robot already move (%)
 #define STEER_ROTATE_ENC_TH 1 //Wenn UM6 eigtl. fertig ist, ENC aber noch nciht weitgenug gezählt haben (TH für Steer (=> Ende naht))
 #define STEER_ROTATE_ENC 100//Mit dem Steer drehen (bei UM6 err)
 
-#define UM6_ROTATE_OFFSET -3 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
+#define UM6_ROTATE_OFFSET 0 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
 
 #define STEER_ROTATE_TH_TIMER 20 //Unter diesem Wert (Betrag) wird ein Timer aktivierter, in dem Zeitraum 0 erreicht werden muss, ansonsten abbruch.
 

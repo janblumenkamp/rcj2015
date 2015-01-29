@@ -15,6 +15,12 @@
 ///		- Displayausgaben und Displayloop
 ////////////////////////////////////////////////////////////////////////////////
 ///	To do:
+/// - checkpoints
+/// - bei geradeausfahrt abbruch und keine wand einzeichenn? Gefangen!
+/// - überpsringen von Fliesen testen (wegen encodervergleich nach drehen und so) testen!
+/// - in der oberen Etage starten funktioniert nicht...
+/// - Rampe generell?
+///
 /// - Kollisionserkennung: Korrektur auch noch über UM6
 ///		- Außerdem Optimierungsidee: Erkennung über SRF, dann in Richtung Hindernis
 ///		drehen um zu gucken, wo es steht (über Sharp IR) und dann weit genug in andere Richtugn drehen.

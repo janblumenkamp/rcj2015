@@ -29,7 +29,6 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define DIST_SOLL	56	//IR; Seitenabstand
 
 #define TILE_LENGTH				30	//cm
-#define TILE_LENGTH_MIN_DRIVE	18.5	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
 #define TILE_DIST_COLLISION_AV	25	//Only if the robot has driven less than this distance, the collision avoidance is active.
 #define DIST_ADD_COLLISION		1	//This distance is added to the distance-to-drive after the robot avoided a collision
 #define DIST_ADD_COLLISION_MAX	5

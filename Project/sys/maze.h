@@ -127,6 +127,8 @@ struct _matchingWalls {
 #define MAZE_ERR_DEL_RADIUS_L 2 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Large Radius)
 #define MAZE_ERR_DEL_RADIUS_S 1 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Small Radius)
 
+#define TILE_LENGTH_MIN_DRIVE	18.5	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
+
 extern TILE maze[MAZE_SIZE_X][MAZE_SIZE_Y][MAZE_SIZE_Z];
 extern OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset
 	extern int8_t offset_z; //Eigenen Offset für z, da sonst in beiden Offset [0,1] vorhanden wäre
