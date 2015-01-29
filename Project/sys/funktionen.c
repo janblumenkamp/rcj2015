@@ -276,7 +276,7 @@ uint8_t robot_scanFront(uint8_t angle, uint8_t maxspeed)
 {
 	uint8_t returnvar = 1;
 
-	switch(sm_scanFront)
+	/*switch(sm_scanFront)
 	{
 		case 0:
 				if(!drive_rotate(-(angle/2), MAXSPEED))
@@ -317,7 +317,7 @@ uint8_t robot_scanFront(uint8_t angle, uint8_t maxspeed)
 					returnvar = 0;
 				}
 			break;
-	}
+	}*/
 
 	return returnvar;
 }

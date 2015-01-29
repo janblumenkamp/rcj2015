@@ -39,7 +39,7 @@ void drive_limitSpeed(int16_t *speed_l, int16_t *speed_r, int8_t limit)
 
 //////////////////////////////////
 
-uint8_t drive_oneTile(DOT *d)
+void drive_oneTile(DOT *d)
 {
 	int16_t maxspeed = MAXSPEED;
 
@@ -268,9 +268,13 @@ uint8_t drive_oneTile(DOT *d)
 						break;
 
 		case DOT_ROT_WEST:
+							d->r.angle = -TURN_ANGLE_COLLISION_AVOIDED;
+							drive_rotate(&d->r);
 
-							if(!drive_rotate(-TURN_ANGLE_COLLISION_AVOIDED, MAXSPEED))
+							if(d->r.state == ROTATE_FINISHED)
 							{
+								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
+
 								d->state = DOT_DRIVE;
 								d->aligned_turn = NONE;
 
@@ -283,8 +287,13 @@ uint8_t drive_oneTile(DOT *d)
 						break;
 
 		case DOT_ROT_EAST:
-							if(!drive_rotate(TURN_ANGLE_COLLISION_AVOIDED, MAXSPEED))
+							d->r.angle = TURN_ANGLE_COLLISION_AVOIDED;
+							drive_rotate(&d->r);
+
+							if(d->r.state == ROTATE_FINISHED)
 							{
+								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
+
 								d->state = DOT_DRIVE;
 								d->aligned_turn = NONE;
 
@@ -324,8 +333,15 @@ uint8_t drive_oneTile(DOT *d)
 						break;
 
 		case DOT_CORR:
-							if(!drive_rotate(d->corr_angle, MAXSPEED))
+							d->r.angle = d->corr_angle;
+							drive_rotate(&d->r);
+
+							if(d->r.state == ROTATE_FINISHED)
+							{
+								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 								d->state = DOT_END;
+							}
+
 						break;
 
 		case DOT_ALIGN_WALL:
@@ -339,10 +355,14 @@ uint8_t drive_oneTile(DOT *d)
 
 		case DOT_END:
 							
-							d->state = DOT_INIT;
-							
+							d->state = DOT_FINISHED;
+
 							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_oneTile():done"));}
-							
+
+						break;
+
+		case DOT_FINISHED:
+
 						break;
 						
 		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL: went into drive_oneTile():sm_dot:DEFAULT_CASE"));}
@@ -350,126 +370,102 @@ uint8_t drive_oneTile(DOT *d)
 						break;
 							
 	}
-
-	if(d->state == DOT_INIT) //Done
-		return 0;
-	else
-		return 1; //Return 1 if still driving
 }
 
 ///////////////////////////////////////
-enum DRIVE_ROTATE {ROTATE_INIT, ROTATE, ROTATE_END};
 
-uint8_t sm_rotate = ROTATE_INIT;
-
-int32_t um6_psi_t_start_rotate = 0;
-int32_t enc_l_start_rotate = 0;
-int32_t enc_r_start_rotate = 0;
-
-uint32_t timer_rotate;
-
-int16_t steer_rotate = 0;
-uint8_t rotate_enc = 0; //Über ENcoder oder UM6 drehen?
-
-uint8_t rotate_progress = 0; //How much did the robot already move (%)
-
-#define KP_ROTATE 3
-
-#define STEER_ROTATE_ENC_TH 1 //Wenn UM6 eigtl. fertig ist, ENC aber noch nciht weitgenug gezählt haben (TH für Steer (=> Ende naht))
-#define STEER_ROTATE_ENC 100//Mit dem Steer drehen (bei UM6 err)
-
-#define UM6_ROTATE_OFFSET 0 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
-
-#define STEER_ROTATE_TH_TIMER 20 //Unter diesem Wert (Betrag) wird ein Timer aktivierter, in dem Zeitraum 0 erreicht werden muss, ansonsten abbruch.
-
-uint8_t drive_rotate(int16_t angle, uint8_t maxspeed)
+void drive_rotate(D_ROTATE *r)
 {
-	uint8_t returnvar = 1;
-	
-	switch(sm_rotate)
+	switch(r->state)
 	{
 		case ROTATE_INIT:
 		
-							um6_psi_t_start_rotate = um6.psi_t;
-							enc_l_start_rotate = mot.d[LEFT].enc;
-							enc_r_start_rotate = mot.d[RIGHT].enc;
+							r->um6_psi_t_start = um6.psi_t;
+							r->enc_l_start = mot.d[LEFT].enc;
+							r->enc_r_start = mot.d[RIGHT].enc;
 							
-							rotate_enc = 0;
-							timer_rotate = 0; //Reset timer
+							r->use_enc = 0;
+							r->timer = 0; //Reset timer
 							
-							rotate_progress = 0;
+							r->progress = 0;
 
-							sm_rotate = ROTATE;
+							r->state = ROTATE;
 							
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_rotate()::psi_start: "));bt_putLong(um6_psi_t_start_rotate);}
+							if(r->speed_limit == 0)
+								r->speed_limit = MAXSPEED; //If speed limit not set set to MAXSPEED
+
+							if(r->angle == 0)
+								r->angle = 90; //If angle not set set to 90 degree
+
+							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_rotate()::psi_start: "));bt_putLong(r->um6_psi_t_start);}
 							
 						break;
 						
 		case ROTATE: 
 		
-							if(angle > 0)
-								steer_rotate = ((um6_psi_t_start_rotate + angle + UM6_ROTATE_OFFSET) - um6.psi_t) * KP_ROTATE;
+							if(r->angle > 0)
+								r->steer = ((r->um6_psi_t_start + r->angle + UM6_ROTATE_OFFSET) - um6.psi_t) * KP_ROTATE;
 							else
-								steer_rotate = ((um6_psi_t_start_rotate + angle - UM6_ROTATE_OFFSET) - um6.psi_t) * KP_ROTATE;
+								r->steer = ((r->um6_psi_t_start + r->angle - UM6_ROTATE_OFFSET) - um6.psi_t) * KP_ROTATE;
 							
-							rotate_progress = abs((um6.psi_t - um6_psi_t_start_rotate)*100)/angle;
+							r->progress = abs((um6.psi_t - r->um6_psi_t_start)*100)/r->angle;
 
 							if(check_um6 != 0)
 							{
-								rotate_enc = 1;
+								r->use_enc = 1;
 							}
 
-							if(rotate_enc)
+							if(r->use_enc)
 							{
-								if(angle > 0)
+								if(r->angle > 0)
 								{
-									rotate_progress = abs(((mot.d[LEFT].enc - enc_l_start_rotate)*100)/(angle * ENC_DEGROTFAC));
+									r->progress = abs(((mot.d[LEFT].enc - r->enc_l_start)*100)/(r->angle * ENC_DEGROTFAC));
 
-									if((mot.d[LEFT].enc < (enc_l_start_rotate + (ENC_DEGROTFAC * angle))) ||
-										 (mot.d[RIGHT].enc > (enc_r_start_rotate + (ENC_DEGROTFAC * angle))))
+									if((mot.d[LEFT].enc < (r->enc_l_start + (ENC_DEGROTFAC * r->angle))) ||
+										 (mot.d[RIGHT].enc > (r->enc_r_start + (ENC_DEGROTFAC * r->angle))))
 									{
-										steer_rotate = STEER_ROTATE_ENC;
+										r->steer = STEER_ROTATE_ENC;
 									}
 									else
 									{
-										sm_rotate = ROTATE_END;
-										steer_rotate = 0;
+										r->state = ROTATE_END;
+										r->steer = 0;
 									}
 								}
 								else
 								{
-									rotate_progress = abs(((mot.d[LEFT].enc - enc_l_start_rotate)*100)/(angle * ENC_DEGROTFAC));
+									r->progress = abs(((mot.d[LEFT].enc - r->enc_l_start)*100)/(r->angle * ENC_DEGROTFAC));
 
-									if((mot.d[LEFT].enc > (enc_l_start_rotate + (ENC_DEGROTFAC * angle))) ||
-										 (mot.d[RIGHT].enc < (enc_r_start_rotate + (ENC_DEGROTFAC * angle))))
+									if((mot.d[LEFT].enc > (r->enc_l_start + (ENC_DEGROTFAC * r->angle))) ||
+										 (mot.d[RIGHT].enc < (r->enc_r_start + (ENC_DEGROTFAC * r->angle))))
 									{
-										steer_rotate = -STEER_ROTATE_ENC;
+										r->steer = -STEER_ROTATE_ENC;
 									}
 									else
 									{
-										sm_rotate = ROTATE_END;
-										steer_rotate = 0;
+										r->state = ROTATE_END;
+										r->steer = 0;
 									}
 								}
 							}
-							else if(steer_rotate == 0)
+							else if(r->steer == 0)
 							{
-								sm_rotate = ROTATE_END;	
+								r->state = ROTATE_END;
 							}
 
-							if((abs(steer_rotate) < STEER_ROTATE_TH_TIMER) && (timer_rotate == 0))
+							if((abs(r->steer) < STEER_ROTATE_TH_TIMER) && (r->timer == 0))
 							{
-								timer_rotate = timer;
+								r->timer = timer;
 							}
-							else if((((timer - timer_rotate) > TIMER_ROTATE) || (steer_rotate == 0)) && (timer_rotate != 0))
+							else if((((timer - r->timer) > TIMER_ROTATE) || (r->steer == 0)) && (r->timer != 0))
 							{
-								sm_rotate = ROTATE_END;
+								r->state = ROTATE_END;
 							}
 
-							mot.d[LEFT].speed.to = steer_rotate;
-							mot.d[RIGHT].speed.to = -steer_rotate;
+							mot.d[LEFT].speed.to = r->steer;
+							mot.d[RIGHT].speed.to = -r->steer;
 							
-							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
+							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, r->speed_limit);
 
 						break;
 						
@@ -477,20 +473,21 @@ uint8_t drive_rotate(int16_t angle, uint8_t maxspeed)
 		
 							mot.d[LEFT].speed.to = 0;
 							mot.d[RIGHT].speed.to = 0;
-							sm_rotate = ROTATE_INIT;
-							returnvar = 0;
-						
+
+							r->state = ROTATE_FINISHED;
+
 							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_oneTile(): done. "));}
 							
+		case ROTATE_FINISHED:
+
 						break;
+
 						
 		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_rotate():sm_rotate DEFAULT CASE!"));}
 						
-						returnvar = 0;
+						r->state = ROTATE_INIT;
 						break;
 	}
-	
-	return returnvar;
 }
 
 //////////////////////////////////////////////////////////
@@ -649,27 +646,26 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 }
 
 /////////////////////////////////////////
-enum DRIVE_TURN {TURN_INIT, TURN, TURN_ALIGN, TURN_ALIGN_BACK, TURN_END};
 
-uint8_t sm_turn = TURN_INIT;
-
-uint8_t drive_turn(int16_t angle, uint8_t align) //angle > 0 == turn right
+void drive_turn(D_TURN *t)
 {
-	uint8_t returnvar = 1;
-	
-	switch(sm_turn)
+	switch(t->state)
 	{
 		case TURN_INIT:
 		
-						sm_turn = TURN;
+						t->state = TURN;
 						
 		case TURN:
-						if(!drive_rotate(angle, MAXSPEED))
+						drive_rotate(&t->r);
+
+						if(t->r.state == ROTATE_FINISHED)
 						{
-							if(align)
-								sm_turn = TURN_ALIGN;
+							t->r.state = ROTATE_INIT; //Prepare for next rotate
+
+							if(!t->no_align) //Align to walls?
+								t->state = TURN_ALIGN;
 							else
-								sm_turn = TURN_END;
+								t->state = TURN_END;
 							
 							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn()"));}
 						}
@@ -684,11 +680,11 @@ uint8_t drive_turn(int16_t angle, uint8_t align) //angle > 0 == turn right
 							if((dist[LIN][BACK][BACK] < TILE1_BACK_TH_BACK) &&
 								(maze_getWall(&robot.pos, robot.dir+2) > 0))
 							{
-								sm_turn = TURN_ALIGN_BACK;
+								t->state = TURN_ALIGN_BACK;
 							}
 							else
 							{
-								sm_turn = TURN_END;
+								t->state = TURN_END;
 							}
 
 							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn(): aligned"));}
@@ -700,24 +696,26 @@ uint8_t drive_turn(int16_t angle, uint8_t align) //angle > 0 == turn right
 
 							if(!drive_align_back(TILE1_BACK_BACK))
 							{
-								sm_turn = TURN_END;
+								t->state = TURN_END;
 							}
 
 					break;
 					
 		case TURN_END:
 		
-						sm_turn = TURN_INIT;
-						returnvar = 0;
+						t->state = TURN_FINISHED;
 						
 						if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn(): done. "));}
-						
-					break;
-		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_turn():sm_turn DEFAULT CASE!"));}
-							returnvar = 0;
+
+		case TURN_FINISHED:
+
+						break;
+
+		default:		if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_turn():sm_turn DEFAULT CASE!"));}
+
+						t->state = TURN_INIT;
 						break;
 	}
-	return returnvar;
 }
 
 /////////////////////////////////////////////////////
@@ -787,9 +785,9 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 	if(drive_instr_sm < amount)
 	{
 		switch (instructions[drive_instr_sm]) {
-		case 'f':	if(!drive_oneTile(0))	drive_instr_sm ++; break;
-		case 'l':	if(!drive_turn(-90,1))	drive_instr_sm ++; break;
-		case 'r':	if(!drive_turn(90, 1))	drive_instr_sm ++; break;
+//		case 'f':	if(!drive_oneTile(0))	drive_instr_sm ++; break;
+//		case 'l':	if(!drive_turn(-90,1))	drive_instr_sm ++; break;
+//		case 'r':	if(!drive_turn(90, 1))	drive_instr_sm ++; break;
 		case 'd':	if(!drive_getBall())	drive_instr_sm ++;	break;
 		case 'u':	if(!drive_releaseBall())	drive_instr_sm ++;	break;
 		default:	drive_instr_sm ++; break;
@@ -930,7 +928,7 @@ uint8_t drive_neutralPos(void)
 {
 	uint8_t returnvar = 1;
 
-	switch(sm_nP)
+/*	switch(sm_nP)
 	{
 		case 0:
 				if(!drive_turn(90, 1))
@@ -979,7 +977,7 @@ uint8_t drive_neutralPos(void)
 				sm_nP = 0;
 				returnvar = 0;
 			break;
-	}
+	}*/
 	
 	return returnvar;
 }
@@ -988,6 +986,8 @@ uint8_t drive_neutralPos(void)
 
 uint8_t sm_d_deplKit = 0;
 int8_t d_deplKit_amount = 0;
+
+D_TURN deployResKit_turn;
 
 uint8_t drive_deployResKit(int8_t dir, uint8_t amount)
 {
@@ -1003,12 +1003,19 @@ uint8_t drive_deployResKit(int8_t dir, uint8_t amount)
 		case 0:
 				d_deplKit_amount = amount;
 
+				deployResKit_turn.r.angle = 90 * (-dir);
+
 				sm_d_deplKit = 1;
 
 				break;
 		case 1:
-				if(!drive_turn(90 * (-dir), 1))
+
+				drive_turn(&deployResKit_turn);
+
+				if(deployResKit_turn.state == TURN_FINISHED)
 				{
+					deployResKit_turn.state = TURN_INIT;
+
 					sm_d_deplKit = 2;
 				}
 			break;
@@ -1063,8 +1070,17 @@ uint8_t drive_deployResKit(int8_t dir, uint8_t amount)
 			break;
 
 		case 5:
-				if(!drive_turn(90 * dir, 1))
+				deployResKit_turn.r.angle = 90 * dir;
+				sm_d_deplKit = 6;
+
+		case 6:
+
+				drive_turn(&deployResKit_turn);
+
+				if(deployResKit_turn.state == TURN_FINISHED)
 				{
+					deployResKit_turn.state = TURN_INIT;
+
 					sm_d_deplKit = 0;
 					returnvar = 0;
 				}
@@ -1267,8 +1283,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 void drive_reset(DOT *d)
 {
 	d->state = DOT_INIT;
-	sm_rotate = 0;
-	sm_turn = 0;
+	//sm_rotate = 0;
+	//sm_turn = 0;
 	sm_d_lr = 0;	
 	sm_ddist = 0;
 	

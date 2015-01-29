@@ -486,6 +486,7 @@ int8_t testvar = 0;
 uint8_t groundvar = 0;
 
 DOT testdot;
+D_TURN testturn;
 
 int8_t task_maze(int8_t state)
 {	
@@ -497,19 +498,12 @@ int8_t task_maze(int8_t state)
 
 	/*if(testvar == 1)
 	{
-		COORD c;
-		c.x = 1;
-		c.y = 1;
-		c.z = 0;
+		drive_turn(&testturn);
 
-		maze_setWall(&c, SOUTH, 100);
-		drive_oneTile(&testdot);
-		if(testdot.state == DOT_END)
-			testvar = 0;
-		if(mot.enc > (testdot.enc_lr_start + (0.5 * ENC_FAC_CM_LR)))
+		if(testturn.state == TURN_FINISHED)
 		{
-			//if(get_incrOk())
-				testdot.abort = 1;
+			testvar = 0;
+			testturn.state = TURN_INIT;
 		}
 	}
 	else

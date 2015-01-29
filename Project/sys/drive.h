@@ -10,7 +10,70 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
-enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT_WEST, DOT_ROT_EAST, DOT_COMP_ENC, DOT_CORR, DOT_ALIGN_WALL, DOT_END};
+
+typedef struct _d_rotate D_ROTATE;
+typedef struct _dot DOT;
+typedef struct _d_turn D_TURN;
+
+/////////////////////////////////////////////////////////////////////////////////////
+///
+/// drive align
+#define KP_ALIGN 1.8
+
+#define ALIGN_OFFSET_FRONT 0 //Roboter ist nicht zwangsläufig bei 0 Differenz gerade ==> Ausgleich (anderer Sollwert für Differenz)
+#define ALIGN_OFFSET_BACK 0
+#define ALIGN_OFFSET_LEFT 0
+#define ALIGN_OFFSET_RIGHT 0
+
+#define TILE1_FRONT_ALIGN_TH 100 //mm, Schwellwert nach vorne
+#define TILE1_SIDE_ALIGN_TH 100 //Schwellwert zur Seite
+
+#define TURN_SENSDIFF_MAX 150 //-CONST - CONST ist Schwellwert für maximal erlaubte Sensordifferenz (ansonsten Fehler)
+
+#define STEER_ALIGN_DONE 1
+
+#define TIMER_ALIGN	500 //Maximal so lange ausrichten, dann abbrechen
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+///drive_rotate
+enum DRIVE_ROTATE {ROTATE_INIT, ROTATE, ROTATE_END, ROTATE_FINISHED};
+
+#define TIMER_ROTATE	1000 //Wenn steer zu klein und Opfererkennung => zurücksetzen => dreht nicht => abbrechen
+
+#define ENC_DEGROTFAC 4.8
+
+#define KP_ROTATE 3
+
+#define STEER_ROTATE_ENC_TH 1 //Wenn UM6 eigtl. fertig ist, ENC aber noch nciht weitgenug gezählt haben (TH für Steer (=> Ende naht))
+#define STEER_ROTATE_ENC 100//Mit dem Steer drehen (bei UM6 err)
+
+#define UM6_ROTATE_OFFSET -3 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
+
+#define STEER_ROTATE_TH_TIMER 20 //Unter diesem Wert (Betrag) wird ein Timer aktivierter, in dem Zeitraum 0 erreicht werden muss, ansonsten abbruch.
+
+struct _d_rotate {
+	unsigned state:7;
+	unsigned use_enc:1; //Use the um6 or the encoders for rotating?
+
+	int16_t angle; //Angle to rotate
+	int8_t speed_limit; //Maximum rotating speed
+
+	int32_t um6_psi_t_start;
+	int32_t enc_l_start;
+	int32_t enc_r_start;
+
+	uint32_t timer;
+
+	int16_t steer;
+
+	uint8_t progress; //How much did the robot already move (%)
+};
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT_WEST, DOT_ROT_EAST, DOT_COMP_ENC, DOT_CORR, DOT_ALIGN_WALL, DOT_END, DOT_FINISHED};
 
 #define MAXSPEED 100
 
@@ -53,7 +116,6 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 
 #define TIMER_DOT_ALIGN			3000 //So lange wird maximal vorne/hinten angepasst
 
-typedef struct _dot DOT;
 
 struct _dot {
 	unsigned state:7; //statemachine
@@ -75,46 +137,31 @@ struct _dot {
 	int16_t um6_phi_t_start; //Slow down when getting odd (Ramp etc.)
 
 	int16_t steer; //Steering value for all the steering stuff. Has to be global, dont know why.
+
+	D_ROTATE r; //For intern rotate function
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
-///
-/// drive align
-#define KP_ALIGN 1.8
-
-#define ALIGN_OFFSET_FRONT 0 //Roboter ist nicht zwangsläufig bei 0 Differenz gerade ==> Ausgleich (anderer Sollwert für Differenz)
-#define ALIGN_OFFSET_BACK 0
-#define ALIGN_OFFSET_LEFT 0
-#define ALIGN_OFFSET_RIGHT 0
-
-#define TILE1_FRONT_ALIGN_TH 100 //mm, Schwellwert nach vorne
-#define TILE1_SIDE_ALIGN_TH 100 //Schwellwert zur Seite
-
-#define TURN_SENSDIFF_MAX 150 //-CONST - CONST ist Schwellwert für maximal erlaubte Sensordifferenz (ansonsten Fehler)
-
-#define STEER_ALIGN_DONE 1
-
-#define TIMER_ALIGN	500 //Maximal so lange ausrichten, dann abbrechen
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-///drive_rotate
-
-#define TIMER_ROTATE	1000 //Wenn steer zu klein und Opfererkennung => zurücksetzen => dreht nicht => abbrechen
-
-#define ENC_DEGROTFAC 4.8
-extern uint8_t rotate_progress;
-
-extern int8_t ramp_checkpoint;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+enum DRIVE_TURN {TURN_INIT, TURN, TURN_ALIGN, TURN_ALIGN_BACK, TURN_END, TURN_FINISHED};
+
+struct _d_turn {
+	unsigned state:7;
+	unsigned no_align:1; //dont alignment functions?
+
+	D_ROTATE r; //For intern rotate function
+};
+
+////////////////////////////////////////////////////////////////////////////////////
 #define TIMER_ALIGN_BACK 2000
 
 ////////////////////////////////////////////////////////////////////////////////////
 extern int32_t enc_lr_start_dot;
 
-extern uint8_t drive_oneTile(DOT *d);
+extern int8_t ramp_checkpoint;
+
+extern void drive_oneTile(DOT *d);
 
 extern uint8_t drive_ramp(int8_t speed_ramp_to);
 
@@ -122,9 +169,9 @@ extern uint8_t drive_align(void);
 
 extern uint8_t drive_align_back(uint8_t dist_to);
 
-extern uint8_t drive_rotate(int16_t angle, uint8_t maxspeed);
+extern void drive_rotate(D_ROTATE *r);
 
-extern uint8_t drive_turn(int16_t angle, uint8_t align);
+extern void drive_turn(D_TURN *t);
 
 extern uint8_t drive_getBall(void);
 

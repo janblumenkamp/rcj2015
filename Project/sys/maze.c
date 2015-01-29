@@ -62,6 +62,8 @@ MATCHINGWALLS matchingWalls;
 TILE cleartiles;
 
 DOT dot; //drive one tail main struct!
+D_TURN turn; //Turn main struct
+
 uint8_t driveDot_state = 0;
 
 uint8_t maze_solve(void) //called from RIOS periodical task
@@ -389,8 +391,10 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 1)) //already switched to next tile
 										groundsens_cnt ++;
 								}
-								else if(dot.state == DOT_END)
+								else if(dot.state == DOT_FINISHED)
 								{
+									dot.state = DOT_INIT;
+
 									if(!dot.abort)
 									{
 										//////////////////////////Checkpoint///////////////////
@@ -451,9 +455,15 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case TURN_RIGHT:
-								//Rechts drehen
-								if(drive_turn(90, 1) == 0)
+
+								turn.r.angle = 90;
+
+								drive_turn(&turn);
+
+								if(turn.state == TURN_FINISHED)
 								{
+									turn.state = TURN_INIT;
+
 									robot.dir = maze_alignDir(robot.dir + 1);
 
 									if(maze_solve_depl_kit)
@@ -465,9 +475,14 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case TURN_LEFT:
+								turn.r.angle = -90;
 
-								if(drive_turn(-90, 1) == 0)
+								drive_turn(&turn);
+
+								if(turn.state == TURN_FINISHED)
 								{
+									turn.state = TURN_INIT;
+
 									robot.dir = maze_alignDir(robot.dir + 3);
 
 									if(maze_solve_depl_kit)
@@ -731,7 +746,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								if(rotate_progress < 33) //Robot rotates now...
+								if(turn.r.progress < 33) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+3, 1);
 									maze_solve_depl_kit = 1;
@@ -777,7 +792,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								if(rotate_progress < 33) //Robot rotates now...
+								if(turn.r.progress < 33) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+1, 1);
 									maze_solve_depl_kit = 1;
