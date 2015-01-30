@@ -76,7 +76,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		maze_init();
 	}
 
-	if((!mot.off) && (incr_ok_mode == 4)) //If the robot does not moves, there is no input and no victim identification
+	if((!mot.off) && (incr_ok_mode == 4)) //If the robot does not moves and there is no input
 	{
 		uint8_t depthsearchNum = 0;
 
@@ -383,13 +383,53 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									//////Check for Black and silver tile
 									if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && (dot.abort == 0))
 									{
-										maze_solve_state_path = CHECK_BLACKTILE;
+									//	maze_solve_state_path = CHECK_BLACKTILE;
 									}
-									//else if(dot_abort != 1)
-									//	maze_corrGround(&robot.pos, robot.dir, -1);
 
 									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 1)) //already switched to next tile
 										groundsens_cnt ++;
+
+									//////Driving straight, change position
+									if((mot.enc > (dot.enc_lr_start + dot.enc_lr_add/2 + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort && !driveDot_state)
+									{
+										switch(robot.dir)
+										{
+											case NORTH:	robot.pos.y++;	break;
+											case EAST:	robot.pos.x++;	break;
+											case SOUTH:	robot.pos.y--;	break;
+											case WEST:	robot.pos.x--;	break;
+											default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
+																fatal_err = 1;
+										}
+
+										if(robot.pos.x < ROB_POS_X_MIN)
+										{
+											maze_chgOffset(X, robot.pos.z, -1);
+											robot.pos.x ++;
+										}
+										else if(robot.pos.x >= (MAZE_SIZE_X-1))
+										{
+											robot.pos.x = (MAZE_SIZE_X-2);
+											maze_solve_state_path = RESTART;
+
+											if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.x:MEMORY_TOO_SMALL:RESTART"));}
+										}
+
+										if(robot.pos.y < ROB_POS_Y_MIN)
+										{
+											maze_chgOffset(Y, robot.pos.z, -1);
+											robot.pos.y ++;
+										}
+										else if(robot.pos.y >= (MAZE_SIZE_Y-1))
+										{
+											robot.pos.y = (MAZE_SIZE_Y-2);
+											maze_solve_state_path = RESTART;
+
+											if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.y:MEMORY_TOO_SMALL:RESTART"));}
+										}
+
+										driveDot_state = 1; //Position changed
+									}
 								}
 								else if(dot.state == DOT_FINISHED)
 								{
@@ -716,10 +756,18 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		if((maze_solve_state_path >= DRIVE_DOT) &&
 			(maze_solve_state_path <= RAMP_DOWN))
 		{
-			if(timer_victim_led < 0) //Timer not running
+			if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
 			{
 				ui_setLED(-1, 0);
 				ui_setLED(1, 0);
+
+				////////////////
+				/// On victim deployment there are three cases:
+				/// 1) Robot detects victim while driving straight: Turn and deploy kit left or right, then proceed driving straight
+				/// 2) Robot detects victim while turning:
+				///		2.1) The robot rotated only 30% of the 90°: The victim is on the old right side of the robot
+				///		2.2) The robot rotated more than the 30%: The victim is on the old front side of the robot
+
 
 				if(victim_BufIsVic(LEFT))
 				{

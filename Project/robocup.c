@@ -487,6 +487,7 @@ uint8_t groundvar = 0;
 
 DOT testdot;
 D_TURN testturn;
+D_TURN testturn_2;
 
 int8_t task_maze(int8_t state)
 {	
@@ -500,9 +501,25 @@ int8_t task_maze(int8_t state)
 	{
 		drive_turn(&testturn);
 
+		if(testturn.r.progress > 30)
+			testvar = 2;
+	}
+	else if(testvar == 2)
+	{
+		drive_turn(&testturn_2);
+
+		if(testturn_2.state == TURN_FINISHED)
+		{
+			testvar = 3;
+			testturn_2.state = TURN_INIT;
+		}
+	}
+	else if(testvar == 3)
+	{
+		drive_turn(&testturn);
 		if(testturn.state == TURN_FINISHED)
 		{
-			testvar = 0;
+			testvar = 4;
 			testturn.state = TURN_INIT;
 		}
 	}
