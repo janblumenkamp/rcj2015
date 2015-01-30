@@ -500,26 +500,9 @@ int8_t task_maze(int8_t state)
 	/*if(testvar == 1)
 	{
 		drive_turn(&testturn);
-
-		if(testturn.r.progress > 30)
-			testvar = 2;
-	}
-	else if(testvar == 2)
-	{
-		drive_turn(&testturn_2);
-
-		if(testturn_2.state == TURN_FINISHED)
-		{
-			testvar = 3;
-			testturn_2.state = TURN_INIT;
-		}
-	}
-	else if(testvar == 3)
-	{
-		drive_turn(&testturn);
 		if(testturn.state == TURN_FINISHED)
 		{
-			testvar = 4;
+			testvar = 2;
 			testturn.state = TURN_INIT;
 		}
 	}

@@ -32,7 +32,7 @@ uint8_t tsl_state = 0;
 
 int8_t tsl1401(int8_t state)
 {
-	switch(tsl_state)
+/*	switch(tsl_state)
 	{
 		case TSL_INIT:
 
@@ -120,7 +120,7 @@ int8_t tsl1401(int8_t state)
 				state = -1;
 				fatal_err = 1;
 	}
-				
+				*/
 	return state;
 }
 

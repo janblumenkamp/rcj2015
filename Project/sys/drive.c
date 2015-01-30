@@ -1004,7 +1004,7 @@ uint8_t drive_deployResKit(int8_t dir, uint8_t amount)
 				d_deplKit_amount = amount;
 
 				deployResKit_turn.r.angle = 90 * (-dir);
-
+				deployResKit_turn.no_align = 1; //Don`t align on this turn! We really want to roatte 90°!
 				sm_d_deplKit = 1;
 
 				break;
