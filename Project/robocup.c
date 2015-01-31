@@ -298,7 +298,7 @@ int main(void)
 	
 	sei(); //Enable global interrupts. The Operating System and every task in it is running now and the cam already can regulate its initial aparture
 
-	u8g_DrawStartUp();
+	//u8g_DrawStartUp();
 	
 	if(debug > 0)
 	{

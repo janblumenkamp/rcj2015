@@ -67,7 +67,7 @@ D_TURN turn; //Turn main struct
 uint8_t driveDot_state = 0;
 
 uint8_t maze_solve(void) //called from RIOS periodical task
-{		
+{
 	uint8_t returnvar = 1;
 	
 	if((timer_rdy_restart == 0) && !mot.off) //Neustart
@@ -151,6 +151,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						
 			case FOLLOW_RIGHTWALL:
 							
+
 									if(maze_tileIsVisitable(&robot.pos, robot.dir+1) &&
 					 					(!maze_getBeenthere(&robot.pos, robot.dir+1)))
 									{
@@ -487,8 +488,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										}
 									}
 
-									if(maze_solve_state_path == DRIVE_DOT_DRIVE) //Only, when there is no RESTART and no RAMP_xx or something other than DRIVE_DOT
-										maze_solve_state_path = DRIVE_READY;
+									maze_solve_state_path = DRIVE_READY;
 								}
 							break;
 
@@ -954,39 +954,34 @@ uint8_t maze_updateWalls(void)
 
 		case 1:
 
+				//////////Wand rechts/////////////
+				maze_checkCorrWall(&robot.pos, RIGHT, FRONT, robot.dir+1, SIDE_TH, DIST_FR_FAC);
+				maze_checkCorrWall(&robot.pos, RIGHT, BACK, robot.dir+1, SIDE_TH, DIST_BA_FAC);
+
+				//////////Wand links/////////////
+
+				maze_checkCorrWall(&robot.pos, LEFT, FRONT, robot.dir+3, SIDE_TH, DIST_FR_FAC);
+				maze_checkCorrWall(&robot.pos, LEFT, BACK, robot.dir+3, SIDE_TH, DIST_BA_FAC);
+
+				//////////Wand vorne/////////////
+				maze_checkCorrWall(&robot.pos, FRONT, LEFT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
+				maze_checkCorrWall(&robot.pos, FRONT, RIGHT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
+				maze_checkCorrWall(&robot.pos, FRONT, FRONT, robot.dir, FRONT_FRONT_TH, DIST_FRFR_FAC);
+
+				//////////Wand hinten/////////////
+				maze_checkCorrWall(&robot.pos, BACK, LEFT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
+				maze_checkCorrWall(&robot.pos, BACK, RIGHT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
+				maze_checkCorrWall(&robot.pos, BACK, BACK, robot.dir+2, BACK_BACK_TH, DIST_BABA_FAC);
+
 				if(sensinfo.newDat.left &&
 				   sensinfo.newDat.right &&
 				   sensinfo.newDat.mid)
 				{
-					if((abs(maze_getWall(&robot.pos, NORTH)) <= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot.pos, EAST)) <= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot.pos, SOUTH)) <= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot.pos, WEST)) <= MAZE_ISWALL))
-					{
-						//////////Wand rechts/////////////
-						maze_checkCorrWall(&robot.pos, RIGHT, FRONT, robot.dir+1, SIDE_TH, DIST_FR_FAC);
-						maze_checkCorrWall(&robot.pos, RIGHT, BACK, robot.dir+1, SIDE_TH, DIST_BA_FAC);
-
-						//////////Wand links/////////////
-
-						maze_checkCorrWall(&robot.pos, LEFT, FRONT, robot.dir+3, SIDE_TH, DIST_FR_FAC);
-						maze_checkCorrWall(&robot.pos, LEFT, BACK, robot.dir+3, SIDE_TH, DIST_BA_FAC);
-
-						//////////Wand vorne/////////////
-						maze_checkCorrWall(&robot.pos, FRONT, LEFT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot.pos, FRONT, RIGHT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot.pos, FRONT, FRONT, robot.dir, FRONT_FRONT_TH, DIST_FRFR_FAC);
-
-						//////////Wand hinten/////////////
-						maze_checkCorrWall(&robot.pos, BACK, LEFT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot.pos, BACK, RIGHT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
-						maze_checkCorrWall(&robot.pos, BACK, BACK, robot.dir+2, BACK_BACK_TH, DIST_BABA_FAC);
-
-						/*sensinfo.newDat.left = 0;
-						sensinfo.newDat.right = 0;
-						sensinfo.newDat.mid = 0;*/
-					}
-					else //enough information
+					//If there are enough data
+					if((abs(maze_getWall(&robot.pos, NORTH)) >= MAZE_ISWALL) ||
+						 (abs(maze_getWall(&robot.pos, EAST)) >= MAZE_ISWALL) ||
+						 (abs(maze_getWall(&robot.pos, SOUTH)) >= MAZE_ISWALL) ||
+						 (abs(maze_getWall(&robot.pos, WEST)) >= MAZE_ISWALL))
 					{
 						returnvar = 1;
 						sm_updateWalls = 0;
