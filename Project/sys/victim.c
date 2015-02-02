@@ -40,7 +40,7 @@ void victim_init(void)
 
 void victim_scan(void)
 {
-	if((maze_solve_state_path != VIC_DEPL_L) && (maze_solve_state_path != VIC_DEPL_R)) //No kit deployment
+	if(maze_solve_state_path != VIC_DEPL) //No kit deployment
 	{
 		for(uint8_t dir = 0; dir < NUMBER_OF_MLX; dir++)
 		{

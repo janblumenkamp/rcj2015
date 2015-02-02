@@ -20,9 +20,7 @@ enum QUARTERS {NONE, NORTH, EAST, SOUTH, WEST};
 
 #define MAZE_SIZE_X 13
 #define MAZE_SIZE_Y MAZE_SIZE_X //Has to be a square, important for rotations
-#define MAZE_SIZE_Z 3
-
-#define MAZE_SAVESTAGE MAZE_SIZE_Z-1 //stage that is not used in the normal map
+#define MAZE_SIZE_Z 2
 
 #define MAZE_SIZE_X_USABLE (MAZE_SIZE_X-1) //Usable tiles (outer tiles cause some errors when accessed)
 #define MAZE_SIZE_Y_USABLE (MAZE_SIZE_Y-1)
@@ -152,8 +150,8 @@ extern DOT dot; //drive one tail main struct!
 
 ///////
 enum MAZE_STATE_SOLVE { DRIVE_READY, FOLLOW_RIGHTWALL, FOLLOW_DFS, MAZE_ERR, RESTART, LOP_INIT, LOP_WAIT,
-												DRIVE_DOT, DRIVE_DOT_DRIVE, TURN_RIGHT, TURN_RIGHT_DRIVE, TURN_LEFT, TURN_LEFT_DRIVE, RAMP_UP, RAMP_DOWN, DRIVE_NEUTRPOS,
-												VIC_DEPL_L, VIC_DEPL_R, CHECK_BLACKTILE};
+												DRIVE_DOT, DRIVE_DOT_DRIVE, TURN_RIGHT, TURN_RIGHT_DRIVE, TURN_LEFT, TURN_LEFT_DRIVE, RAMP_UP, RAMP_DOWN,
+												VIC_DEPL, CHECK_BLACKTILE};
 
 enum MAZE_STATE_DRIVE_READY { DR_INIT, DR_UPDATEWALLS, DR_UPDATEVICTIMS, DR_CHECK, DR_MATCH}; //DR = DriveReady
 

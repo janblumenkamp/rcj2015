@@ -14,6 +14,7 @@
 typedef struct _d_rotate D_ROTATE;
 typedef struct _dot DOT;
 typedef struct _d_turn D_TURN;
+typedef struct _d_deplKit D_DEPLOYKIT;
 
 /////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -154,6 +155,22 @@ struct _d_turn {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
+
+enum DRIVE_DEPLKIT_CONF {DEPLOY_RIGHT, DEPLOY_LEFT, DEPLOY_RIGHT_TURN_BACK, DEPLOY_LEFT_TURN_BACK};
+enum DRIVE_DEPLKIT {DK_INIT, DK_TURN_A, DK_ALIGN_A, DK_DEPL, DK_TURN_B, DK_ALIGN_B, DK_END, DK_FINISHED};
+
+struct _d_deplKit {
+	unsigned state:6;
+	unsigned config_dir:1; //Deploy in which direction (LEFT/RIGHT?)
+	unsigned config_no_turnBack:1; //Don`t turn back after deployment?
+
+	unsigned amount_to:4; //Amount of kits to deploy
+	unsigned amount_is:4; //Amount of kits already deployed
+
+	D_TURN turn; //Turning instruction
+};
+
+////////////////////////////////////////////////////////////////////////////////////
 #define TIMER_ALIGN_BACK 2000
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +198,7 @@ extern uint8_t drive_instructions(char *instructions, uint8_t amount);
 
 extern uint8_t drive_neutralPos(void);
 
-extern uint8_t drive_deployResKit(int8_t dir, uint8_t amount);
+extern void drive_deployResKit(D_DEPLOYKIT *dk);
 
 extern uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width);
 

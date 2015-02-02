@@ -63,6 +63,7 @@ TILE cleartiles;
 
 DOT dot; //drive one tail main struct!
 D_TURN turn; //Turn main struct
+D_DEPLOYKIT deployKits; //Deploy kits settings
 
 uint8_t driveDot_state = 0;
 
@@ -134,7 +135,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 														 ((!maze_getBeenthere(&robot.pos, SOUTH)) && maze_tileIsVisitable(&robot.pos, SOUTH)) ||
 														 ((!maze_getBeenthere(&robot.pos, WEST)) && maze_tileIsVisitable(&robot.pos, WEST)))
 													{
-														maze_clearDepthsearch();
+														//maze_clearDepthsearch();
 														maze_solve_state_path = FOLLOW_RIGHTWALL; //When the program came into RESTART by RR_RTNOPOSS and there is suddenly an option (Wall wrong detected?) proceed!
 													}
 													else
@@ -385,7 +386,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									//	maze_solve_state_path = CHECK_BLACKTILE;
 									}
 
-									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 1)) //already switched to next tile
+									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 0)) //Still on first tile tile
 										groundsens_cnt ++;
 
 									//////Driving straight, change position
@@ -438,10 +439,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									{
 										//////////////////////////Checkpoint///////////////////
 
-										if(groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT) //Checkpoint detected
+										if((groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT && (driveDot_state == 1))) //Checkpoint detected
 										{
-											if(driveDot_state == 1) //We already changed position to next tile
-												maze_setCheckpoint(&robot.pos, NONE);
+											maze_setCheckpoint(&robot.pos, NONE);
 										}
 
 										/////////////////Ramp/////////////////////////
@@ -598,32 +598,17 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 							break;
 
-		case DRIVE_NEUTRPOS:
-									
-									if(!drive_neutralPos())
-									{
-										maze_solve_state_path = DRIVE_READY;
-									}
-									
-								break;
+		case VIC_DEPL:
+								drive_deployResKit(&deployKits);
 
-		case VIC_DEPL_L:
+								if(deployKits.state == DK_FINISHED)
+								{
+									deployKits.state = DK_INIT;
 
-									if(!drive_deployResKit(LEFT, 1))
-									{
-										timer_victim_led = -1;
+									timer_victim_led = -1;
 
-										maze_solve_state_path = maze_solve_state_path_deplKitSave;
-									}
-								break;
-		case VIC_DEPL_R:
-
-									if(!drive_deployResKit(RIGHT, 1))
-									{
-										timer_victim_led = -1;
-
-										maze_solve_state_path = maze_solve_state_path_deplKitSave;
-									}
+									maze_solve_state_path = maze_solve_state_path_deplKitSave;
+								}
 
 								break;
 
@@ -749,10 +734,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 							if(maze_solve_state_path == DRIVE_DOT)
 							{
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL_L;
-
 								maze_corrVictim(&robot.pos, robot.dir+3, 1);
+
+								deployKits.amount_to = 1;
+								deployKits.config_dir = LEFT;
+								deployKits.config_no_turnBack = 0; //Turn back after deployment
+								maze_solve_state_path_deplKitSave = maze_solve_state_path;
+								maze_solve_state_path = VIC_DEPL;
 							}
 							else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
 							{
@@ -762,9 +750,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL_L;
-
 								if(turn.r.progress < 33) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+3, 1);
@@ -773,6 +758,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									maze_corrVictim(&robot.pos, robot.dir, 1);
 								}
+
+								deployKits.amount_to = 1;
+								deployKits.config_dir = LEFT;
+								deployKits.config_no_turnBack = 1; //Don`t turn back after deployment!
+								maze_solve_state_path_deplKitSave = maze_solve_state_path;
+								maze_solve_state_path = VIC_DEPL;
 							}
 							else
 							{
@@ -797,10 +788,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 							if(maze_solve_state_path == DRIVE_DOT)
 							{
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL_R;
-
 								maze_corrVictim(&robot.pos, robot.dir+1, 1);
+
+								deployKits.amount_to = 1;
+								deployKits.config_dir = RIGHT;
+								deployKits.config_no_turnBack = 0; //Turn back after deployment
+								maze_solve_state_path_deplKitSave = maze_solve_state_path;
+								maze_solve_state_path = VIC_DEPL;
 							}
 							else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN))
 							{
@@ -810,9 +804,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL_R;
-
 								if(turn.r.progress < 33) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+1, 1);
@@ -821,6 +812,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									maze_corrVictim(&robot.pos, robot.dir, 1);
 								}
+
+								deployKits.amount_to = 1;
+								deployKits.config_dir = RIGHT;
+								deployKits.config_no_turnBack = 1; //Don`t turn back after deployment!
+								maze_solve_state_path_deplKitSave = maze_solve_state_path;
+								maze_solve_state_path = VIC_DEPL;
 							}
 							else
 							{

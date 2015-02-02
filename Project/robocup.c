@@ -485,9 +485,7 @@ int main(void)
 int8_t testvar = 0;
 uint8_t groundvar = 0;
 
-DOT testdot;
-D_TURN testturn;
-D_TURN testturn_2;
+D_DEPLOYKIT dep;
 
 int8_t task_maze(int8_t state)
 {	
@@ -499,17 +497,23 @@ int8_t task_maze(int8_t state)
 
 	/*if(testvar == 1)
 	{
-		drive_turn(&testturn);
-		if(testturn.state == TURN_FINISHED)
+		drive_deployResKit(&dep);
+		if(dep.state == DK_FINISHED)
 		{
 			testvar = 2;
-			testturn.state = TURN_INIT;
+			dep.state = DK_INIT;
 		}
 	}
 	else
 	{
 		if(get_incrOk())
+		{
+			dep.amount_to = 1;
+			dep.config_dir = RIGHT;
+			dep.config_no_turnBack = 1; //Don`t turn back after deployment!
+
 			testvar = 1;
+		}
 	}*/
 
 	return 0;

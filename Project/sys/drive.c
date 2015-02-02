@@ -920,174 +920,115 @@ uint8_t drive_ramp(int8_t speed)
 	return returnvar;
 }
 
-///////////////////////////////////////
-
-uint8_t sm_nP = 0;
-
-uint8_t drive_neutralPos(void)
-{
-	uint8_t returnvar = 1;
-
-/*	switch(sm_nP)
-	{
-		case 0:
-				if(!drive_turn(90, 1))
-				{
-					sm_nP = 1;
-				}
-				
-			break;
-		
-		case 1:
-				if(dist[LIN][FRONT][FRONT] > TILE1_FRONT_FRONT+10)
-				{
-					drive_oneTile(0);
-				}
-				else
-					sm_nP = 2;
-			
-			break;
-			
-		case 2:
-				if(!drive_turn(90, 1))
-				{
-					sm_nP = 3;
-				}
-			
-			break;
-		
-		case 3:
-				if(dist[LIN][FRONT][FRONT] > TILE1_FRONT_FRONT+10)
-				{
-					drive_oneTile(0);
-				}
-				else	sm_nP = 4;
-				
-			break;
-			
-		case 4:
-				if(!drive_turn(90, 1))
-				{
-					sm_nP = 5;
-				}
-				
-			break;
-			
-		case 5:
-				sm_nP = 0;
-				returnvar = 0;
-			break;
-	}*/
-	
-	return returnvar;
-}
 
 /////////////////////////////////////////////////////
 
-uint8_t sm_d_deplKit = 0;
-int8_t d_deplKit_amount = 0;
-
-D_TURN deployResKit_turn;
-
-uint8_t drive_deployResKit(int8_t dir, uint8_t amount)
+void drive_deployResKit(D_DEPLOYKIT *dk)
 {
-	uint8_t returnvar = 1;
-
-	dir --;
-	if(!dir)
-		dir = 1;
-	//Now: dir: LEFT = -1, RIGHT = 1;
-
-	switch(sm_d_deplKit)
+	switch(dk->state)
 	{
-		case 0:
-				d_deplKit_amount = amount;
-
-				deployResKit_turn.r.angle = 90 * (-dir);
-				deployResKit_turn.no_align = 1; //Don`t align on this turn! We really want to roatte 90°!
-				sm_d_deplKit = 1;
-
-				break;
-		case 1:
-
-				drive_turn(&deployResKit_turn);
-
-				if(deployResKit_turn.state == TURN_FINISHED)
+		case DK_INIT:
+				if(dk->amount_to == 0)
 				{
-					deployResKit_turn.state = TURN_INIT;
+					dk->state = DK_END;
+					break;
+				}
 
-					sm_d_deplKit = 2;
+				dk->turn.no_align = 1; //Don`t align on this turn! We want to rotate exactly 90°!
+				dk->amount_is = 0;
+
+				if(dk->config_dir == LEFT) //Turn 90° left...
+				{
+					dk->turn.r.angle = 90;
+				}
+				else //...or right
+				{
+					dk->turn.r.angle = -90;
+				}
+
+				dk->state = DK_TURN_A;
+
+		case DK_TURN_A:
+
+				drive_turn(&dk->turn);
+
+				if(dk->turn.state == TURN_FINISHED)
+				{
+					dk->turn.state = TURN_INIT;
+
+					dk->state = DK_ALIGN_A;
 				}
 			break;
 
-		case 2:
+		case DK_ALIGN_A:
 
-				if(dist[LIN][BACK][BACK] > 70)
+				if(!drive_dist(0,30,-4))
 				{
-					if(!drive_dist(0,30,-4))
-					{
-						sm_d_deplKit = 3;
-					}
+					dk->state = DK_DEPL;
 				}
-				else
-					sm_d_deplKit = 3;
 
 			break;
 
-		case 3:
+		case DK_DEPL:
 
-				mot.d[LEFT].speed.to = 0;
-				mot.d[RIGHT].speed.to = 0;
-
-				if(d_deplKit_amount > 0)
+				if(dk->amount_is < dk->amount_to)
 				{
 					if(!rescueKit_drop(2))
 					{
-						d_deplKit_amount --;
+						dk->amount_is++;
 					}
 				}
 				else
 				{
-					sm_d_deplKit = 4;
+					dk->state = DK_ALIGN_B;
 				}
 
 			break;
 
-		case 4:
+		case DK_ALIGN_B:
 
-				if(dist[LIN][BACK][BACK] > TILE1_BACK_TH_BACK)
+				if(!drive_dist(0,30,4))
 				{
-					if(!drive_dist(0,30,4))
+					if(dk->config_no_turnBack) //Only if we want to turn back
 					{
-						sm_d_deplKit = 5;
+						dk->state = DK_END;
+					}
+					else
+					{
+						dk->state = DK_TURN_B;
+
+						if(dk->config_dir == LEFT) //Turn back
+						{
+							dk->turn.r.angle = -90;
+						}
+						else
+						{
+							dk->turn.r.angle = 90;
+						}
 					}
 				}
-				else if(!drive_align_back(50))
-				{
-					sm_d_deplKit = 5;
-				}
 
 			break;
 
-		case 5:
-				deployResKit_turn.r.angle = 90 * dir;
-				sm_d_deplKit = 6;
+		case DK_TURN_B:
 
-		case 6:
+				drive_turn(&dk->turn);
 
-				drive_turn(&deployResKit_turn);
-
-				if(deployResKit_turn.state == TURN_FINISHED)
+				if(dk->turn.state == TURN_FINISHED)
 				{
-					deployResKit_turn.state = TURN_INIT;
+					dk->turn.state = TURN_INIT;
 
-					sm_d_deplKit = 0;
-					returnvar = 0;
+					dk->state = DK_END;
 				}
 			break;
+
+		case DK_END:
+			dk->state = DK_FINISHED;
+
+		case DK_FINISHED:
+			break;
+
 	}
-
-	return returnvar;
 }
 
 ///////////////////////////////////////

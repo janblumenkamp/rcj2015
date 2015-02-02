@@ -540,7 +540,7 @@ int8_t maze_getBeenthere(COORD *_coord, int8_t dir)
 		COORD _ramp = *_coord;
 		
 		_ramp.z ++; //Works only in arenas with two stages...
-		if(_ramp.z >= MAZE_SAVESTAGE)
+		if(_ramp.z >= MAZE_SIZE_Z)
 			_ramp.z = 0;
 			
 		_ramp = *maze_getRamp(_ramp.z);
@@ -650,7 +650,7 @@ uint8_t maze_getDepthsearch(COORD *_coord, int8_t dir)
 		COORD _ramp = *_coord;
 		
 		_ramp.z ++; //Works only in arenas with two stages...
-		if(_ramp.z >= MAZE_SAVESTAGE)
+		if(_ramp.z >= MAZE_SIZE_Z)
 			_ramp.z = 0;
 			
 		_ramp = *maze_getRamp(_ramp.z);
@@ -1208,7 +1208,7 @@ uint8_t maze_stageGetVisitedTiles(uint8_t stage)
 uint16_t maze_GetVisitedTiles(void)
 {
 	uint16_t visitedTiles = 0;
-	for(uint8_t z = 0; z < MAZE_SAVESTAGE; z++)
+	for(uint8_t z = 0; z < MAZE_SIZE_Z; z++)
 	{
 		visitedTiles += maze_stageGetVisitedTiles(z);
 	}
