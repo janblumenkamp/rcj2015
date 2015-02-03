@@ -46,12 +46,6 @@ int16_t tsl_th; //Schwellwert Sackgasse; Wird aus EEPROM gelesen
 int16_t tsl_th_ground;
 int16_t ground_th;
 
-////////////////////////////////////////////////////////////////////////////////
-// Main solving function, responsible for the decision of what will happen next,
-// where the robot is going to drive, if he calculates a path etc...
-//
-////////////////////////////////////////////////////////////////////////////////
-
 uint8_t incr_ok_mode = 4; //Positions- oder Richtungswahl? Siehe auch unten
 
 int16_t ramp_start; //value of the rampsensor in the 2nd half of drive one tile
@@ -66,6 +60,26 @@ D_TURN turn; //Turn main struct
 D_DEPLOYKIT deployKits; //Deploy kits settings
 
 uint8_t driveDot_state = 0;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Main solving function, responsible for the decision of what will happen next,
+// where the robot is going to drive, if he calculates a path etc...
+//
+////////////////////////////////////////////////////////////////////////////////
+
+///Helperfunction, resets all driving functions
+void maze_solve_drive_reset(void)
+{
+	//objects:
+	dot.state = DOT_INIT;
+	turn.state = TURN_INIT;
+	deployKits.state = DK_INIT;
+	drive_reset(); //Reset non-object orientated functions
+
+	timer_victim_led = -1; //In case we stopped while detecting a victim
+}
 
 uint8_t maze_solve(void) //called from RIOS periodical task
 {
@@ -204,7 +218,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									
 																		break;
 						
-											case RR_RTNOPOSS:	//That’s bad. The robot detected a wall wrong and can’t find the way or someone put the walls from their places. ;)
+											case RR_RTNOPOSS:	//That’s bad. The robot detected a wall or black tile wrong and can’t find the way or someone put the walls from their places. ;)
 
 																			cleartiles.beenthere = 0;
 																			cleartiles.depthsearch = 1;
@@ -319,7 +333,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 		case LOP_INIT:
 
-								drive_reset(&dot); //Reset Drive Functions...
+								maze_solve_drive_reset(); //Reset Drive Functions...
 								maze_clearDepthsearch();
 
 								robot.pos = *maze_getCheckpoint(&robot.pos);
@@ -599,16 +613,16 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case VIC_DEPL:
-								drive_deployResKit(&deployKits);
+								/*drive_deployResKit(&deployKits);
 
 								if(deployKits.state == DK_FINISHED)
 								{
-									deployKits.state = DK_INIT;
+									deployKits.state = DK_INIT;*/
 
 									timer_victim_led = -1;
 
 									maze_solve_state_path = maze_solve_state_path_deplKitSave;
-								}
+								//}
 
 								break;
 
@@ -705,7 +719,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////Victim//////////////////////////////////
 
-		if((maze_solve_state_path >= DRIVE_DOT) &&
+		if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
 			(maze_solve_state_path <= RAMP_DOWN))
 		{
 			if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
@@ -738,7 +752,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								deployKits.amount_to = 1;
 								deployKits.config_dir = LEFT;
-								deployKits.config_no_turnBack = 0; //Turn back after deployment
+								deployKits.config_turnBack = 1; //Turn back after deployment
 								maze_solve_state_path_deplKitSave = maze_solve_state_path;
 								maze_solve_state_path = VIC_DEPL;
 							}
@@ -750,7 +764,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								if(turn.r.progress < 33) //Robot rotates now...
+								if(turn.r.progress > 33) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+3, 1);
 								}
@@ -761,7 +775,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								deployKits.amount_to = 1;
 								deployKits.config_dir = LEFT;
-								deployKits.config_no_turnBack = 1; //Don`t turn back after deployment!
+								deployKits.config_turnBack = 1; //Don`t turn back after deployment!
 								maze_solve_state_path_deplKitSave = maze_solve_state_path;
 								maze_solve_state_path = VIC_DEPL;
 							}
@@ -792,7 +806,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								deployKits.amount_to = 1;
 								deployKits.config_dir = RIGHT;
-								deployKits.config_no_turnBack = 0; //Turn back after deployment
+								deployKits.config_turnBack = 1; //Turn back after deployment
 								maze_solve_state_path_deplKitSave = maze_solve_state_path;
 								maze_solve_state_path = VIC_DEPL;
 							}
@@ -804,7 +818,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								if(turn.r.progress < 33) //Robot rotates now...
+								if(turn.r.progress > 33) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+1, 1);
 								}
@@ -815,7 +829,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								deployKits.amount_to = 1;
 								deployKits.config_dir = RIGHT;
-								deployKits.config_no_turnBack = 1; //Don`t turn back after deployment!
+								deployKits.config_turnBack = 1; //Don`t turn back after deployment!
 								maze_solve_state_path_deplKitSave = maze_solve_state_path;
 								maze_solve_state_path = VIC_DEPL;
 							}
@@ -848,6 +862,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 			ui_setLED(1, 255);
 		}
 	}
+
+	displayvar[0] = turn.r.progress;
 
 	return returnvar;
 }
@@ -1305,7 +1321,7 @@ void u8g_DrawMaze(void)
 
 		if(incr_ok_mode == 1)
 		{
-			drive_reset(&dot); //Fahrfunktionen zurücksetzen
+			maze_solve_drive_reset(); //Fahrfunktionen zurücksetzen
 			maze_clearDepthsearch();
 				maze_solve_state_path = DRIVE_READY;
 				routeRequest = RR_WAIT;

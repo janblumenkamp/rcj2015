@@ -336,7 +336,7 @@ int main(void)
 			}
 			else if((timer_get_tast == 0) && hold_t1)
 			{
-				drive_reset(&dot); //Fahrfunktionen zurücksetzen
+				maze_solve_drive_reset(); //Fahrfunktionen zurücksetzen
 				maze_clearDepthsearch();
 					maze_solve_state_path = DRIVE_READY;
 					routeRequest = RR_WAIT;

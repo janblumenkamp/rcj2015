@@ -392,10 +392,10 @@ void drive_rotate(D_ROTATE *r)
 							r->state = ROTATE;
 							
 							if(r->speed_limit == 0)
-								r->speed_limit = MAXSPEED; //If speed limit not set set to MAXSPEED
+								r->speed_limit = MAXSPEED; //If speed limit not set, set it to MAXSPEED
 
 							if(r->angle == 0)
-								r->angle = 90; //If angle not set set to 90 degree
+								r->state = ROTATE_END; //If angle not set, break execution
 
 							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_rotate()::psi_start: "));bt_putLong(r->um6_psi_t_start);}
 							
@@ -408,7 +408,7 @@ void drive_rotate(D_ROTATE *r)
 							else
 								r->steer = ((r->um6_psi_t_start + r->angle - UM6_ROTATE_OFFSET) - um6.psi_t) * KP_ROTATE;
 							
-							r->progress = abs((um6.psi_t - r->um6_psi_t_start)*100)/r->angle;
+							r->progress = abs((um6.psi_t - r->um6_psi_t_start)*100)/abs(r->angle);
 
 							if(check_um6 != 0)
 							{
@@ -419,7 +419,7 @@ void drive_rotate(D_ROTATE *r)
 							{
 								if(r->angle > 0)
 								{
-									r->progress = abs(((mot.d[LEFT].enc - r->enc_l_start)*100)/(r->angle * ENC_DEGROTFAC));
+									r->progress = abs(((mot.d[LEFT].enc - r->enc_l_start)*100)/abs(r->angle * ENC_DEGROTFAC));
 
 									if((mot.d[LEFT].enc < (r->enc_l_start + (ENC_DEGROTFAC * r->angle))) ||
 										 (mot.d[RIGHT].enc > (r->enc_r_start + (ENC_DEGROTFAC * r->angle))))
@@ -434,7 +434,7 @@ void drive_rotate(D_ROTATE *r)
 								}
 								else
 								{
-									r->progress = abs(((mot.d[LEFT].enc - r->enc_l_start)*100)/(r->angle * ENC_DEGROTFAC));
+									r->progress = abs(((mot.d[LEFT].enc - r->enc_l_start)*100)/abs(r->angle * ENC_DEGROTFAC));
 
 									if((mot.d[LEFT].enc > (r->enc_l_start + (ENC_DEGROTFAC * r->angle))) ||
 										 (mot.d[RIGHT].enc < (r->enc_r_start + (ENC_DEGROTFAC * r->angle))))
@@ -453,11 +453,16 @@ void drive_rotate(D_ROTATE *r)
 								r->state = ROTATE_END;
 							}
 
-							if((abs(r->steer) < STEER_ROTATE_TH_TIMER) && (r->timer == 0))
+							if((abs(r->steer) > STEER_ROTATE_TH_TIMER) && (r->timer != 0)) //If we start a new turn with another turn object and the timer has already startet, we reset the timer if we stand on another point
+							{
+								r->timer = 0;
+							}
+							else if((abs(r->steer) < STEER_ROTATE_TH_TIMER) && (r->timer == 0))
 							{
 								r->timer = timer;
 							}
-							else if((((timer - r->timer) > TIMER_ROTATE) || (r->steer == 0)) && (r->timer != 0))
+							else if((((timer - r->timer) > TIMER_ROTATE) ||
+									(r->steer == 0)) && (r->timer != 0))
 							{
 								r->state = ROTATE_END;
 							}
@@ -946,6 +951,7 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 					dk->turn.r.angle = -90;
 				}
 
+				dk->turn.state = TURN_INIT;
 				dk->state = DK_TURN_A;
 
 		case DK_TURN_A:
@@ -989,11 +995,7 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 
 				if(!drive_dist(0,30,4))
 				{
-					if(dk->config_no_turnBack) //Only if we want to turn back
-					{
-						dk->state = DK_END;
-					}
-					else
+					if(dk->config_turnBack) //Only if we want to turn back
 					{
 						dk->state = DK_TURN_B;
 
@@ -1005,6 +1007,10 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 						{
 							dk->turn.r.angle = 90;
 						}
+					}
+					else
+					{
+						dk->state = DK_END;
 					}
 				}
 
@@ -1220,13 +1226,10 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 }
 
 ////////////////////////////////////////////////////
-//Alle Fahrfunktionen zurücksetzen (für Eingriff bzw. Positionsänderung)
-void drive_reset(DOT *d)
+//Reset all non-object-orientated driving functions
+void drive_reset(void)
 {
-	d->state = DOT_INIT;
-	//sm_rotate = 0;
-	//sm_turn = 0;
-	sm_d_lr = 0;	
+	sm_d_lr = 0;
 	sm_ddist = 0;
 	
 	if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": Reset::sm_dot:sm_rotate:sm_turn:ramp_ready:sm_d_lr:sm_ddist"));}

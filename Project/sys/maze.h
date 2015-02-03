@@ -174,6 +174,8 @@ extern int8_t wall_size_part;
 
 ////////////////////////////////////////
 
+extern void maze_solve_drive_reset(void);
+
 extern uint8_t maze_solve(void);
 
 extern void maze_solveRoutes(void);

@@ -162,7 +162,7 @@ enum DRIVE_DEPLKIT {DK_INIT, DK_TURN_A, DK_ALIGN_A, DK_DEPL, DK_TURN_B, DK_ALIGN
 struct _d_deplKit {
 	unsigned state:6;
 	unsigned config_dir:1; //Deploy in which direction (LEFT/RIGHT?)
-	unsigned config_no_turnBack:1; //Don`t turn back after deployment?
+	unsigned config_turnBack:1; //Tturn back after deployment?
 
 	unsigned amount_to:4; //Amount of kits to deploy
 	unsigned amount_is:4; //Amount of kits already deployed
@@ -204,6 +204,6 @@ extern uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width);
 
 extern uint8_t drive_dist(int8_t motor, int8_t speed_dd_to, int8_t dist_cm); //motor: <0 links, 0 beide, >0 rechts
 
-extern void drive_reset(DOT *d);
+extern void drive_reset(void);
 
 #endif
