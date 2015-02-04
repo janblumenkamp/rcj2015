@@ -658,6 +658,7 @@ void setupStep_Fac(int16_t fac)
 							
 							setup = 0;
 							motor_activate(1); //Activate motor driver
+							mot.off = 0;
 
 						break;
 		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.03]:DEFAULT_CASE"));}

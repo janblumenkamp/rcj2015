@@ -942,6 +942,8 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 				dk->turn.no_align = 1; //Don`t align on this turn! We want to rotate exactly 90°!
 				dk->amount_is = 0;
 
+				dk->alignedToBackwall = 0;
+
 				if(dk->config_dir == LEFT) //Turn 90° left...
 				{
 					dk->turn.r.angle = 90;
@@ -962,7 +964,14 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 				{
 					dk->turn.state = TURN_INIT;
 
-					dk->state = DK_ALIGN_A;
+					if(dist[LIN][BACK][BACK] > 50 && dist[LIN][BACK][LEFT] > 50 && dist[LIN][BACK][RIGHT] > 50)
+					{
+						dk->state = DK_ALIGN_A;
+					}
+					else
+					{
+						dk->state = DK_DEPL;
+					}
 				}
 			break;
 
@@ -970,6 +979,7 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 
 				if(!drive_dist(0,30,-4))
 				{
+					dk->alignedToBackwall = 1;
 					dk->state = DK_DEPL;
 				}
 
@@ -993,27 +1003,39 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 
 		case DK_ALIGN_B:
 
-				if(!drive_dist(0,30,4))
+				if(dk->alignedToBackwall)
 				{
-					if(dk->config_turnBack) //Only if we want to turn back
+					if(!drive_dist(0,30,4))
 					{
-						dk->state = DK_TURN_B;
+						dk->state = DK_CHECK_TURN;
+					}
+				}
+				else
+				{
+					dk->state = DK_CHECK_TURN;
+				}
 
-						if(dk->config_dir == LEFT) //Turn back
-						{
-							dk->turn.r.angle = -90;
-						}
-						else
-						{
-							dk->turn.r.angle = 90;
-						}
+			break;
+
+		case DK_CHECK_TURN:
+
+				if(dk->config_turnBack) //Only if we want to turn back
+				{
+					dk->state = DK_TURN_B;
+
+					if(dk->config_dir == LEFT) //Turn back
+					{
+						dk->turn.r.angle = -90;
 					}
 					else
 					{
-						dk->state = DK_END;
+						dk->turn.r.angle = 90;
 					}
 				}
-
+				else
+				{
+					dk->state = DK_END;
+				}
 			break;
 
 		case DK_TURN_B:

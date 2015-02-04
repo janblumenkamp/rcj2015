@@ -1485,8 +1485,8 @@ void maze_setRamp(COORD *_coord, int8_t ramp_dir, int8_t tile_dir, int8_t set)
 		}
 		maze_setWall(&c, ramp_dir+1, MAZE_ISWALL+1);
 		maze_setWall(&c, ramp_dir+3, MAZE_ISWALL+1);
-		maze_setWall(&c, ramp_dir, -MAZE_ISWALL+1);
-		maze_setWall(&c, ramp_dir+2, -MAZE_ISWALL+1);
+		maze_setWall(&c, ramp_dir, -100);
+		maze_setWall(&c, ramp_dir+2, -100);
 		maze_setBeenthere(&c,NONE,TRUE);
 	}
 	else

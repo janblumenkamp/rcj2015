@@ -397,11 +397,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									//////Check for Black and silver tile
 									if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && (dot.abort == 0))
 									{
-									//	maze_solve_state_path = CHECK_BLACKTILE;
+										maze_solve_state_path = CHECK_BLACKTILE;
 									}
 
 									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 0)) //Still on first tile tile
 										groundsens_cnt ++;
+
+									displayvar[3] = groundsens_cnt;
 
 									//////Driving straight, change position
 									if((mot.enc > (dot.enc_lr_start + dot.enc_lr_add/2 + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort && !driveDot_state)
@@ -613,16 +615,16 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case VIC_DEPL:
-								/*drive_deployResKit(&deployKits);
+								drive_deployResKit(&deployKits);
 
 								if(deployKits.state == DK_FINISHED)
 								{
-									deployKits.state = DK_INIT;*/
+									deployKits.state = DK_INIT;
 
 									timer_victim_led = -1;
 
 									maze_solve_state_path = maze_solve_state_path_deplKitSave;
-								//}
+								}
 
 								break;
 
@@ -720,7 +722,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		////////////////////////////////////////Victim//////////////////////////////////
 
 		if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
-			(maze_solve_state_path <= RAMP_DOWN))
+			(maze_solve_state_path <= TURN_LEFT))
 		{
 			if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
 			{
@@ -756,15 +758,15 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								maze_solve_state_path_deplKitSave = maze_solve_state_path;
 								maze_solve_state_path = VIC_DEPL;
 							}
-							else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
+							/*else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
 							{
 								if(timer_vic_ramp > 0)
 									timer_victim_led = -1;
-							}
-							else if((maze_solve_state_path == TURN_LEFT) ||
-									(maze_solve_state_path == TURN_RIGHT))
+							}*/
+							else if(((maze_solve_state_path == TURN_LEFT) ||
+									(maze_solve_state_path == TURN_RIGHT)) && turn.state == TURN) //Only if turn has begin (to prevent progress being not set after ramp)
 							{
-								if(turn.r.progress > 33) //Robot rotates now...
+								if(turn.r.progress < 40) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+3, 1);
 								}
@@ -818,7 +820,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							else if((maze_solve_state_path == TURN_LEFT) ||
 									(maze_solve_state_path == TURN_RIGHT))
 							{
-								if(turn.r.progress > 33) //Robot rotates now...
+								if(turn.r.progress < 40) //Robot rotates now...
 								{
 									maze_corrVictim(&robot.pos, robot.dir+1, 1);
 								}

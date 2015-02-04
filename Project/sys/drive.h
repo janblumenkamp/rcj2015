@@ -83,7 +83,7 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define ENC_FAC_CM_R 22
 #define ENC_FAC_CM_LR 22.5
 
-#define TILE1_FRONT_FRONT 		70	//mm
+#define TILE1_FRONT_FRONT 		60	//mm
 #define TILE1_FRONT_TH_FRONT	240
 #define TILE1_BACK_BACK			70	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
 #define TILE1_BACK_TH_BACK		250	//Gibt es eine Wand hinter dem Roboter auf dieser Fliese?
@@ -100,7 +100,7 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define SPEED_COLLISION_AVOIDANCE		20	//After the robot detected a collision, he turns with this speed at the point until the object in the way is gone
 #define TURN_ANGLE_COLLISION_AVOIDED	12	//After the object in the way is gone, the robot turns on this angle to be sure
 
-#define COLLISIONAVOIDANCE_SENS_TH_1	80	//If one front sensor is UNDER this threshold
+#define COLLISIONAVOIDANCE_SENS_TH_1	60	//If one front sensor is UNDER this threshold
 #define COLLISIONAVOIDANCE_SENS_TH_2	150	//and the other two front sensors are ABOVE this threshold, there will happen a collision!
 
 #define KP_DOT_DIR	1.3
@@ -157,12 +157,13 @@ struct _d_turn {
 ////////////////////////////////////////////////////////////////////////////////////
 
 enum DRIVE_DEPLKIT_CONF {DEPLOY_RIGHT, DEPLOY_LEFT, DEPLOY_RIGHT_TURN_BACK, DEPLOY_LEFT_TURN_BACK};
-enum DRIVE_DEPLKIT {DK_INIT, DK_TURN_A, DK_ALIGN_A, DK_DEPL, DK_TURN_B, DK_ALIGN_B, DK_END, DK_FINISHED};
+enum DRIVE_DEPLKIT {DK_INIT, DK_TURN_A, DK_ALIGN_A, DK_DEPL, DK_TURN_B, DK_ALIGN_B, DK_CHECK_TURN, DK_END, DK_FINISHED};
 
 struct _d_deplKit {
-	unsigned state:6;
+	unsigned state:5;
 	unsigned config_dir:1; //Deploy in which direction (LEFT/RIGHT?)
 	unsigned config_turnBack:1; //Tturn back after deployment?
+	unsigned alignedToBackwall:1;
 
 	unsigned amount_to:4; //Amount of kits to deploy
 	unsigned amount_is:4; //Amount of kits already deployed

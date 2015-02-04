@@ -246,7 +246,6 @@ int main(void)
 	for(uint8_t i = 0; i < DISPLAYVARS; i++)
 		displayvar[i] = DISPLAYVAR_UNUSED;
 
-	mot.off = 1;
 	//The higher the task_i of the task is, the higher is the priority
 	
 	tasks[TASK_MAZE_ID].state = -1;
@@ -287,11 +286,13 @@ int main(void)
 	
 	if(get_incrOk())
 	{
+		mot.off = 1;
 		motor_activate(0); //Shut down motor driver
 		setup = 1;
 	}
 	else
 	{
+		mot.off = 0;
 		motor_activate(1); //Activate motor driver
 		setup = 0;
 	}
@@ -327,7 +328,7 @@ int main(void)
 		//maze_localize(); //"
 
 		////////////////////////////////////////////////////////////////////////////
-		if(get_t1())
+	/*	if(get_t1() && get_incrOk())
 		{
 			if((timer_get_tast == 0) && (timer_entpr_tast == 0) && (!hold_t1))
 			{
@@ -350,7 +351,7 @@ int main(void)
 		{
 			timer_get_tast = 0;
 			hold_t1 = 0;
-		}
+		}*/
 
 		////////////////////Sensorcoordination//////////////////////////////////////
 
@@ -423,8 +424,16 @@ int main(void)
 		//displayvar[4] = victimBuf[LEFT].value[0];
 		//displayvar[5] = (victimBuf[LEFT].value[0]-victimBuf[LEFT].lowest);
 
-
+		displayvar[2] = maze_getWall(&robot.pos, robot.dir);
 		//setup = 1;
+
+		int8_t rampclearwall_dir = maze_getRampDir(0);
+		if(rampclearwall_dir != NONE)
+		{
+			COORD *rampclearwall = maze_getRamp(0);
+
+			maze_setWall(rampclearwall, maze_alignDir(rampclearwall_dir+2), -100);
+		}
 
 		if(!u8g_stateMachine)
 		{
@@ -494,8 +503,9 @@ int8_t task_maze(int8_t state)
 		maze_solve();
 		//victim_check();
 	}
+/*
 
-	/*if(testvar == 1)
+	if(testvar == 1)
 	{
 		drive_deployResKit(&dep);
 		if(dep.state == DK_FINISHED)
@@ -509,8 +519,8 @@ int8_t task_maze(int8_t state)
 		if(get_incrOk())
 		{
 			dep.amount_to = 1;
-			dep.config_dir = RIGHT;
-			dep.config_no_turnBack = 1; //Don`t turn back after deployment!
+			dep.config_dir = LEFT;
+			dep.config_turnBack = 1;
 
 			testvar = 1;
 		}
