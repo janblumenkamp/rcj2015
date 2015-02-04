@@ -15,7 +15,10 @@
 ///		- Displayausgaben und Displayloop
 ////////////////////////////////////////////////////////////////////////////////
 ///	To do:
-/// - checkpoints
+/// - checkpoints: Nur Wert inkrementieren, wenn auf zweiter Hälfte der Fliesen
+/// - Bug: motor off
+/// - beim drehen: Percent sollte zu Beginn auf jeden Fall bei 0 sein... Bug?
+///
 /// - bei geradeausfahrt abbruch und keine wand einzeichenn? Gefangen!
 /// - überpsringen von Fliesen testen (wegen encodervergleich nach drehen und so) testen!
 /// - in der oberen Etage starten funktioniert nicht...
@@ -286,13 +289,11 @@ int main(void)
 	
 	if(get_incrOk())
 	{
-		mot.off = 1;
 		motor_activate(0); //Shut down motor driver
 		setup = 1;
 	}
 	else
 	{
-		mot.off = 0;
 		motor_activate(1); //Activate motor driver
 		setup = 0;
 	}
@@ -325,10 +326,9 @@ int main(void)
 		////////////////////////////////////////////////////////////////////////////
 
 		maze_solveRoutes(); //Has to be called to calculate routes in main-loop, when nessesary (because it needs up to 2s)
-		//maze_localize(); //"
 
 		////////////////////////////////////////////////////////////////////////////
-	/*	if(get_t1() && get_incrOk())
+		if(get_t1())
 		{
 			if((timer_get_tast == 0) && (timer_entpr_tast == 0) && (!hold_t1))
 			{
@@ -339,8 +339,9 @@ int main(void)
 			{
 				maze_solve_drive_reset(); //Fahrfunktionen zurücksetzen
 				maze_clearDepthsearch();
-					maze_solve_state_path = DRIVE_READY;
-					routeRequest = RR_WAIT;
+
+				maze_solve_state_path = DRIVE_READY;
+				routeRequest = RR_WAIT;
 
 				hold_t1 = 0;
 				mot.off ^= 1;
@@ -351,7 +352,7 @@ int main(void)
 		{
 			timer_get_tast = 0;
 			hold_t1 = 0;
-		}*/
+		}
 
 		////////////////////Sensorcoordination//////////////////////////////////////
 
@@ -424,7 +425,6 @@ int main(void)
 		//displayvar[4] = victimBuf[LEFT].value[0];
 		//displayvar[5] = (victimBuf[LEFT].value[0]-victimBuf[LEFT].lowest);
 
-		displayvar[2] = maze_getWall(&robot.pos, robot.dir);
 		//setup = 1;
 
 		int8_t rampclearwall_dir = maze_getRampDir(0);

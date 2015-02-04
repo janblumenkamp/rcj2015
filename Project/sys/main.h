@@ -72,7 +72,7 @@ extern int32_t incremental;
 
 #define TIMER_VICTIM_LED	5000/25 //So lange leuchtet LED und steht Robo bei Fund
 #define TIMER_ENTPR_TAST	500/25  //Timer zum Entprellen von Taster
-#define TIMER_GET_TAST		50/25	//So lange muss der Taster gedrückt werden, bis eine Eingabe registriert wird
+#define TIMER_GET_TAST		1300/25	//So lange muss der Taster gedrückt werden, bis eine Eingabe registriert wird
 #define TIMER_ENTPR_INCR	500/25  //Timer zum Entprellen von incr_ok
 #define TIMER_BT_IS_BUSY	127 //Timer für Bluetooth DIsplayanzeige (Nach Funkstille Anzeige deaktivieren)
 #define TIMER_DISP_MSG		127 //Bei mehreren Statusmeldungen werden die der Reihe nach oben angezeigt.

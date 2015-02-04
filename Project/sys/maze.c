@@ -400,7 +400,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										maze_solve_state_path = CHECK_BLACKTILE;
 									}
 
-									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 0)) //Still on first tile tile
+									if((groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) && (driveDot_state == 1)) //Still on first tile tile
 										groundsens_cnt ++;
 
 									displayvar[3] = groundsens_cnt;
@@ -764,7 +764,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									timer_victim_led = -1;
 							}*/
 							else if(((maze_solve_state_path == TURN_LEFT) ||
-									(maze_solve_state_path == TURN_RIGHT)) && turn.state == TURN) //Only if turn has begin (to prevent progress being not set after ramp)
+									(maze_solve_state_path == TURN_RIGHT)) && turn.r.state == ROTATE) //Only if rotation has begin (to prevent progress being not set after ramp)
 							{
 								if(turn.r.progress < 40) //Robot rotates now...
 								{
