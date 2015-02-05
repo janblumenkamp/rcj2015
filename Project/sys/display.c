@@ -442,7 +442,7 @@ void set_msg(void) //Hilfsfunktion
 
 enum DISP_MSG {WNG_01, WNG_02, ERR_FA, ERR_10, ERR_11, ERR_20, ERR_21, ERR_30, ERR_31, INF_01, INF_02, INF_03, INF_04, INF_05}; //Ok-Meldung nicht enthalten!
 
-u8g_DrawInfo(void) //Malen der Batterie, Anzeige in %
+void u8g_DrawInfo(void) //Malen der Batterie, Anzeige in %
 {
 	///////Infos////  X  /////////
 	//  Karte   //Pfeil// Frei  //

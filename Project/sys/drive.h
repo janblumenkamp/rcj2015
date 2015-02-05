@@ -81,12 +81,12 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 ///////////////////////drive_oneTile//////////
 #define ENC_FAC_CM_L 22 //Fakor: Encoderwert in Strecke (cm) umrechnen
 #define ENC_FAC_CM_R 22
-#define ENC_FAC_CM_LR 22.5
+#define ENC_FAC_CM_LR 23
 
 #define TILE1_FRONT_FRONT 		60	//mm
 #define TILE1_FRONT_TH_FRONT	240
 #define TILE1_BACK_BACK			70	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
-#define TILE1_BACK_TH_BACK		250	//Gibt es eine Wand hinter dem Roboter auf dieser Fliese?
+#define TILE1_BACK_TH_BACK		230                                                                                                                                                                                                                                                                                                                                          0	//Gibt es eine Wand hinter dem Roboter auf dieser Fliese?
 
 #define TILE1_SIDE_TH			150
 

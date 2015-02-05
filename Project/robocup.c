@@ -471,8 +471,21 @@ int main(void)
 			u8g_DrawCamRaw();
 		else if(setup == 4)
 			u8g_DrawVictim();
+		else if(timer_get_tast < 100 && timer_get_tast > 0)
+		{
+			u8g_SetFont(&u8g, u8g_font_fur30r);
+
+			if(timer_get_tast > 75)
+				u8g_DrawStr(&u8g, 3, 40, "Ready");
+			else if(timer_get_tast > 50)
+				u8g_DrawStr(&u8g, 3, 40, "Set");
+			else if(timer_get_tast > 25)
+				u8g_DrawStr(&u8g, 3, 40, "Go!");
+		}
 		else
 		{
+			u8g_SetFont(&u8g, u8g_font_4x6);
+
 			u8g_DrawMaze(); //Everything about the maze (in maze.c!)
 			//u8g_DrawPixy();
 			//u8g_DrawTempScan(LEFT);
@@ -487,8 +500,6 @@ int main(void)
 			//          //Info //   X   //
 			//          //Karte//       //
 			//////////////////////////////
-
-			u8g_SetFont(&u8g, u8g_font_5x7);
 
 			displayvar[7] = get_mem_unused();
 

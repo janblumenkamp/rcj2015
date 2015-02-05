@@ -94,23 +94,6 @@ void drive_oneTile(DOT *d)
 								d->enc_lr_start = mot.enc;
 								d->timer = 0; //Unactivate timer
 							}
-
-
-							/*d->steer = ((TILE1_BACK_BACK - (dist[LIN][BACK][BACK])) * KP_ALIGN_BACK);
-							
-							mot.d[LEFT].speed.to = d->steer;
-							mot.d[RIGHT].speed.to = d->steer;
-						
-							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
-						
-							if((abs(d->steer) <= STEER_ALIGN_BACK_END) || //Aligned well enough
-							   ((timer - d->timer) > TIMER_DOT_ALIGN) || //Aligned for too long
-								((dist[LIN][BACK][BACK] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][LEFT] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][RIGHT] > TILE1_BACK_TH_BACK))) //Don`t align to obstacles!!! (use all three sensors)
-							{
-								d->state = DOT_ALIGN;
-								d->enc_lr_start = mot.enc;
-								d->timer = 0; //Unactivate timer
-							}*/
 							
 						break;
 		case DOT_ALIGN:
@@ -701,15 +684,7 @@ void drive_turn(D_TURN *t)
 						//GGf. Ausrichtung an Wand
 						if(!drive_align())
 						{
-							if((dist[LIN][BACK][BACK] < TILE1_BACK_TH_BACK) &&
-								(maze_getWall(&robot.pos, robot.dir+2) > 0))
-							{
-								t->state = TURN_ALIGN_BACK;
-							}
-							else
-							{
-								t->state = TURN_END;
-							}
+							t->state = TURN_ALIGN_BACK;
 
 							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn(): aligned"));}
 						}
@@ -989,7 +964,7 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 
 		case DK_ALIGN_A:
 
-				if(!drive_align_back(25))
+				if(!drive_align_back(35))
 				{
 					dk->alignedToBackwall = 1;
 					dk->state = DK_DEPL;
@@ -1022,7 +997,7 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 
 		case DK_ALIGN_B:
 
-				if(!drive_align_back(50))
+				if(!drive_align_back(TILE1_BACK_BACK))
 				{
 					dk->state = DK_CHECK_TURN;
 				}
