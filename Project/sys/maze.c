@@ -738,8 +738,10 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 				///		2.1) The robot rotated only 30% of the 90°: The victim is on the old right side of the robot
 				///		2.2) The robot rotated more than the 30%: The victim is on the old front side of the robot
 
+				getIR();
 
-				if(victim_BufIsVic(LEFT))
+				//if(victim_BufIsVic(LEFT))
+				if(mlx90614[LEFT].is > 2500)
 				{
 					if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
 					{
@@ -793,7 +795,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						}
 					}
 				}
-				else if(victim_BufIsVic(RIGHT))
+				//else if(victim_BufIsVic(RIGHT))
+				else if(mlx90614[RIGHT].is > 2500)
 				{
 					if(dist[LIN][RIGHT][BACK] < DIST_VICTIM_MIN)
 					{

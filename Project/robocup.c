@@ -570,7 +570,7 @@ int8_t task_sensors(int8_t state)
 {
 	//I²C sensors
 	///Temperature
-	check_mlx = getIR();
+	//check_mlx = getIR();
 	victim_scan();
 
 	////Ultrasonic distance
@@ -579,7 +579,7 @@ int8_t task_sensors(int8_t state)
 	//UM6
 	check_um6 = um6_getUM6();
 
-	displayvar[1] = victim_BufGetRaw(LEFT);
+	displayvar[1] = victim_BufGetLastHighest(3, LEFT);
 	displayvar[2] = mlx90614[RIGHT].th;
 	//pixy_get();
 	//displayvar[2] = pixy_number_of_blocks;

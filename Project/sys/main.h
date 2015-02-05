@@ -31,7 +31,7 @@ extern u8g_t u8g; //Pointer für u8g muss hier eingebunden werden
 	#define TASK_CAM_ID				5
 #define TASK_PERIOD_SPEEDREG	25
 	#define TASK_SPEEDREG_ID		3
-#define TASK_PERIOD_SENSORS		10
+#define TASK_PERIOD_SENSORS		15
 	#define TASK_SENSORS_ID			2
 #define TASK_PERIOD_ANASENS		50
 	#define TASK_ANASENS_ID			4

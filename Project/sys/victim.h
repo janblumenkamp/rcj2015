@@ -40,6 +40,8 @@ extern void victim_scan(void);
 
 extern int16_t victim_BufGetRaw(uint8_t dir);
 
+extern int16_t victim_BufGetLastHighest(uint8_t index, uint8_t dir);
+
 extern int16_t victim_BufGetMaxDiff(uint8_t dir);
 
 extern uint8_t victim_BufIsVic(uint8_t dir);
