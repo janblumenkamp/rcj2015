@@ -109,7 +109,7 @@ int16_t victim_BufGetMaxDiff(uint8_t dir)
 
 uint8_t victim_BufIsVic(uint8_t dir)
 {
-	if(victim_BufGetLastHighest(4, dir) > mlx90614[RIGHT].th)
+	if((victim_BufGetLastHighest(4, dir) - victimBuf[dir].lowest) > mlx90614[RIGHT].th)
 		return TRUE;
 	else
 		return FALSE;

@@ -864,8 +864,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 			ui_setLED(-1, 255);
 			ui_setLED(1, 255);
-		}*/
-
+		}
+*/
 
 		if((victim_BufIsVic(LEFT) || victim_BufIsVic(RIGHT)) && timer_vic_ramp == 0 && timer_victim_led == -1)
 		{
