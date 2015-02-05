@@ -807,10 +807,10 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 }
 
 ////////////////////////////////////////////////////////
-#define DIST_SOLL_RAMP 50 //mm, Sollabstand Rampe
+#define DIST_SOLL_RAMP 70 //mm, Sollabstand Rampe
 
-#define KP_RAMP_DIR 0.8
-#define KP_RAMP_DIST KP_RAMP_DIR * 0.6
+#define KP_RAMP_DIR 0.9
+#define KP_RAMP_DIST KP_RAMP_DIR * 0.5
 
 #define RAMP_UM6_GYR_DELTAX 15 //Winkelgeschwindigkeit (Rampenerkennung)
 

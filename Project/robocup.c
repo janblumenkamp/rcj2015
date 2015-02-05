@@ -317,6 +317,9 @@ int main(void)
 
 	//wdt_enable(WDTO_8S); //activate watchdog
 
+	mot.off = 1;
+	timer_get_tast = 120;
+
 	while(1)
     {
 		wdt_reset();
@@ -328,7 +331,20 @@ int main(void)
 		maze_solveRoutes(); //Has to be called to calculate routes in main-loop, when nessesary (because it needs up to 2s)
 
 		////////////////////////////////////////////////////////////////////////////
-		if(get_t1())
+
+		displayvar[5] = timer_get_tast;
+		if(timer_get_tast == 0)
+		{
+			timer_get_tast = -1;
+			mot.off = 0;
+		}
+
+		if(get_t1()) //Always reset...
+		{
+			mot.off = 1;
+			timer_get_tast = 120;
+		}
+		/*if(get_t1())
 		{
 			if((timer_get_tast == 0) && (timer_entpr_tast == 0) && (!hold_t1))
 			{
@@ -352,7 +368,7 @@ int main(void)
 		{
 			timer_get_tast = 0;
 			hold_t1 = 0;
-		}
+		}*/
 
 		////////////////////Sensorcoordination//////////////////////////////////////
 
@@ -563,6 +579,8 @@ int8_t task_sensors(int8_t state)
 	//UM6
 	check_um6 = um6_getUM6();
 
+	displayvar[1] = victim_BufGetRaw(LEFT);
+	displayvar[2] = mlx90614[RIGHT].th;
 	//pixy_get();
 	//displayvar[2] = pixy_number_of_blocks;
 	return 0;

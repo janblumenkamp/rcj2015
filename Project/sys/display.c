@@ -454,7 +454,7 @@ u8g_DrawInfo(void) //Malen der Batterie, Anzeige in %
 		
 	u8g_DrawHLine(&u8g, 0, 6, 128); //Horizontale Abgrenzungslinie
 
-    u8g_SetFont(&u8g, u8g_font_4x6); //Schriftart
+	u8g_SetFont(&u8g, u8g_font_4x6); //Schriftart
 	
 	//////Batterie////////////
 	if(batt_percent > -1)
@@ -930,9 +930,22 @@ void u8g_DrawVictim(void)
 	if(get_incrOk())
 		setup = 1;
 
-	u8g_DrawTempScan(RIGHT);
+	uint8_t victimDir;
 
-	u8g_DrawStr(&u8g,		65, 	13, "Max Diff:"); 	u8g_DrawLong(100,	13, victim_BufGetMaxDiff(RIGHT));
+	if(incremental % 2 == 0)
+	{
+		u8g_DrawStr(&u8g,		65, 	13, "LEFT");
+		victimDir = LEFT;
+	}
+	else
+	{
+		u8g_DrawStr(&u8g,		65, 	13, "RIGHT");
+		victimDir = RIGHT;
+	}
+
+	u8g_DrawTempScan(victimDir);
+
+	u8g_DrawStr(&u8g,		65, 	21, "Max Diff:"); 	u8g_DrawLong(100,	21, victim_BufGetMaxDiff(victimDir));
 }
 
 /////////////////////////////Pixy///////////////////////////////////////////
