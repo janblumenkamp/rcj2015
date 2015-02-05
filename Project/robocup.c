@@ -521,9 +521,9 @@ int8_t task_maze(int8_t state)
 		maze_solve();
 		//victim_check();
 	}
-/*
 
-	if(testvar == 1)
+
+	/*if(testvar == 1)
 	{
 		drive_deployResKit(&dep);
 		if(dep.state == DK_FINISHED)
@@ -531,19 +531,20 @@ int8_t task_maze(int8_t state)
 			testvar = 2;
 			dep.state = DK_INIT;
 		}
+
+		if(!drive_align_back(50))
+		{
+			testvar = 2;
+		}
 	}
 	else
 	{
 		if(get_incrOk())
 		{
-			dep.amount_to = 1;
-			dep.config_dir = LEFT;
-			dep.config_turnBack = 1;
-
 			testvar = 1;
 		}
-	}*/
-
+	}
+*/
 	return 0;
 }
 
@@ -582,8 +583,6 @@ int8_t task_sensors(int8_t state)
 	//UM6
 	check_um6 = um6_getUM6();
 
-	displayvar[1] = victim_BufGetLastHighest(3, LEFT);
-	displayvar[2] = mlx90614[RIGHT].th;
 	//pixy_get();
 	//displayvar[2] = pixy_number_of_blocks;
 	return 0;

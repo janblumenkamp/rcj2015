@@ -88,7 +88,15 @@ void drive_oneTile(DOT *d)
 						
 		case DOT_ALIGN_BACK:
 		
-							d->steer = ((TILE1_BACK_BACK - (dist[LIN][BACK][BACK])) * KP_ALIGN_BACK);
+							if(!drive_align_back(TILE1_BACK_BACK))
+							{
+								d->state = DOT_ALIGN;
+								d->enc_lr_start = mot.enc;
+								d->timer = 0; //Unactivate timer
+							}
+
+
+							/*d->steer = ((TILE1_BACK_BACK - (dist[LIN][BACK][BACK])) * KP_ALIGN_BACK);
 							
 							mot.d[LEFT].speed.to = d->steer;
 							mot.d[RIGHT].speed.to = d->steer;
@@ -102,7 +110,7 @@ void drive_oneTile(DOT *d)
 								d->state = DOT_ALIGN;
 								d->enc_lr_start = mot.enc;
 								d->timer = 0; //Unactivate timer
-							}
+							}*/
 							
 						break;
 		case DOT_ALIGN:
@@ -605,11 +613,21 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 {
 	uint8_t returnvar = 1;
 
+	int16_t dist_back; //any of the distance sensor in the back
+	if(dist[LIN][BACK][BACK] != DIST_MAX_SRP_NEW)
+		dist_back = dist[LIN][BACK][BACK];
+	else if(dist[LIN][BACK][LEFT] != DIST_MAX_SRP_OLD)
+		dist_back = dist[LIN][BACK][LEFT];
+	else if(dist[LIN][BACK][RIGHT] != DIST_MAX_SRP_OLD)
+		dist_back = dist[LIN][BACK][RIGHT];
+	else
+		dist_back = DIST_MAX_SRP_NEW;
+
 	switch(sm_dab)
 	{
 		case 0:
 
-				if(dist[LIN][BACK][BACK] < TILE1_BACK_TH_BACK)
+				if(dist_back < TILE1_BACK_TH_BACK)
 				{
 					timer_alignBack = timer;
 					sm_dab = 1;
@@ -621,10 +639,11 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 
 		case 1:
 
-				steer_dab = ((dist_to - (dist[LIN][BACK][BACK])) * KP_ALIGN_BACK);
+
+				steer_dab = ((dist_to - dist_back) * KP_ALIGN_BACK);
 
 				if((abs(steer_dab) <= STEER_ALIGN_BACK_END) || ((timer - timer_alignBack) > TIMER_ALIGN_BACK) ||
-					((dist[LIN][BACK][BACK] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][LEFT] > TILE1_BACK_TH_BACK) && (dist[LIN][BACK][RIGHT] > TILE1_BACK_TH_BACK)))
+					(dist_back > TILE1_BACK_TH_BACK))
 				{
 					mot.d[LEFT].speed.to = 0;
 					mot.d[RIGHT].speed.to = 0;
@@ -964,20 +983,13 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 				{
 					dk->turn.state = TURN_INIT;
 
-					if(dist[LIN][BACK][BACK] > 50 && dist[LIN][BACK][LEFT] > 50 && dist[LIN][BACK][RIGHT] > 50)
-					{
-						dk->state = DK_ALIGN_A;
-					}
-					else
-					{
-						dk->state = DK_DEPL;
-					}
+					dk->state = DK_ALIGN_A;
 				}
 			break;
 
 		case DK_ALIGN_A:
 
-				if(!drive_dist(0,30,-4))
+				if(!drive_align_back(25))
 				{
 					dk->alignedToBackwall = 1;
 					dk->state = DK_DEPL;
@@ -996,21 +1008,21 @@ void drive_deployResKit(D_DEPLOYKIT *dk)
 				}
 				else
 				{
-					dk->state = DK_ALIGN_B;
+					if(dk->alignedToBackwall)
+					{
+						dk->state = DK_ALIGN_B;
+					}
+					else
+					{
+						dk->state = DK_CHECK_TURN;
+					}
 				}
 
 			break;
 
 		case DK_ALIGN_B:
 
-				if(dk->alignedToBackwall)
-				{
-					if(!drive_dist(0,30,4))
-					{
-						dk->state = DK_CHECK_TURN;
-					}
-				}
-				else
+				if(!drive_align_back(50))
 				{
 					dk->state = DK_CHECK_TURN;
 				}
