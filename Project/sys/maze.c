@@ -722,7 +722,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////Victim//////////////////////////////////
 
-	/*	if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
+		if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
 			(maze_solve_state_path <= TURN_LEFT))
 		{
 			if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
@@ -739,8 +739,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 				if(victim_BufIsVic(LEFT))
 				{
-					displayvar[3] = 999;
-
 					if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
 					{
 						if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
@@ -750,7 +748,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						{
 							timer_victim_led = TIMER_VICTIM_LED;
 
-							if(maze_solve_state_path == DRIVE_DOT)
+							if(maze_solve_state_path == DRIVE_DOT_DRIVE)
 							{
 								maze_corrVictim(&robot.pos, robot.dir+3, 1);
 
@@ -804,7 +802,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						{
 							timer_victim_led = TIMER_VICTIM_LED;
 
-							if(maze_solve_state_path == DRIVE_DOT)
+							if(maze_solve_state_path == DRIVE_DOT_DRIVE)
 							{
 								maze_corrVictim(&robot.pos, robot.dir+1, 1);
 
@@ -864,39 +862,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 			ui_setLED(-1, 255);
 			ui_setLED(1, 255);
-		}
-*/
-
-		if((victim_BufIsVic(LEFT) || victim_BufIsVic(RIGHT)) && timer_vic_ramp == 0 && timer_victim_led == -1)
-		{
-			timer_victim_led = 5000/25;
-
-			ui_setLED(-1, 255);
-			ui_setLED(1, 255);
-		}
-
-		if(timer_victim_led > 0)
-		{
-			mot.d[LEFT].speed.to = 0;
-			mot.d[RIGHT].speed.to = 0;
-		}
-		if(timer_victim_led == 0)
-		{
-			timer_victim_led = -1;
-			ui_setLED(-1, 0);
-				ui_setLED(1, 0);
-			timer_vic_ramp = 9000/25;
-
-			deployKits.amount_to = 1;
-			deployKits.config_turnBack = 1; //Don`t turn back after deployment!
-			maze_solve_state_path_deplKitSave = maze_solve_state_path;
-			maze_solve_state_path = VIC_DEPL;
-
-			if(victim_BufIsVic(RIGHT))
-				deployKits.config_dir = RIGHT;
-			else
-				deployKits.config_dir = LEFT;
-
 		}
 	}
 
