@@ -1172,7 +1172,8 @@ void u8g_DrawMaze(void)
 					if(((int16_t)disp_y - wall_size_y_temp) < MAPEND_PART_Y_TOP)
 						wall_size_y_temp = disp_y - MAPEND_PART_Y_TOP + 2;
 
-					u8g_DrawBox(&u8g, disp_x+1, (uint8_t)disp_y+1-wall_size_y_temp, wall_size_x_temp-1, wall_size_y_temp-1);
+					if(wall_size_y_temp > 0) //may be smaller than 0 if the box is out of the display area
+						u8g_DrawBox(&u8g, disp_x+1, (uint8_t)disp_y+1-wall_size_y_temp, wall_size_x_temp-1, wall_size_y_temp-1);
 				}
 				else
 				{
