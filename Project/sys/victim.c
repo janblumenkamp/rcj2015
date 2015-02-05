@@ -83,14 +83,17 @@ int16_t victim_BufGetRaw(uint8_t dir)
 	return victimBuf[dir].value[victimBuf[dir].next] - victimBuf[dir].lowest;
 }
 
-int16_t victim_BufGetLastHighest(uint8_t index, uint8_t dir)
+int16_t victim_BufGetLastHighest(uint8_t amount, uint8_t dir)
 {
+	if(amount > VICTIMBUFFER_SIZE)
+		amount = VICTIMBUFFER_SIZE;
+
 	int16_t localMax = -VICTIMBUF_UNUSED;
 	int8_t current_index = victimBuf[dir].next;
-	for(uint8_t i = 0; i < index; i++)
+	for(uint8_t i = 0; i < amount; i++)
 	{
-		if((victimBuf[dir].value[i] > localMax) && (victimBuf[dir].value[i] != VICTIMBUF_UNUSED))
-			localMax = victimBuf[dir].value[i];
+		if((victimBuf[dir].value[current_index] > localMax) && (victimBuf[dir].value[current_index] != VICTIMBUF_UNUSED))
+			localMax = victimBuf[dir].value[current_index];
 
 		current_index--;
 		if(current_index < 0)
@@ -106,8 +109,7 @@ int16_t victim_BufGetMaxDiff(uint8_t dir)
 
 uint8_t victim_BufIsVic(uint8_t dir)
 {
-	if(victim_BufGetLastHighest(3, dir) > mlx90614[RIGHT].th)
-	//if(mlx90614[dir].is > mlx90614[RIGHT].th)
+	if(victim_BufGetLastHighest(4, dir) > mlx90614[RIGHT].th)
 		return TRUE;
 	else
 		return FALSE;

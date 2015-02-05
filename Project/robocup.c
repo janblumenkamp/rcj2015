@@ -185,7 +185,7 @@ int8_t timer_get_tast = 0;
 int16_t timer_rdy_restart = -1;
 int8_t timer_map_wall_r = 0;
 int16_t timer_lop = -1;
-int8_t timer_vic_ramp = -1;
+int16_t timer_vic_ramp = -1;
 
 uint8_t timer_25ms = 0; //make the upper timers decrement only every 25ms in the timer task
 
@@ -319,6 +319,8 @@ int main(void)
 
 	mot.off = 1;
 	timer_get_tast = 120;
+
+	timer_vic_ramp = 0;
 
 	while(1)
     {
@@ -557,6 +559,7 @@ int8_t task_speedreg(int8_t state)
 		mot.d[LEFT].speed.to = 0;
 		mot.d[RIGHT].speed.to = 0;
 	}
+
 	controlSpeed(); //Speed Regulation
 	
 	return 0;
@@ -570,7 +573,7 @@ int8_t task_sensors(int8_t state)
 {
 	//I²C sensors
 	///Temperature
-	//check_mlx = getIR();
+	check_mlx = getIR();
 	victim_scan();
 
 	////Ultrasonic distance

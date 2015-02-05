@@ -76,7 +76,7 @@ struct _d_rotate {
 
 enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT_WEST, DOT_ROT_EAST, DOT_COMP_ENC, DOT_CORR, DOT_ALIGN_WALL, DOT_END, DOT_FINISHED};
 
-#define MAXSPEED 50
+#define MAXSPEED 100
 
 ///////////////////////drive_oneTile//////////
 #define ENC_FAC_CM_L 22 //Fakor: Encoderwert in Strecke (cm) umrechnen

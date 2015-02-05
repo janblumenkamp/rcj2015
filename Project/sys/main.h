@@ -92,7 +92,7 @@ extern int8_t timer_get_tast;
 extern int16_t timer_rdy_restart;
 extern int8_t timer_map_wall_r;
 extern int16_t timer_lop;
-extern int8_t timer_vic_ramp;
+extern int16_t timer_vic_ramp;
 
 extern int32_t incremental;
 
