@@ -85,8 +85,8 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 
 #define TILE1_FRONT_FRONT 		60	//mm
 #define TILE1_FRONT_TH_FRONT	240
-#define TILE1_BACK_BACK			70	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
-#define TILE1_BACK_TH_BACK		230                                                                                                                                                                                                                                                                                                                                          0	//Gibt es eine Wand hinter dem Roboter auf dieser Fliese?
+#define TILE1_BACK_BACK			60	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
+#define TILE1_BACK_TH_BACK		230
 
 #define TILE1_SIDE_TH			150
 

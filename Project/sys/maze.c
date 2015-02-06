@@ -149,7 +149,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 														 ((!maze_getBeenthere(&robot.pos, SOUTH)) && maze_tileIsVisitable(&robot.pos, SOUTH)) ||
 														 ((!maze_getBeenthere(&robot.pos, WEST)) && maze_tileIsVisitable(&robot.pos, WEST)))
 													{
-														//maze_clearDepthsearch();
+														maze_clearDepthsearch();
 														maze_solve_state_path = FOLLOW_RIGHTWALL; //When the program came into RESTART by RR_RTNOPOSS and there is suddenly an option (Wall wrong detected?) proceed!
 													}
 													else
