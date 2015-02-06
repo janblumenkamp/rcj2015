@@ -717,66 +717,6 @@ void drive_turn(D_TURN *t)
 	}
 }
 
-/////////////////////////////////////////////////////
-///
-uint8_t sm_drive_getBall = 0;
-
-uint8_t drive_getBall(void)
-{
-	uint8_t returnvar = 1;
-
-	switch (sm_drive_getBall) {
-	case 0: if(!drive_dist(0,30,25))
-			{
-				servo_setPos(100);
-				sm_drive_getBall ++;
-			}
-		break;
-	case 1: if(!drive_dist(0,30,5))
-			{
-				sm_drive_getBall ++;
-			}
-		break;
-	case 2: if(!drive_dist(0,30,-30))
-			{
-				sm_drive_getBall = 0;
-				returnvar = 0;
-			}
-		break;
-	default:
-		break;
-	}
-
-	return returnvar;
-}
-
-uint8_t sm_drive_thrBall = 0;
-
-uint8_t drive_releaseBall(void)
-{
-	uint8_t returnvar = 1;
-
-	switch (sm_drive_getBall) {
-	case 0: if(!drive_dist(0,30,20))
-			{
-				servo_setPos(30);
-				sm_drive_getBall ++;
-			}
-		break;
-	case 1: if(!drive_dist(0,30,-20))
-			{
-				sm_drive_getBall = 0;
-				returnvar = 0;
-			}
-		break;
-	default:
-		break;
-	}
-
-
-	return returnvar;
-}
-
 uint8_t drive_instr_sm = 0;
 
 uint8_t drive_instructions(char *instructions, uint8_t amount)
@@ -787,8 +727,8 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 //		case 'f':	if(!drive_oneTile(0))	drive_instr_sm ++; break;
 //		case 'l':	if(!drive_turn(-90,1))	drive_instr_sm ++; break;
 //		case 'r':	if(!drive_turn(90, 1))	drive_instr_sm ++; break;
-		case 'd':	if(!drive_getBall())	drive_instr_sm ++;	break;
-		case 'u':	if(!drive_releaseBall())	drive_instr_sm ++;	break;
+//		case 'd':	if(!drive_getBall())	drive_instr_sm ++;	break;
+//		case 'u':	if(!drive_releaseBall())	drive_instr_sm ++;	break;
 		default:	drive_instr_sm ++; break;
 		}
 		return 1;
@@ -1238,6 +1178,9 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 //Reset all non-object-orientated driving functions
 void drive_reset(void)
 {
+	sm_driveAlign = 0;
+	sm_dab = 0;
+	sm_ramp = 0;
 	sm_d_lr = 0;
 	sm_ddist = 0;
 	

@@ -471,17 +471,6 @@ int main(void)
 			u8g_DrawCamRaw();
 		else if(setup == 4)
 			u8g_DrawVictim();
-		else if(timer_get_tast < 100 && timer_get_tast > 0)
-		{
-			u8g_SetFont(&u8g, u8g_font_fur30r);
-
-			if(timer_get_tast > 75)
-				u8g_DrawStr(&u8g, 3, 40, "Ready");
-			else if(timer_get_tast > 50)
-				u8g_DrawStr(&u8g, 3, 40, "Set");
-			else if(timer_get_tast > 25)
-				u8g_DrawStr(&u8g, 3, 40, "Go!");
-		}
 		else
 		{
 			u8g_SetFont(&u8g, u8g_font_4x6);
@@ -501,11 +490,25 @@ int main(void)
 			//          //Karte//       //
 			//////////////////////////////
 
-			displayvar[7] = get_mem_unused();
+			if(timer_get_tast < 100 && timer_get_tast > 0)
+			{
+				u8g_SetFont(&u8g, u8g_font_fur30r);
 
-			for(uint8_t i = 0; i <= DISPLAYVARS; i++)
-				if(displayvar[i] != 0xffff)
-					u8g_DrawLong(90, i*7+15, displayvar[i]);
+				if(timer_get_tast > 75)
+					u8g_DrawStr(&u8g, 95, 50, "3");
+				else if(timer_get_tast > 50)
+					u8g_DrawStr(&u8g, 95, 50, "2");
+				else if(timer_get_tast > 25)
+					u8g_DrawStr(&u8g, 95, 50, "1");
+			}
+			else
+			{
+				displayvar[7] = get_mem_unused();
+
+				for(uint8_t i = 0; i <= DISPLAYVARS; i++)
+					if(displayvar[i] != 0xffff)
+						u8g_DrawLong(90, i*7+15, displayvar[i]);
+			}
 		}
 
 		if(!u8g_NextPage(&u8g))
@@ -533,19 +536,19 @@ int8_t task_maze(int8_t state)
 		//victim_check();
 	}
 
+	/*dep.amount_to = 1;
+	dep.config_dir = LEFT;
+	dep.config_turnA = incremental%2; //Turn towards victim
+	dep.config_turnB = incremental%2; //And turn back
+	displayvar[1] = dep.config_turnA;
 
-	/*if(testvar == 1)
+	if(testvar == 1)
 	{
 		drive_deployResKit(&dep);
 		if(dep.state == DK_FINISHED)
 		{
 			testvar = 2;
 			dep.state = DK_INIT;
-		}
-
-		if(!drive_align_back(50))
-		{
-			testvar = 2;
 		}
 	}
 	else
@@ -554,8 +557,8 @@ int8_t task_maze(int8_t state)
 		{
 			testvar = 1;
 		}
-	}
-*/
+	}*/
+
 	return 0;
 }
 

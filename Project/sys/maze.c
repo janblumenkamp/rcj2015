@@ -725,131 +725,135 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
 			(maze_solve_state_path <= TURN_LEFT))
 		{
-			if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
+
+			if((groundsens_r < GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l < GROUNDSENS_L_TH_BLACKTILE))
 			{
-				ui_setLED(-1, 0);
-				ui_setLED(1, 0);
-
-				////////////////
-				/// On victim deployment there are three cases:
-				/// 1) Robot detects victim while driving straight: Turn and deploy kit left or right, then proceed driving straight
-				/// 2) Robot detects victim while turning:
-				///		2.1) The robot rotated only 30% of the 90°: The victim is on the old right side of the robot
-				///		2.2) The robot rotated more than the 30%: The victim is on the old front side of the robot
-
-				if(victim_BufIsVic(LEFT))
+				if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
 				{
-					if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
+					ui_setLED(-1, 0);
+					ui_setLED(1, 0);
+
+					////////////////
+					/// On victim deployment there are three cases:
+					/// 1) Robot detects victim while driving straight: Turn and deploy kit left or right, then proceed driving straight
+					/// 2) Robot detects victim while turning:
+					///		2.1) The robot rotated only 30% of the 90°: The victim is on the old right side of the robot
+					///		2.2) The robot rotated more than the 30%: The victim is on the old front side of the robot
+
+					if(victim_BufIsVic(LEFT))
 					{
-						if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-							//	(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
-							//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-								(maze_getVictim(&robot.pos, robot.dir+3) == 0))
+						if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
 						{
-							timer_victim_led = TIMER_VICTIM_LED;
-
-							if(maze_solve_state_path == DRIVE_DOT_DRIVE)
+							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
+								//	(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
+								//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
+									(maze_getVictim(&robot.pos, robot.dir+3) == 0))
 							{
-								maze_corrVictim(&robot.pos, robot.dir+3, 1);
+								timer_victim_led = TIMER_VICTIM_LED;
 
-								deployKits.amount_to = 1;
-								deployKits.config_dir = LEFT;
-								deployKits.config_turnBack = 1; //Turn back after deployment
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL;
-							}
-							//else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
-							//{
-							//	if(timer_vic_ramp > 0)
-							//		timer_victim_led = -1;
-							//}
-							else if(((maze_solve_state_path == TURN_LEFT) ||
-									(maze_solve_state_path == TURN_RIGHT)) && turn.r.state == ROTATE) //Only if rotation has begin (to prevent progress being not set after ramp)
-							{
-								if(turn.r.progress < 50) //Robot rotates now...
+								if(maze_solve_state_path == DRIVE_DOT_DRIVE)
 								{
 									maze_corrVictim(&robot.pos, robot.dir+3, 1);
+
+									deployKits.amount_to = 1;
+									deployKits.config_dir = LEFT;
+									deployKits.config_turnBack = 1; //Turn back after deployment
+									maze_solve_state_path_deplKitSave = maze_solve_state_path;
+									maze_solve_state_path = VIC_DEPL;
+								}
+								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
+								{
+									//if(timer_vic_ramp > 0)
+									//	timer_victim_led = -1;
+								}
+								else if(((maze_solve_state_path == TURN_LEFT) ||
+										(maze_solve_state_path == TURN_RIGHT)) && turn.r.state == ROTATE) //Only if rotation has begin (to prevent progress being not set after ramp)
+								{
+									if(turn.r.progress < 50) //Robot rotates now...
+									{
+										maze_corrVictim(&robot.pos, robot.dir+3, 1);
+									}
+									else
+									{
+										maze_corrVictim(&robot.pos, robot.dir, 1);
+									}
+
+									deployKits.amount_to = 1;
+									deployKits.config_dir = LEFT;
+									deployKits.config_turnBack = 1; //Don`t turn back after deployment!
+									maze_solve_state_path_deplKitSave = maze_solve_state_path;
+									maze_solve_state_path = VIC_DEPL;
 								}
 								else
 								{
-									maze_corrVictim(&robot.pos, robot.dir, 1);
+									timer_victim_led = -1;
 								}
 
-								deployKits.amount_to = 1;
-								deployKits.config_dir = LEFT;
-								deployKits.config_turnBack = 1; //Don`t turn back after deployment!
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL;
-							}
-							else
-							{
-								timer_victim_led = -1;
-							}
 
-
-							if(debug > 0)	{	bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": victim::found:atTemp:l:"));bt_putLong(mlx90614[LEFT].is);bt_putStr_P(PSTR("°C"));	}
+								if(debug > 0)	{	bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": victim::found:atTemp:l:"));bt_putLong(mlx90614[LEFT].is);bt_putStr_P(PSTR("°C"));	}
+							}
 						}
 					}
-				}
-				else if(victim_BufIsVic(RIGHT))
-				{
-					if(dist[LIN][RIGHT][BACK] < DIST_VICTIM_MIN)
+					else if(victim_BufIsVic(RIGHT))
 					{
-						if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-								(maze_getVictim(&robot.pos, robot.dir+1) == 0) )// &&
-							//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-							//	(maze_getVictim(&robot.pos, robot.dir+3) == 0))
+						if(dist[LIN][RIGHT][BACK] < DIST_VICTIM_MIN)
 						{
-							timer_victim_led = TIMER_VICTIM_LED;
+							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
+									(maze_getVictim(&robot.pos, robot.dir+1) == 0) )// &&
+								//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
+								//	(maze_getVictim(&robot.pos, robot.dir+3) == 0))
+							{
+								timer_victim_led = TIMER_VICTIM_LED;
 
-							if(maze_solve_state_path == DRIVE_DOT_DRIVE)
-							{
-								maze_corrVictim(&robot.pos, robot.dir+1, 1);
-
-								deployKits.amount_to = 1;
-								deployKits.config_dir = RIGHT;
-								deployKits.config_turnBack = 1; //Turn back after deployment
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL;
-							}
-							else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN))
-							{
-								if(timer_vic_ramp > 0)
-									timer_victim_led = -1;
-							}
-							else if((maze_solve_state_path == TURN_LEFT) ||
-									(maze_solve_state_path == TURN_RIGHT))
-							{
-								if(turn.r.progress < 50) //Robot rotates now...
+								if(maze_solve_state_path == DRIVE_DOT_DRIVE)
 								{
 									maze_corrVictim(&robot.pos, robot.dir+1, 1);
+
+									deployKits.amount_to = 1;
+									deployKits.config_dir = RIGHT;
+									deployKits.config_turnBack = 1; //Turn back after deployment
+									maze_solve_state_path_deplKitSave = maze_solve_state_path;
+									maze_solve_state_path = VIC_DEPL;
+								}
+								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN))
+								{
+									if(timer_vic_ramp > 0)
+										timer_victim_led = -1;
+								}
+								else if((maze_solve_state_path == TURN_LEFT) ||
+										(maze_solve_state_path == TURN_RIGHT))
+								{
+									if(turn.r.progress < 50) //Robot rotates now...
+									{
+										maze_corrVictim(&robot.pos, robot.dir+1, 1);
+									}
+									else
+									{
+										maze_corrVictim(&robot.pos, robot.dir, 1);
+									}
+
+									deployKits.amount_to = 1;
+									deployKits.config_dir = RIGHT;
+									deployKits.config_turnBack = 1; //Don`t turn back after deployment!
+									maze_solve_state_path_deplKitSave = maze_solve_state_path;
+									maze_solve_state_path = VIC_DEPL;
 								}
 								else
 								{
-									maze_corrVictim(&robot.pos, robot.dir, 1);
+									timer_victim_led = -1;
 								}
 
-								deployKits.amount_to = 1;
-								deployKits.config_dir = RIGHT;
-								deployKits.config_turnBack = 1; //Don`t turn back after deployment!
-								maze_solve_state_path_deplKitSave = maze_solve_state_path;
-								maze_solve_state_path = VIC_DEPL;
+								if(debug > 0)	{	bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(":atTemp:r:"));bt_putLong(mlx90614[RIGHT].is); bt_putStr_P(PSTR("°C"));	}
 							}
-							else
-							{
-								timer_victim_led = -1;
-							}
-
-							if(debug > 0)	{	bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(":atTemp:r:"));bt_putLong(mlx90614[RIGHT].is); bt_putStr_P(PSTR("°C"));	}
 						}
 					}
 				}
-			}
 
-			if(((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) && (timer_victim_led == 0))
-			{
-				timer_victim_led = -1;
-				timer_vic_ramp = TIMER_VIC_RAMP;
+				if(((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) && (timer_victim_led == 0))
+				{
+					timer_victim_led = -1;
+					timer_vic_ramp = TIMER_VIC_RAMP;
+				}
 			}
 		}
 
