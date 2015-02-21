@@ -166,6 +166,7 @@ void init_timer(void)
 void init_display(uint8_t ledstate)
 {
 	u8g_InitHWSPI(&u8g, &u8g_dev_st7920_128x64_hw_spi, PN(1, 0), U8G_PIN_NONE, U8G_PIN_NONE);
+	//u8g_SetHardwareBackup(&u8g, u8g_backup_avr_spi); //Make SPI usable for other devices (optical flow)
 	u8g_SetRot180(&u8g);
 	display_setBGLED(1);	  //Hintergrundbeleuchtung
 }

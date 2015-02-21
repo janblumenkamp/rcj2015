@@ -88,6 +88,7 @@
 #include "victim.h"
 #include "pixy.h"
 #include "menu.h"
+#include "adns3080.h"
 
 ////////////////////////////////////////////////////////////////////
 //UART:
@@ -239,6 +240,7 @@ int main(void)
 	uart1_init(UART_BAUD_SELECT(UART_UM6_BAUD_RATE,F_CPU)); //IMU
 	uart_init(UART_BAUD_SELECT(UART_MCU_BAUD_RATE,F_CPU)); //Bluetooth
 	init_display(1);
+	adns_init(); //Optical flow sensor (has to be called before u8g initialization!)
 	//init_m2(); //Menu lib
 	init_adc();
 	init_i2c();
@@ -320,10 +322,16 @@ int main(void)
 	mot.off = 1;
 	timer_get_tast = 120;
 
-	timer_vic_ramp = 0;
-
+	displayvar[4] = 0;
+	displayvar[5] = 0;
 	while(1)
     {
+		struct adnsData dat;
+		adns_getFlowData(&dat);
+		displayvar[3] = dat.quality;
+		displayvar[4] += dat.delta_x;
+		displayvar[5] += dat.delta_y;
+
 		wdt_reset();
 
 		TOGGLE_MAIN_LED(); //Toggle LED on the RNmega Board
@@ -334,7 +342,6 @@ int main(void)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		displayvar[5] = timer_get_tast;
 		if(timer_get_tast == 0)
 		{
 			timer_get_tast = -1;
@@ -516,7 +523,7 @@ int main(void)
 			u8g_stateMachine = 0;
 		}
   }
-	
+
 	return 0;
 }
 
