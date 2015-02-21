@@ -64,7 +64,7 @@ void drive_oneTile(DOT *d)
 							if(dist[LIN][FRONT][FRONT] < TILE1_FRONT_FRONT) //There is a wall directly in front of the robot
 							{
 								d->state = DOT_END; //Break because we can`t drive straight
-								if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_oneTile()::dontstart:dist"));}
+								foutf(&str_debugDrive, "%i: dot:noSt_dst\n\r", timer);
 							}
 							else
 							{
@@ -80,8 +80,8 @@ void drive_oneTile(DOT *d)
 									d->enc_lr_start = mot.enc;
 									d->timer = 0; //Unactivate timer
 								}
-									
-								if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_oneTile()::enc_lr_start:"));bt_putLong(d->enc_lr_start);}
+
+								foutf(&str_debugDrive, "%i: dot:st.en: %i\n\r", timer, d->enc_lr_start);
 							}
 							
 						break;
@@ -348,7 +348,7 @@ void drive_oneTile(DOT *d)
 							
 							d->state = DOT_FINISHED;
 
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_oneTile():done"));}
+							foutf(&str_debugDrive, "%i: dot:end\n\r", timer);
 
 						break;
 
@@ -356,8 +356,9 @@ void drive_oneTile(DOT *d)
 
 						break;
 						
-		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL: went into drive_oneTile():sm_dot:DEFAULT_CASE"));}
-							d->state = DOT_INIT;
+		default:		foutf(&str_error, "%i: ERR:sw[drv.01]:DEF\n\r", timer);
+						fatal_err = 1;
+						d->state = DOT_INIT;
 						break;
 							
 	}
@@ -388,7 +389,7 @@ void drive_rotate(D_ROTATE *r)
 							if(r->angle == 0)
 								r->state = ROTATE_END; //If angle not set, break execution
 
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_rotate()::psi_start: "));bt_putLong(r->um6_psi_t_start);}
+							foutf(&str_debugDrive, "%i: drRot:st: %i\n\r", timer, r->um6_psi_t_start);
 							
 						break;
 						
@@ -472,15 +473,15 @@ void drive_rotate(D_ROTATE *r)
 
 							r->state = ROTATE_FINISHED;
 
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_oneTile(): done. "));}
-							
+							foutf(&str_debugDrive, "%i: drRot:end\n\r", timer);
+
 		case ROTATE_FINISHED:
 
 						break;
 
 						
-		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_rotate():sm_rotate DEFAULT CASE!"));}
-						
+		default:		foutf(&str_error, "%i: ERR:sw[drv.02]:DEF\n\r", timer);
+						fatal_err = 1;
 						r->state = ROTATE_INIT;
 						break;
 	}
@@ -674,7 +675,7 @@ void drive_turn(D_TURN *t)
 							else
 								t->state = TURN_END;
 							
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn()"));}
+							foutf(&str_debugDrive, "%i: drTrn\n\r", timer);
 						}
 
 					break;
@@ -686,7 +687,7 @@ void drive_turn(D_TURN *t)
 						{
 							t->state = TURN_ALIGN_BACK;
 
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn(): aligned"));}
+							foutf(&str_debugDrive, "%i: drTrn:algn\n\r", timer);
 						}
 
 					break;
@@ -703,15 +704,15 @@ void drive_turn(D_TURN *t)
 		case TURN_END:
 		
 						t->state = TURN_FINISHED;
-						
-						if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_turn(): done. "));}
 
 		case TURN_FINISHED:
 
+						foutf(&str_debugDrive, "%i: drTrn:end\n\r", timer);
+
 						break;
 
-		default:		if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_turn():sm_turn DEFAULT CASE!"));}
-
+		default:		foutf(&str_error, "%i: ERR:sw[drv.03]:DEF\n\r", timer);
+						fatal_err = 1;
 						t->state = TURN_INIT;
 						break;
 	}
@@ -823,7 +824,7 @@ uint8_t drive_ramp(int8_t speed)
 	//Return
 	switch(sm_ramp)
 	{
-		case 0: if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_ramp()"));}
+		case 0: //if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_ramp()"));}
 						sm_ramp = 1;
 						ramp_checkpoint = 0;
 						ramp_checkpoint_enc = 0;
@@ -848,11 +849,12 @@ uint8_t drive_ramp(int8_t speed)
 	 						sm_ramp = 0;
 							mot.d[LEFT].speed.to = 0;
 							mot.d[RIGHT].speed.to = 0;
-	 						if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_ramp()::done::speed:")); bt_putLong(speed);}
+							//if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_ramp()::done::speed:")); bt_putLong(speed);}
 						}
 					break;
-		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_ramp():sm_ramp DEFAULT CASE!"));}
-							returnvar = 0;
+		default:		foutf(&str_error, "%i: ERR:sw[drv.04]:DEF\n\r", timer);
+						fatal_err = 1;
+						returnvar = 0;
 							sm_ramp = 0;
 						break;
 	}
@@ -1003,8 +1005,8 @@ uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width) //left == 1: links, s
 								sm_d_lr = 1;
 							else
 								sm_d_lr = 2;
-							
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_lr()"));}
+
+							foutf(&str_debugDrive, "%i: drLR\n\r", timer);
 						break;
 		case 1: 	if(!(drive_dist(1, speed, -width)))
 							{
@@ -1046,11 +1048,12 @@ uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width) //left == 1: links, s
 						break;
 		case 5: 	sm_d_lr = 0;
 							returnvar = 0;
-							
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_lr(): done. "));}
+
+							foutf(&str_debugDrive, "%i: drLR:end\n\r", timer);
 						break;
-		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_lr():sm_d_lr DEFAULT CASE!"));}
-							returnvar = 0;
+		default:		foutf(&str_error, "%i: ERR:sw[drv.05]:DEF\n\r", timer);
+						fatal_err = 1;
+						returnvar = 0;
 						break;
 	}
 	return returnvar;
@@ -1073,8 +1076,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							enc_r_start_ddist = mot.d[RIGHT].enc;
 
 							sm_ddist = 1;
-							
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_dist()"));}
+
+							foutf(&str_debugDrive, "%i: drDst\n\r", timer);
 						break;
 		case 1: 	if(dist_cm < 0)
 							{
@@ -1164,11 +1167,12 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							mot.d[RIGHT].speed.to = 0;
 
 							returnvar = 0;
-							
-							if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_dist(): done. "));}
+
+							foutf(&str_debugDrive, "%i: drDst:end\n\r", timer);
 						break;
-		default:	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": FATAL ERROR: WENT INTO drive_dist():sm_ddist DEFAULT CASE!"));}
-							returnvar = 0;
+		default:		foutf(&str_error, "%i: ERR:sw[drv.06]:DEF\n\r", timer);
+						fatal_err = 1;
+						returnvar = 0;
 						break;
 	}
 	return returnvar;
@@ -1183,6 +1187,6 @@ void drive_reset(void)
 	sm_ramp = 0;
 	sm_d_lr = 0;
 	sm_ddist = 0;
-	
-	if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": Reset::sm_dot:sm_rotate:sm_turn:ramp_ready:sm_d_lr:sm_ddist"));}
+
+	foutf(&str_debugDrive, "%i: rstDrv\n\r", timer);
 }

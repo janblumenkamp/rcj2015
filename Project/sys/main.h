@@ -20,15 +20,13 @@
 extern u8g_t u8g; //Pointer für u8g muss hier eingebunden werden
 
 ///////////////////////////////////////////
-#define TASKS_NUM				6
+#define TASKS_NUM				5
 #define TASKPERIOD_GCD			1
 
 #define TASK_PERIOD_MAZE		5
 	#define TASK_MAZE_ID			1
 #define TASK_PERIOD_TIMER		1
 	#define TASK_TIMER_ID			0
-#define TASK_PERIOD_CAM			20
-	#define TASK_CAM_ID				5
 #define TASK_PERIOD_SPEEDREG	25
 	#define TASK_SPEEDREG_ID		3
 #define TASK_PERIOD_SENSORS		15

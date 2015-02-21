@@ -15,4 +15,4 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-void debug_sendMsg(int8_t debuggrade, const char *s);
+extern void pcui_sendMsg(char *id, uint16_t length, char *msg);

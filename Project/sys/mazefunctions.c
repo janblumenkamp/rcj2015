@@ -175,8 +175,8 @@ void maze_setVictim(COORD *_coord, int8_t dir, int8_t value)
 			case EAST:	maze[c.x][c.y][c.z].victim_e = value;	break;
 			case SOUTH:	maze[c.x][c.y][c.z].victim_s = value;	break;
 			case WEST:	maze[c.x][c.y][c.z].victim_w = value;	break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.08]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.01]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 }
@@ -207,8 +207,8 @@ int8_t maze_getVictim(COORD *_coord, uint8_t dir)
 			case EAST:	returnvar = maze[c.x][c.y][c.z].victim_e;	break;
 			case SOUTH:	returnvar = maze[c.x][c.y][c.z].victim_s;	break;
 			case WEST:	returnvar = maze[c.x][c.y][c.z].victim_w;	break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.08]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.02]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 
@@ -277,8 +277,8 @@ void maze_setWall(COORD *_coord, int8_t dir, int8_t value)
 			case WEST:
 								maze[c.x][c.y][c.z].wall_w = value; //Aktuelle Platte Wand Westen = Aktuelle Platte Wand Westen
 							break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.08]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.03]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 }
@@ -343,8 +343,8 @@ int8_t maze_getWall(COORD *_coord, uint8_t dir)
 			case WEST:
 								returnvar = maze[c.x][c.y][c.z].wall_w; //Aktuelle Platte Wand Westen = Aktuelle Platte Wand Westen
 							break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.09]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.04]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 	else returnvar = -1;
@@ -392,8 +392,8 @@ void maze_setGround(COORD *_coord, int8_t dir, int8_t value)
 							if((c.x - 1) >= 0)					maze[c.x - 1	  ][c.y][c.z].ground = value;
 							else								maze[MAZE_SIZE_X-1][c.y][c.z].ground = value;
 						break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.05]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 }
@@ -460,8 +460,8 @@ int8_t maze_getGround(COORD *_coord, int8_t dir)
 							if((c.x - 1) >= 0)					returnvar = maze[c.x - 1	  ][c.y][c.z].ground;
 							else								returnvar = maze[MAZE_SIZE_X-1][c.y][c.z].ground;
 						break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.06]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 	
@@ -510,8 +510,8 @@ void maze_setBeenthere(COORD *_coord, int8_t dir, uint8_t value)
 							if((c.x - 1) >= 0)					maze[c.x - 1	  ][c.y][c.z].beenthere = value;
 							else								maze[MAZE_SIZE_X-1][c.y][c.z].beenthere = value;
 						break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.07]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 }
@@ -573,8 +573,8 @@ int8_t maze_getBeenthere(COORD *_coord, int8_t dir)
 								if((c.x - 1) >= 0)					returnvar = maze[c.x - 1	  ][c.y][c.z].beenthere;
 								else								returnvar = maze[MAZE_SIZE_X-1][c.y][c.z].beenthere;
 							break;
-				default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-									fatal_err = 1;
+				default: 	foutf(&str_error, "%i: ERR:sw[mazef.08]:DEF\n\r", timer);
+							fatal_err = 1;
 			}
 		}
 	}
@@ -620,8 +620,8 @@ void maze_setDepthsearch(COORD *_coord, int8_t dir, uint8_t value)
 							if((c.x - 1) >= 0)					maze[c.x - 1	  ][c.y][c.z].depthsearch = value;
 							else								maze[MAZE_SIZE_X-1][c.y][c.z].depthsearch = value;
 						break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.09]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 }
@@ -683,8 +683,8 @@ uint8_t maze_getDepthsearch(COORD *_coord, int8_t dir)
 								if((c.x - 1) >= 0)					returnvar = maze[c.x - 1	  ][c.y][c.z].depthsearch;
 								else								returnvar = maze[MAZE_SIZE_X-1][c.y][c.z].depthsearch;
 							break;
-				default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-									fatal_err = 1;
+				default: 	foutf(&str_error, "%i: ERR:sw[mazef.10]:DEF\n\r", timer);
+							fatal_err = 1;
 			}
 		}
 	}
@@ -1294,8 +1294,8 @@ void maze_setCheckpoint(COORD *_coord, int8_t dir)
 							c.x --;
 
 						break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.44]:DEFAULT_CASE"));}
-							fatal_err = 1;
+		default: 	foutf(&str_error, "%i: ERR:sw[mazef.11]:DEF\n\r", timer);
+					fatal_err = 1;
 	}
 
 	if(maze_adaptOffset(&c)) //Adapt position to offset of the map in the memory (RAM)
@@ -1400,8 +1400,8 @@ uint8_t maze_getRampPosDirAtDir(COORD *_coord, int8_t dir)
 		case EAST:	c.x ++;		returnvar = maze_getRampPosDir(&c);		break;
 		case SOUTH:	c.y --;		returnvar = maze_getRampPosDir(&c);		break;
 		case WEST:	c.x --;		returnvar = maze_getRampPosDir(&c);		break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-							fatal_err = 1;
+		default: 	foutf(&str_error, "%i: ERR:sw[mazef.12]:DEF\n\r", timer);
+					fatal_err = 1;
 	}
 	
 	return returnvar;
@@ -1480,8 +1480,8 @@ void maze_setRamp(COORD *_coord, int8_t ramp_dir, int8_t tile_dir, int8_t set)
 								c.x --;
 
 							break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.04]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.13]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 		maze_setWall(&c, ramp_dir+1, MAZE_ISWALL+1);
 		maze_setWall(&c, ramp_dir+3, MAZE_ISWALL+1);
@@ -1652,8 +1652,8 @@ void maze_chgOffset(int8_t whichOff, int8_t pos_z, int8_t cnt)
 			case X: offset[c.z].x += cnt; break;
 			case Y: offset[c.z].y += cnt; break;
 			case Z: offset_z += cnt; 			break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.14]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.14]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	
 		while(offset[c.z].x >= MAZE_SIZE_X)
@@ -1671,22 +1671,19 @@ void maze_chgOffset(int8_t whichOff, int8_t pos_z, int8_t cnt)
 		while(offset_z <= -MAZE_SIZE_Z_USABLE)
 			offset_z += MAZE_SIZE_Z_USABLE;
 		
-		if(debug > 0)
+		foutf(&str_debug, "%i: newOff[%i]", timer, c.z);
+		switch(whichOff)
 		{
-			bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": new::offset[")); bt_putLong(robot.pos.z); 
-			switch(whichOff)
-			{
-				case X: bt_putStr_P(PSTR("].x: "));bt_putLong(offset[c.z].x); break;
-				case Y: bt_putStr_P(PSTR("].y: "));bt_putLong(offset[c.z].y); break;
-				case Z: bt_putStr_P(PSTR("]_z: "));bt_putLong(offset_z); 				break;
-				default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.15]:DEFAULT_CASE"));}
-									fatal_err = 1;
-			}
+			case X: foutf(&str_debug, ".x: %i\n\r", offset[c.z].x); break;
+			case Y: foutf(&str_debug, ".y: %i\n\r", offset[c.z].y); break;
+			case Z: foutf(&str_debug, ".z: %i\n\r", offset_z); break;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.15]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 	}
 	else
 	{
-		if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:maze_chgOffset():CANT"));}
+		foutf(&str_error, "%i: ERR:chgOff\n\r", timer);
 		fatal_err = 1;
 	}
 }

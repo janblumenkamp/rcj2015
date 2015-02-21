@@ -19,7 +19,6 @@
 #include "system.h"
 #include "funktionen.h"
 #include "display.h"
-#include "tsl1401.h"
 #include "um6.h"
 #include "victim.h"
 #include "i2cdev.h"
@@ -254,7 +253,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 																		break;
 											default:
-																if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.03]:DEFAULT_CASE"));}
+																foutf(&str_error, "%i: ERR:sw[maze.18]:DEF\n\r", timer);
 																fatal_err = 1;
 										}
 									}
@@ -273,7 +272,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									else if((maze_getDepthsearch(&robot.pos, robot.dir+1) < depthsearchNum) &&
 											maze_tileIsVisitable(&robot.pos, robot.dir+1))
 									{
-										bt_putLong(maze_getDepthsearch(&robot.pos, robot.dir+1));
 										maze_solve_state_path = TURN_RIGHT;
 									}
 									else if((maze_getDepthsearch(&robot.pos, robot.dir+3) < depthsearchNum) &&
@@ -326,8 +324,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									maze_updateWalls();
 
-									if(debug > 0){bt_putStr_P(PSTR("\r")); bt_putLong(timer); bt_putStr_P(PSTR(": DONE::restart:")); bt_putLong(timer_rdy_restart*25); bt_putStr_P(PSTR("ms"));}
-						
+									foutf(&str_debug, "%i: MAZE_DONE:RESTART: %ims\n\r", timer, timer_rdy_restart*25);
+
 								break;
 
 		case LOP_INIT:
@@ -413,8 +411,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											case EAST:	robot.pos.x++;	break;
 											case SOUTH:	robot.pos.y--;	break;
 											case WEST:	robot.pos.x--;	break;
-											default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-																fatal_err = 1;
+											default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+														fatal_err = 1;
 										}
 
 										if(robot.pos.x < ROB_POS_X_MIN)
@@ -427,7 +425,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											robot.pos.x = (MAZE_SIZE_X-2);
 											maze_solve_state_path = RESTART;
 
-											if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.x:MEMORY_TOO_SMALL:RESTART"));}
+											foutf(&str_error, "%i: ERR:robX:MemSmall_Restart\n\r", timer);
 										}
 
 										if(robot.pos.y < ROB_POS_Y_MIN)
@@ -440,7 +438,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											robot.pos.y = (MAZE_SIZE_Y-2);
 											maze_solve_state_path = RESTART;
 
-											if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::robot.pos.y:MEMORY_TOO_SMALL:RESTART"));}
+											foutf(&str_error, "%i: ERR:robY:MemSmall_Restart\n\r", timer);
 										}
 
 										driveDot_state = 1; //Position changed
@@ -565,8 +563,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											case EAST:	robot.pos.x--;	break;
 											case SOUTH:	robot.pos.y++;	break;
 											case WEST:	robot.pos.x++;	break;
-											default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-															fatal_err = 1;
+											default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+														fatal_err = 1;
 										}
 									}
 
@@ -605,8 +603,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											case EAST:	robot.pos.x--;	break;
 											case SOUTH:	robot.pos.y++;	break;
 											case WEST:	robot.pos.x++;	break;
-											default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-															fatal_err = 1;
+											default: 	foutf(&str_error, "%i: ERR:sw[maze.01]:DEF\n\r", timer);
+														fatal_err = 1;
 										}
 									}
 
@@ -686,8 +684,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 																case EAST:	robot.pos.x--;	break;
 																case SOUTH:	robot.pos.y++;	break;
 																case WEST:	robot.pos.x++;	break;
-																default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.02]:DEFAULT_CASE"));}
-																					fatal_err = 1;
+																default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+																			fatal_err = 1;
 															}
 														}
 													}
@@ -715,7 +713,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								break;
 								
 			default:
-									if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.03]:DEFAULT_CASE"));}
+									foutf(&str_error, "%i: ERR:sw[maze.03]:DEF\n\r", timer);
 									fatal_err = 1;
 		}
 
@@ -789,8 +787,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									timer_victim_led = -1;
 								}
 
-
-								if(debug > 0)	{	bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": victim::found:atTemp:l:"));bt_putLong(mlx90614[LEFT].is);bt_putStr_P(PSTR("°C"));	}
+								foutf(&str_debug, "%i: vicFoundL: %i d°C\n\r", timer, mlx90614[LEFT].is);
 							}
 						}
 					}
@@ -843,7 +840,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									timer_victim_led = -1;
 								}
 
-								if(debug > 0)	{	bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(":atTemp:r:"));bt_putLong(mlx90614[RIGHT].is); bt_putStr_P(PSTR("°C"));	}
+								foutf(&str_debug, "%i: vicFoundL: %i d°C\n\r", timer, mlx90614[RIGHT].is);
 							}
 						}
 					}
@@ -892,19 +889,19 @@ void maze_solveRoutes(void) //called from main-loop (time-intensive route calcul
 		
 		case RR_CALCNEARESTTILE:
 		
-						bt_putStr_P(PSTR("clcnear, tileres:")); 
-						
+						foutf(&str_debug, "%i: CalcNearTile\n\r", timer);
+
 						tileRes = maze_findNearestTile(&robot.pos, &rr_result);
 																	 
 						if(tileRes == -1)			routeRequest = RR_NEARNOPOSS; //Driven over every visitable tile -> Drive back to start
 						else if(tileRes < 4000)		routeRequest = RR_CALCROUTE;
 						else						routeRequest = RR_NEARTIMEOUT;
 						
-						//bt_putLong(tileRes); bt_putStr_P(PSTR("\n\r"));
-						
 					break;
 						
 		case RR_CALCROUTE:
+
+						foutf(&str_debug, "%i: CalcRoute\n\r", timer);
 
 						maze_clearDepthsearch();
 						
@@ -913,8 +910,6 @@ void maze_solveRoutes(void) //called from main-loop (time-intensive route calcul
 						if(tileRes == -1)			routeRequest = RR_RTNOPOSS; //No possible route
 						else if(tileRes < 4000)		routeRequest = RR_RTDONE;
 						else						routeRequest = RR_RTTIMEOUT;
-						
-						//bt_putStr_P(PSTR("clcroute, tileres:")); bt_putLong(tileRes); bt_putStr_P(PSTR("\n\r"));
 		
 					break;
 					
@@ -927,7 +922,7 @@ void maze_solveRoutes(void) //called from main-loop (time-intensive route calcul
 		case RR_RTTIMEOUT:		break; //"
 		
 		default:
-						if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.06]:DEFAULT_CASE"));}
+						foutf(&str_error, "%i: ERR:sw[maze.06]:DEF\n\r", timer);
 						fatal_err = 1;
 						routeRequest = RR_WAIT;
 	}
@@ -1019,16 +1014,6 @@ int8_t updateGround_lastPosY = -1;
 
 void maze_updateGround(int8_t updateFac_ground, int8_t isGround)
 {
-	//if(!isGround)
-	//{
-		//if(tsl_res > tsl_th) //Keine schwarze Fliese
-		//{
-			//updateFac_ground *= -1;
-		//}
-	//}
-	//else if(solveMaze_drive == 1) //Wenn schwarze Fliese ggf. Geradeausfahrt abbrechen
-	//	dot_abort |= (1<<0);
-
 	switch(robot.dir)
 	{
 		case NORTH:
@@ -1062,11 +1047,11 @@ void maze_updateGround(int8_t updateFac_ground, int8_t isGround)
 								
 				break;
 				
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.07]:DEFAULT_CASE"));}
-							fatal_err = 1;
+		default: 	foutf(&str_error, "%i: ERR:sw[maze.07]:DEF\n\r", timer);
+					fatal_err = 1;
 	}
 		
-	if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": update::ground"));}
+	foutf(&str_debug, "%i: updGrnd", timer);
 }
 
 //////////////////////////////////////////////////
@@ -1349,8 +1334,8 @@ void u8g_DrawMaze(void)
 						else if(wall_size_part > WALL_SIZE_MAX)
 							wall_size_part = WALL_SIZE_MIN;
 						break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.17]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			default: 	foutf(&str_error, "%i: ERR:sw[maze.17]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 
 		incremental_old_mz = incremental;
@@ -1436,8 +1421,8 @@ void u8g_DrawMaze(void)
 		case 3:		u8g_DrawStr(&u8g, MAPEND_PART_X+1, 14, "sze:");
 					u8g_DrawLong(MAPEND_PART_X+5, 21, wall_size_part);	break;
 		case 4:		u8g_DrawStr(&u8g, MAPEND_PART_X+1, 14, "ok");		break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[maze.18]:DEFAULT_CASE"));}
-							fatal_err = 1;
+		default: 	foutf(&str_error, "%i: ERR:sw[maze.18]:DEF\n\r", timer);
+					fatal_err = 1;
 	}
 	u8g_DrawStr(&u8g, MAPEND_PART_X+1, 28, "x"); u8g_DrawStr(&u8g, MAPEND_PART_X+4, 28, ":"); u8g_DrawLong(MAPEND_PART_X+7, 28, robot.pos.x);
 	u8g_DrawStr(&u8g, MAPEND_PART_X+1, 35, "y"); u8g_DrawStr(&u8g, MAPEND_PART_X+4, 35, ":"); u8g_DrawLong(MAPEND_PART_X+7, 35, robot.pos.y);

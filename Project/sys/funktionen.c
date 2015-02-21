@@ -12,7 +12,6 @@
 #include "funktionen.h"
 #include "system.h"
 #include "main.h"
-#include "tsl1401.h"
 #include "maze.h"
 #include "bluetooth.h"
 #include "drive.h"
@@ -412,25 +411,12 @@ void dist_setSensors(uint8_t block, uint8_t set)
 
 int16_t get_adc(uint8_t channel)
 {
-	if(tsl_adc_state == 0)
-	{
-		ADMUX &= 0xE0;							//Clear bits MUX0-4
-		ADMUX |= channel&0x07;			//Defines the new ADC channel to be read by setting bits MUX0-2
-		ADCSRB = channel&(1<<3);		//Set MUX5
-		ADCSRA |= (1<<ADSC);				//Starts a new conversion
-		while(ADCSRA & (1<<ADSC));	//Wait until the conversion is done
-		return ADCW;
-	}
-	else	return -1;
-}
-
-void check_tsl_state(void)
-{
-	if(tsl_state == TSL_WAIT_GET)
-	{
-		tsl_state = TSL_GET;
-		tsl_adc_state = ADC_CAM_INIT;
-	}
+	ADMUX &= 0xE0;							//Clear bits MUX0-4
+	ADMUX |= channel&0x07;			//Defines the new ADC channel to be read by setting bits MUX0-2
+	ADCSRB = channel&(1<<3);		//Set MUX5
+	ADCSRA |= (1<<ADSC);				//Starts a new conversion
+	while(ADCSRA & (1<<ADSC));	//Wait until the conversion is done
+	return ADCW;
 }
 
 void get_otherSens(void)
@@ -509,7 +495,6 @@ void get_analogSensors(void)
 						else dist[LIN][LEFT][BACK] = DIST_MAX_SRP_OLD;
 
 						get_otherSens();
-						check_tsl_state();
 						sensinfo.newDat.left = 1;
 						
 						if(sensinfo.request.right)
@@ -572,7 +557,6 @@ void get_analogSensors(void)
 						else dist[LIN][LEFT][FRONT] = DIST_MAX_SRP_OLD;
 						
 						get_otherSens();
-						check_tsl_state();
 						sensinfo.newDat.right = 1;
 							
 						if(sensinfo.request.mid)

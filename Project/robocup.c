@@ -83,16 +83,10 @@
 #include "maze.h"
 #include "mazefunctions.h"
 #include "drive.h"
-#include "tsl1401.h"
 #include "memcheck.h"
 #include "victim.h"
 #include "pixy.h"
 #include "menu.h"
-
-////////////////////////////////////////////////////////////////////
-//UART:
-#define UART_UM6_BAUD_RATE    115200
-#define UART_MCU_BAUD_RATE    115200
 
 //////////////////////////////////////////////////////////////////////
 #define WDT_TRIGGERED() if(MCUSR & (1<<WDRF)) check_res = 1;
@@ -107,7 +101,6 @@ int8_t task_speedreg(int8_t state);
 int8_t task_sensors(int8_t state);
 int8_t task_anasens(int8_t state);
 int8_t task_timer(int8_t state);
-int8_t task_cam(int8_t state);	
 	
 uint8_t runningTasks[TASKS_NUM+1] = {255};	//Track running tasks, [0] always idleTask
 uint8_t idleTask = 255;						// 0 highest priority, 255 lowest
@@ -172,8 +165,6 @@ uint8_t hold_t1 = 0;
 
 uint8_t setup = 0; //Start the setup?
 
-uint8_t debug = 0; //Debugmodus, Read from EEPROM in init_sys()
-uint8_t debug_err_sendOneTime = 0;
 ///////////////////////////////Timer////////////////////////////////////////////
 
 int16_t timer_victim_led = -1;
@@ -236,13 +227,12 @@ int main(void)
 	init_pwm();
 	init_timer();
 	dist_init();
-	uart1_init(UART_BAUD_SELECT(UART_UM6_BAUD_RATE,F_CPU)); //IMU
-	uart_init(UART_BAUD_SELECT(UART_MCU_BAUD_RATE,F_CPU)); //Bluetooth
+	uart1_init(UART_BAUD_SELECT(115200, F_CPU)); //IMU
+	bt_init();
 	init_display(1);
 	//init_m2(); //Menu lib
 	init_adc();
 	init_i2c();
-    //init_srf10();
 	maze_init();
 	victim_init();
 
@@ -280,12 +270,6 @@ int main(void)
 	tasks[TASK_ANASENS_ID].elapsedTime = 0;
 	tasks[TASK_ANASENS_ID].running = 0;
 	tasks[TASK_ANASENS_ID].task_fct = &task_anasens;
-
-	tasks[TASK_CAM_ID].state = -1;
-	tasks[TASK_CAM_ID].period = 20;//TASK_PERIOD_CAM;
-	tasks[TASK_CAM_ID].elapsedTime = 0;
-	tasks[TASK_CAM_ID].running = 0;
-	tasks[TASK_CAM_ID].task_fct = &task_cam;
 	
 	if(get_incrOk())
 	{
@@ -297,27 +281,24 @@ int main(void)
 		motor_activate(1); //Activate motor driver
 		setup = 0;
 	}
-	
-	sei(); //Enable global interrupts. The Operating System and every task in it is running now and the cam already can regulate its initial aparture
+
+	sei(); //Enable global interrupts. The Operating System and every task in it is running now
 
 	//u8g_DrawStartUp();
-	
-	if(debug > 0)
-	{
-		bt_putStr_P(PSTR("\n\rRCJ 2014, V3.0\n\rteamohnename.de"));
-		bt_putStr_P(PSTR("\n\rDebugging grade: ")); bt_putLong(debug);
-		bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": System initialized, ")); bt_putLong(TASKS_NUM); bt_putStr_P(PSTR(" running tasks."));
-	}
-	
+
+	foutf(&str_debugOS, "RCJ 2014, V3.0\n\rteamohnename.de\n\r%i: System initialized, %i running tasks,\n\r", timer, TASKS_NUM);
+
 	if(check_res)
 	{
-		if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr(PSTR(": WARNING: RECOVERED AFTER AN UNEXPECTED SHUTDOWN!!!"));}
+		foutf(&str_error, "%i: WARNING: RECOVERED AFTER AN UNEXPECTED SHUTDOWN!!!\n\r", timer);
 		_delay_ms(5000);
 	}
 
 	//wdt_enable(WDTO_8S); //activate watchdog
 
 	mot.off = 1;
+	mot.off_invisible = 1;
+
 	timer_get_tast = 120;
 
 	timer_vic_ramp = 0;
@@ -329,6 +310,10 @@ int main(void)
 		TOGGLE_MAIN_LED(); //Toggle LED on the RNmega Board
 
 		////////////////////////////////////////////////////////////////////////////
+foutf(&str_debug, "Tesiöhsdpisdhpidht\n\r");
+foutf(&str_debugDrive, "Tesa#pdjinpi vst\n\r");
+foutf(&str_debugOS, "Tesadpieüojt\n\r");
+foutf(&str_error, "Tesfsdsst\n\r");
 
 		maze_solveRoutes(); //Has to be called to calculate routes in main-loop, when nessesary (because it needs up to 2s)
 
@@ -389,36 +374,6 @@ int main(void)
 			led_top = LED_TOP_FAT_ERR;
 		else
 			led_top = LED_TOP_NORMAL;
-			
-		if(check_res)
-		{
-			if(!(debug_err_sendOneTime & (1<<0)))
-			{
-				if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR: RESET"));}
-				debug_err_sendOneTime |= (1<<0);
-			}
-		}
-		else	debug_err_sendOneTime &= ~(1<<0);
-		
-		if(check_mlx != 0)
-		{
-			if(!(debug_err_sendOneTime & (1<<1)))
-			{
-				if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR: Melexis MLX90614 Temperature sensors"));}
-				debug_err_sendOneTime |= (1<<1);
-			}
-		}
-		else	debug_err_sendOneTime &= ~(1<<1);
-		
-		if(check_um6 != 0)
-		{
-			if(!(debug_err_sendOneTime & (1<<2)))
-			{
-				if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR: CHRobotics UM6 IMU"));}
-				debug_err_sendOneTime |= (1<<2);
-			}
-		}
-		else	debug_err_sendOneTime &= ~(1<<2);
 		
 		//Batterie/Akku
 		if(batt_raw > 0)
@@ -686,15 +641,4 @@ int8_t task_timer(int8_t state)
 	}
 
 	return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////TASK CAM///////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-int8_t task_cam(int8_t state)
-{
-	//pixy_get();
-
-	return 0;//tsl1401(state);
 }

@@ -22,7 +22,6 @@
 #include "bluetooth.h"
 #include "maze.h"
 #include "i2cdev.h"
-#include "tsl1401.h"
 #include "display.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +71,7 @@ void init_sys(void)
 	mlx90614[LEFT].th = eeprom_read_word((uint16_t*)0); //Schwellwerte, werden aus EEPROM gelesen
 	mlx90614[RIGHT].th = eeprom_read_word((uint16_t*)2);
 	//use_tarry = eeprom_read_byte((uint8_t*)4); //Algo oder rechte Hand? Wird aus EEPROM gelesen
-	debug = eeprom_read_byte((uint8_t*)5);
+	//debug = eeprom_read_byte((uint8_t*)5);
 	ground_th = eeprom_read_word((uint16_t*)6); //tsl_th...
 	//ground_th = 900;//eeprom_read_word((uint16_t*)8);
 	tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;//eeprom_read_word((uint16_t*)10);
@@ -153,13 +152,13 @@ void init_timer(void)
 	OCR1A = 250; //1kHz; Scheduler
 	
 	//OC2A: ADC
-	TCCR2A = (1<<WGM21);
+	/*TCCR2A = (1<<WGM21);
 					
 	TCCR2B = (1<<CS21); //Presc. 8
 
 	TIMSK2 = (1<<OCIE2A);
 
-	OCR2A = 250; //8kHz 250
+	OCR2A = 250; //8kHz 250*/
 }
 
 ///////////////////////////////////Display//////////////////////////////////////

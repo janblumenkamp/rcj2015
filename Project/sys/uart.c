@@ -40,6 +40,7 @@ LICENSE:
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "uart.h"
+#include "system.h"
 
 
 /*
@@ -412,7 +413,6 @@ unsigned int uart_getc(void)
 
 }/* uart_getc */
 
-
 /*************************************************************************
 Function: uart_putc()
 Purpose:  write byte to ringbuffer for transmitting via UART
@@ -421,7 +421,7 @@ Returns:  none
 **************************************************************************/
 void uart_putc(unsigned char data)
 {
-    unsigned char tmphead;
+	unsigned char tmphead;
 
     
     tmphead  = (UART_TxHead + 1) & UART_TX_BUFFER_MASK;
