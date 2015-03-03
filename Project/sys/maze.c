@@ -1429,39 +1429,3 @@ void u8g_DrawMaze(void)
 	u8g_DrawStr(&u8g, MAPEND_PART_X+1, 42, "z"); u8g_DrawStr(&u8g, MAPEND_PART_X+4, 42, ":"); u8g_DrawLong(MAPEND_PART_X+7, 42, robot.pos.z);
 
 }
-
-///////////////////////////////////////
-//MAPSAMPLE:
-/*		uint8_t OFF_X =  0;
-uint8_t OFF_Y =0;
-uint8_t  VAL	=	30;
-
-
-		maze_corrWall(0+OFF_X, 0+OFF_Y, 0, WEST, VAL);
-		maze_corrWall(0+OFF_X, 1+OFF_Y, 0, WEST, VAL);
-		maze_corrWall(0+OFF_X, 2+OFF_Y, 0, WEST, VAL);
-		maze_corrWall(0+OFF_X, 3+OFF_Y, 0, WEST, VAL);
-
-		maze_corrWall(0+OFF_X, 3+OFF_Y, 0, NORTH, VAL);
-		maze_corrWall(1+OFF_X, 3+OFF_Y, 0, NORTH, VAL);
-		maze_corrWall(2+OFF_X, 3+OFF_Y, 0, NORTH, VAL);
-		maze_corrWall(3+OFF_X, 3+OFF_Y, 0, NORTH, VAL);
-
-		maze_corrWall(0+OFF_X, 0+OFF_Y, 0, SOUTH, VAL);
-		maze_corrWall(1+OFF_X, 0+OFF_Y, 0, SOUTH, VAL);
-		maze_corrWall(2+OFF_X, 0+OFF_Y, 0, SOUTH, VAL);
-		maze_corrWall(3+OFF_X, 0+OFF_Y, 0, SOUTH, VAL);
-		
-		maze_corrWall(3+OFF_X, 1+OFF_Y, 0, EAST, VAL);
-		maze_corrWall(3+OFF_X, 2+OFF_Y, 0, EAST, VAL);
-		maze_corrWall(3+OFF_X, 3+OFF_Y, 0, EAST, VAL);
-
-		maze_corrWall(1+OFF_X, 0+OFF_Y, 0, NORTH, VAL);
-		maze_corrWall(2+OFF_X, 0+OFF_Y, 0, NORTH, VAL);
-		maze_corrWall(2+OFF_X, 0+OFF_Y, 0, WEST, VAL);
-
-		maze_corrWall(1+OFF_X, 3+OFF_Y, 0, WEST, VAL);
-		maze_corrWall(1+OFF_X, 3+OFF_Y, 0, SOUTH, VAL);
-		maze_corrWall(3+OFF_X, 3+OFF_Y, 0, SOUTH, VAL);
-
-	robot_pos.x = 3;*/

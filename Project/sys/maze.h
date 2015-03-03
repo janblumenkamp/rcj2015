@@ -7,6 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef MAZE_H
+#define MAZE_H
+
 #include <avr/io.h>
 #include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
@@ -187,3 +190,5 @@ extern void maze_localize(void);
 extern void maze_updateGround(int8_t updateFac_ground, int8_t isGround);
 
 extern void u8g_DrawMaze(void);
+
+#endif

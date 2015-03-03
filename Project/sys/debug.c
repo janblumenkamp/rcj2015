@@ -20,7 +20,9 @@
 ///					- rob y  "
 ///					- rob z  "
 ///					- dir    "
-///		["MAP"]: Map transmission (size x * y * z * 2 bytes). Rob->PC
+///		["MAP"]: Map transmission (size x * 2 + 2 bytes). Rob->PC
+///					- pos z (1 byte)
+///					- pos y "
 ///					- wall south (1 byte)
 ///					- wall west "
 ///	[Data]: [Lenght] chars
@@ -29,6 +31,9 @@
 
 #include "debug.h"
 #include "bluetooth.h"
+#include "maze.h"
+#include "mazefunctions.h"
+#include "main.h"
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief pcui_sendMsg
@@ -64,4 +69,51 @@ void pcui_sendMsg(char *id, uint16_t length, char *msg)
 	out_puts_l(&str_pcui, chk, 4);
 	out_puts_l(&str_pcui, id, 3);
 	out_puts_l(&str_pcui, msg, length);
+}
+
+void pcui_sendMPD(POS *rob)
+{
+	char mpd[7]; //MaPData message container array
+
+	mpd[0] = MAZE_SIZE_X;
+	mpd[1] = MAZE_SIZE_Y;
+	mpd[2] = MAZE_SIZE_Z;
+	mpd[3] = rob->pos.x;
+	mpd[4] = rob->pos.y;
+	mpd[5] = rob->pos.z;
+	mpd[6] = rob->dir;
+
+	//out_puts_l(&slamUI, "\e[0m", 5); //VT100: clear all colorsettings
+	pcui_sendMsg((char *)"MPD", 7, mpd); //Send mapdata
+}
+
+COORD sendMap_coord;
+
+void pcui_sendMAP(void)
+{
+	TILE thisTile;
+	char mapData[MAZE_SIZE_X * 2 + 2];
+
+	mapData[0] = sendMap_coord.z;
+	mapData[1] = sendMap_coord.y;
+	for(sendMap_coord.x = 0; sendMap_coord.x < MAZE_SIZE_X; sendMap_coord.x ++)
+	{
+		thisTile = *maze_getTile(&sendMap_coord);
+
+		mapData[2 + (sendMap_coord.x * 2)] = (char)(thisTile.wall_s + 127);
+		mapData[2 + (sendMap_coord.x * 2) + 1] = (char)(thisTile.wall_w + 127);
+	}
+	pcui_sendMsg((char *)"MAP", MAZE_SIZE_X * 2 + 2, mapData); //Send mapdata
+
+	sendMap_coord.y ++;
+	if(sendMap_coord.y == MAZE_SIZE_Y)
+	{
+		sendMap_coord.y = 0;
+		sendMap_coord.z ++;
+		if(sendMap_coord.z == MAZE_SIZE_Z)
+		{
+			pcui_sendMPD(&robot);
+			sendMap_coord.z = 0;
+		}
+	}
 }

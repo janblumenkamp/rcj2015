@@ -73,6 +73,7 @@
 #include "main.h"
 #include "bluetooth.h"
 #include "display.h"
+#include "debug.h"
 #include "um6.h"
 #include "u8g.h"
 #include "i2cmaster.h"
@@ -297,11 +298,8 @@ int main(void)
 	//wdt_enable(WDTO_8S); //activate watchdog
 
 	mot.off = 1;
-	mot.off_invisible = 1;
 
 	timer_get_tast = 120;
-
-	timer_vic_ramp = 0;
 
 	while(1)
     {
@@ -310,23 +308,18 @@ int main(void)
 		TOGGLE_MAIN_LED(); //Toggle LED on the RNmega Board
 
 		////////////////////////////////////////////////////////////////////////////
-foutf(&str_debug, "Tesiöhsdpisdhpidht\n\r");
-foutf(&str_debugDrive, "Tesa#pdjinpi vst\n\r");
-foutf(&str_debugOS, "Tesadpieüojt\n\r");
-foutf(&str_error, "Tesfsdsst\n\r");
 
 		maze_solveRoutes(); //Has to be called to calculate routes in main-loop, when nessesary (because it needs up to 2s)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		displayvar[5] = timer_get_tast;
 		if(timer_get_tast == 0)
 		{
 			timer_get_tast = -1;
 			mot.off = 0;
 		}
 
-		if(get_t1()) //Always reset...
+		if(!get_t1()) //Always reset...
 		{
 			mot.off = 1;
 			timer_get_tast = 120;
@@ -407,6 +400,8 @@ foutf(&str_error, "Tesfsdsst\n\r");
 
 			maze_setWall(rampclearwall, maze_alignDir(rampclearwall_dir+2), -100);
 		}
+
+		pcui_sendMAP();
 
 		if(!u8g_stateMachine)
 		{
