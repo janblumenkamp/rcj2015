@@ -85,6 +85,7 @@ uint16_t batt_mV = 0;
 uint8_t u8g_stateMachine = 0;	//Display
 u8g_t u8g;						//u8g contructor
 
+UM6_t um6; //Globale Datenstruktur deklarieren für um6
 ///////////////////////////////Drehgeber/Encoder/Taster/////////////////////////
 #define INCR_PHASE_A     (PINC & (1<<PC1))
 #define INCR_PHASE_B     (PINC & (1<<PC2))
@@ -175,6 +176,7 @@ int main(void)
 	init_timer();
 	dist_init();
 	uart1_init(UART_BAUD_SELECT(115200, F_CPU)); //IMU
+	um6_init(&um6, uart1_putc, uart1_getc);
 	bt_init();
 	init_display(1);
 	//init_m2(); //Menu lib
@@ -490,7 +492,7 @@ int8_t task_sensors(int8_t state)
 	//check_srf = getSRF();
 
 	//UM6
-	check_um6 = um6_getUM6();
+	check_um6 = um6_getUM6(&um6);
 	um6_checkRamp(&um6);
 	//pixy_get();
 	//displayvar[2] = pixy_number_of_blocks;

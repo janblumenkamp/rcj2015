@@ -15,9 +15,12 @@
 #include <stdint.h>
 #include <math.h>
 #include <avr/eeprom.h>
-
 #include "u8g.h"
+#include "um6.h"
+
 extern u8g_t u8g; //Pointer für u8g muss hier eingebunden werden
+
+extern UM6_t um6; //UM6 sructure
 
 ///////////////////////////////////////////
 #define TASKS_NUM				5
