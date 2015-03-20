@@ -114,8 +114,6 @@ struct _matchingWalls {
 #define MAZE_VICTIMVALUE_MAX 7
 #define MAZE_VICTIMVALUE_MIN -7
 
-#define RAMP_DIFF_TH 14 //Rampe
-
 #define TSL_GROUNDSENS_DIFF 50
 
 #define GROUNDSENS_R_TH_BLACKTILE 800 //Above this Threshold there is a black tile

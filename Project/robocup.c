@@ -14,60 +14,6 @@
 ///		- Opferanzeige
 ///		- Displayausgaben und Displayloop
 ////////////////////////////////////////////////////////////////////////////////
-///	To do:
-/// - checkpoints: Nur Wert inkrementieren, wenn auf zweiter Hälfte der Fliesen
-/// - Bug: motor off
-/// - beim drehen: Percent sollte zu Beginn auf jeden Fall bei 0 sein... Bug?
-///
-/// - bei geradeausfahrt abbruch und keine wand einzeichenn? Gefangen!
-/// - überpsringen von Fliesen testen (wegen encodervergleich nach drehen und so) testen!
-/// - in der oberen Etage starten funktioniert nicht...
-/// - Rampe generell?
-///
-/// - Kollisionserkennung: Korrektur auch noch über UM6
-///		- Außerdem Optimierungsidee: Erkennung über SRF, dann in Richtung Hindernis
-///		drehen um zu gucken, wo es steht (über Sharp IR) und dann weit genug in andere Richtugn drehen.
-///		Danch wieder gerade drehen!
-///	- Roboter hochheben bei RESTART (Timer dann zurücksetzen)
-///	- Rampe flexibel einzeichnen
-///		- maze_getRamp gibt Position falsch zurück
-///			- je nach Rampenrichtung eine Fliese weiter!
-///		- dynamisch?
-///		- muss Mindestdistanz gefahren sein bevor er in die nächste Etage spring
-///		- Fährt IMMER NACH Geradeausfahrt Rampe und nicht vorher
-///	- Checkpoint auf Rampe!!!
-///	- Opfererkennung automatisch (ohne Schwellwert)
-///	- Opfer in die Karte einzeichnen
-///		- Bug: Display stürzt ab!
-///		- Handhabung: Zwei Opfer auf einer Fliese?
-///	- Menü: m2tklib
-///		- Weitere Einstellungen für Schwellwerte (zweiter Schwellwert,
-///			Schwellwert Untergrundsensor)
-///	- Beim SLAM (Rotieren/Übertragen der Wände) werden NUR Wände berücksichtigt
-///		(-> Opfer)
-///	- Scheduler: Erkennen, ob Task zu viel Zeit braucht und ggf. killen
-///	- SLAM
-///		- Erkennung einer übersprungenen Fliese?
-///	- CMUCAM
-///		- Entfernungssensor?
-///		- Unterscheidung Wand/Hindernis
-///		- Wände: Bit „ausrichten erlaubt" Wenn Sharp IR pro Richtung alle Wand sehen
-///		- Sonst in Karte Hindernis einzeichnen
-///		- Hindernisumfahrung
-////////////////////////////////////////////////////////////////////////////////
-///	Testen:
-///		- Bug: dot_abort nachdem 16cm gefahren wurden funktioniert nicht???
-///			- wahrscheinlich nicht... Beobachten!
-///		- Hindernisse: Erkennung, wenn der Roboter nach Ende der Geradeausfahrt aufgrund
-///			von Korrekturen schräg steht (vergleich der Encoderwerte links/rechts) und
-///			ggf. gerade korrigieren
-///      - Kollisionserkennung: Wenn der Roboter an etwas an der Wand hängen bleibt
-///			(Winkel zur Wand groß, vordere Sensoren kleine Distanz) korrigieren
-////////////////////////////////////////////////////////////////////////////////
-/// Zeitplan:
-///		- 17. Januar: Untergrundsensor funktioniert wieder
-///     - danach: sonstige Tests
-////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
@@ -319,7 +265,7 @@ int main(void)
 			mot.off = 0;
 		}
 
-		if(!get_t1()) //Always reset...
+		if(get_t1()) //Always reset...
 		{
 			mot.off = 1;
 			timer_get_tast = 120;
@@ -465,8 +411,7 @@ int main(void)
 		{
 			u8g_stateMachine = 0;
 		}
-  }
-	
+	}
 	return 0;
 }
 
@@ -546,9 +491,10 @@ int8_t task_sensors(int8_t state)
 
 	//UM6
 	check_um6 = um6_getUM6();
-
+	um6_checkRamp(&um6);
 	//pixy_get();
 	//displayvar[2] = pixy_number_of_blocks;
+	displayvar[2] = um6.isRamp;
 	return 0;
 }
 

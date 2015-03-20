@@ -28,6 +28,7 @@ typedef struct {
 	int32_t psi_t; //total
 	int16_t accl_x;
 	int16_t accl_y;
+	int8_t isRamp;
 	struct COORD_UM6 gyr;
 }	UM6_t;
 
@@ -40,3 +41,5 @@ extern uint8_t um6_getUM6(void);
 extern uint8_t um6_gyroZeroRate(void);
 
 extern int8_t um6_getPsiCorrection(void);
+
+extern void um6_checkRamp(UM6_t *um6);

@@ -275,3 +275,19 @@ uint8_t um6_gyroZeroRate(void)
 
 	return um6_rwc(UM6_ZERO_GYROS, 0, UM6_DATA_CMD, &um6_cmd_data[0], UM6_CMD_DATA_BUFFER_SIZE);
 }
+
+void um6_checkRamp(UM6_t *um6)
+{
+	if((um6->theta_t) % 360 > 15)
+	{
+		um6->isRamp = 1;
+	}
+	else if((um6->theta_t) % 360 < -15)
+	{
+		um6->isRamp = 1;
+	}
+	else
+	{
+		um6->isRamp = 0;
+	}
+}
