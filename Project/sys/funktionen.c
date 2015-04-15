@@ -612,4 +612,11 @@ void get_analogSensors(void)
 
 	get_otherSens();
 	get_groundSens();
+
+	if(um6.isRamp) //If on ramp set all front/ back sensors to max distance to not align
+	{
+		dist[LIN][BACK][LEFT] = DIST_MAX_SRP_OLD;
+		dist[LIN][BACK][BACK] = DIST_MAX_SRP_NEW;
+		dist[LIN][BACK][RIGHT] = DIST_MAX_SRP_OLD;
+	}
 }

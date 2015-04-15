@@ -233,7 +233,9 @@ int main(void)
 
 	//u8g_DrawStartUp();
 
-	foutf(&str_debugOS, "RCJ 2014, V3.0\n\rteamohnename.de\n\r%i: System initialized, %i running tasks,\n\r", timer, TASKS_NUM);
+	foutf(&str_debugOS, "RCJ 2014, V3.0\n\rteamohnename.de\n\r%i: System initialized.\n\r", timer);
+
+	str_pcui.active = 0;
 
 	if(check_res)
 	{

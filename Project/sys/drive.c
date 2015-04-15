@@ -1035,7 +1035,7 @@ uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width) //left == 1: links, s
 									sm_d_lr = 5;
 							}
 						break;
-		case 4: 	if(left)
+		case 4:				if(left)
 								width_var *= DRIVE_LEFT_FAC;
 								
 							if(!(drive_dist(-1, speed, width_var)))
@@ -1046,10 +1046,10 @@ uint8_t drive_lr(int8_t left, int8_t speed, uint8_t width) //left == 1: links, s
 									sm_d_lr = 3;
 							}
 						break;
-		case 5: 	sm_d_lr = 0;
-							returnvar = 0;
+		case 5:			sm_d_lr = 0;
+						returnvar = 0;
 
-							foutf(&str_debugDrive, "%i: drLR:end\n\r", timer);
+						foutf(&str_debugDrive, "%i: drLR:end\n\r", timer);
 						break;
 		default:		foutf(&str_error, "%i: ERR:sw[drv.05]:DEF\n\r", timer);
 						fatal_err = 1;
@@ -1073,107 +1073,107 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 	switch(sm_ddist)
 	{
 		case 0: 	enc_l_start_ddist = mot.d[LEFT].enc;
-							enc_r_start_ddist = mot.d[RIGHT].enc;
+					enc_r_start_ddist = mot.d[RIGHT].enc;
 
-							sm_ddist = 1;
+					sm_ddist = 1;
 
-							foutf(&str_debugDrive, "%i: drDst\n\r", timer);
-						break;
+					foutf(&str_debugDrive, "%i: drDst\n\r", timer);
+					break;
 		case 1: 	if(dist_cm < 0)
+					{
+						if(motor < 0)
+						{
+							if(mot.d[LEFT].enc > (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) //Ziel erreicht?
 							{
-								if(motor < 0)
-								{
-									if(mot.d[LEFT].enc > (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) //Ziel erreicht?
-									{
-										mot.d[LEFT].speed.to = -speed;
-										mot.d[RIGHT].speed.to = 0;
-									}
-									else
-									{
-										sm_ddist = 2;
-									}
-								}
-								else if(motor == 0)
-								{
-									if((mot.d[LEFT].enc > (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) || //Ziel erreicht?
-										 (mot.d[RIGHT].enc > (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))))
-									{
-										mot.d[LEFT].speed.to = -speed;
-										mot.d[RIGHT].speed.to = -speed;
-									}
-									else
-									{
-										sm_ddist = 2;
-									}
-								}
-								else if(motor > 0)
-								{
-									if(mot.d[RIGHT].enc > (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))) //Ziel erreicht?
-									{
-										mot.d[LEFT].speed.to = 0;
-										mot.d[RIGHT].speed.to = -speed;
-									}
-									else
-									{
-										sm_ddist = 2;
-									}
-								}
+								mot.d[LEFT].speed.to = -speed;
+								mot.d[RIGHT].speed.to = 0;
 							}
 							else
 							{
-								if(motor < 0)
-								{
-									if(mot.d[LEFT].enc < (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) //Ziel erreicht?
-									{
-										mot.d[LEFT].speed.to = speed;
-										mot.d[RIGHT].speed.to = 0;
-									}
-									else
-									{
-										sm_ddist = 2;
-									}
-								}
-								else if(motor == 0)
-								{
-									if((mot.d[LEFT].enc < (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) || //Ziel erreicht?
-										 (mot.d[RIGHT].enc < (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))))
-									{
-										mot.d[LEFT].speed.to = speed;
-										mot.d[RIGHT].speed.to = speed;
-									}
-									else
-									{
-										sm_ddist = 2;
-									}
-								}
-								else if(motor > 0)
-								{
-									if(mot.d[RIGHT].enc < (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))) //Ziel erreicht?
-									{
-										mot.d[LEFT].speed.to = 0;
-										mot.d[RIGHT].speed.to = speed;
-									}
-									else
-									{
-										sm_ddist = 2;
-									}
-								}
+								sm_ddist = 2;
 							}
-						break;
+						}
+						else if(motor == 0)
+						{
+							if((mot.d[LEFT].enc > (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) || //Ziel erreicht?
+								 (mot.d[RIGHT].enc > (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))))
+							{
+								mot.d[LEFT].speed.to = -speed;
+								mot.d[RIGHT].speed.to = -speed;
+							}
+							else
+							{
+								sm_ddist = 2;
+							}
+						}
+						else if(motor > 0)
+						{
+							if(mot.d[RIGHT].enc > (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))) //Ziel erreicht?
+							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = -speed;
+							}
+							else
+							{
+								sm_ddist = 2;
+							}
+						}
+					}
+					else
+					{
+						if(motor < 0)
+						{
+							if(mot.d[LEFT].enc < (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) //Ziel erreicht?
+							{
+								mot.d[LEFT].speed.to = speed;
+								mot.d[RIGHT].speed.to = 0;
+							}
+							else
+							{
+								sm_ddist = 2;
+							}
+						}
+						else if(motor == 0)
+						{
+							if((mot.d[LEFT].enc < (enc_l_start_ddist + (dist_cm*ENC_FAC_CM_L))) || //Ziel erreicht?
+								 (mot.d[RIGHT].enc < (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))))
+							{
+								mot.d[LEFT].speed.to = speed;
+								mot.d[RIGHT].speed.to = speed;
+							}
+							else
+							{
+								sm_ddist = 2;
+							}
+						}
+						else if(motor > 0)
+						{
+							if(mot.d[RIGHT].enc < (enc_r_start_ddist + (dist_cm*ENC_FAC_CM_R))) //Ziel erreicht?
+							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = speed;
+							}
+							else
+							{
+								sm_ddist = 2;
+							}
+						}
+					}
+					break;
 		case 2:
-							sm_ddist = 0;
+					sm_ddist = 0;
 
-							mot.d[LEFT].speed.to = 0;
-							mot.d[RIGHT].speed.to = 0;
+					mot.d[LEFT].speed.to = 0;
+					mot.d[RIGHT].speed.to = 0;
 
-							returnvar = 0;
+					returnvar = 0;
 
-							foutf(&str_debugDrive, "%i: drDst:end\n\r", timer);
-						break;
-		default:		foutf(&str_error, "%i: ERR:sw[drv.06]:DEF\n\r", timer);
-						fatal_err = 1;
-						returnvar = 0;
-						break;
+					foutf(&str_debugDrive, "%i: drDst:end\n\r", timer);
+					break;
+		default:	foutf(&str_error, "%i: ERR:sw[drv.06]:DEF\n\r", timer);
+					fatal_err = 1;
+					returnvar = 0;
+					break;
 	}
 	return returnvar;
 }
