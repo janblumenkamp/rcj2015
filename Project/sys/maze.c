@@ -47,7 +47,8 @@ int16_t ground_th;
 
 uint8_t incr_ok_mode = 4; //Positions- oder Richtungswahl? Siehe auch unten
 
-int16_t groundsens_cnt;
+int16_t groundsens_cnt; //Count times we are below or above threshold
+int16_t ramp_cnt; //Count times for threshold
 
 MATCHINGWALLS matchingWalls;
 TILE cleartiles;
@@ -379,6 +380,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									maze_solve_state_path = DRIVE_DOT_DRIVE;
 
 									groundsens_cnt = 0;
+									ramp_cnt = 0;
 									driveDot_state = 0;
 								}
 
@@ -402,9 +404,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 												maze_solve_state_path = CHECK_BLACKTILE;
 											}
 										}
-									}
 
-									displayvar[3] = groundsens_cnt;
+										if(um6.isRamp > 0) //ramp up
+											ramp_cnt ++;
+										else if(um6.isRamp < 0) //ramp down
+											ramp_cnt --;
+									}
 
 									//////Driving straight, change position
 									if((mot.enc > (dot.enc_lr_start + dot.enc_lr_add/2 + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort && !driveDot_state)
@@ -463,10 +468,10 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										/////////////////Ramp/////////////////////////
 
-									/*	if((maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir) &&
+										if((maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir) &&
 											 (robot.pos.z == 0))
 										{
-											if(!um6.isRamp) //No ramp
+											if(abs(ramp_cnt) < RAMP_CNT_ISRAMP) //No ramp
 											{
 												maze_setRamp(&robot.pos, NONE, NONE, FALSE); //Delete Ramp
 											}
@@ -478,7 +483,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										else if((maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir) &&
 												(robot.pos.z == 1))
 										{
-											if(!um6.isRamp) //No ramp
+											if(abs(ramp_cnt) < RAMP_CNT_ISRAMP) //No ramp
 											{
 												maze_setRamp(&robot.pos, NONE, NONE, FALSE); //Delete Ramp
 											}
@@ -487,21 +492,19 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 												maze_solve_state_path = RAMP_DOWN;
 											}
 										}
-										else if((maze_getRampDir(0) == NONE) &&
-														(um6.isRamp > 0)) //Rampe hoch
+										else if((maze_getRampDir(0) == NONE) && (ramp_cnt > RAMP_CNT_ISRAMP)) //Rampe hoch
 										{
 											if((groundsens_r < GROUNDSENS_R_TH_BLACKTILE)) //No black tile
 												maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
 
 											maze_solve_state_path = RAMP_UP;
 										}
-										else if((maze_getRampDir(1) == NONE) &&
-														(um6.isRamp < 0)) //Rampe runter
+										else if((maze_getRampDir(1) == NONE) && (ramp_cnt < -RAMP_CNT_ISRAMP)) //Rampe runter
 										{
 											maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
 
 											maze_solve_state_path = RAMP_DOWN;
-										}*/
+										}
 									}
 
 									maze_solve_state_path = DRIVE_READY;
