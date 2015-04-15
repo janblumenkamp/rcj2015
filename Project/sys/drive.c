@@ -829,12 +829,12 @@ uint8_t drive_ramp(int8_t speed)
 						ramp_checkpoint = 0;
 						ramp_checkpoint_enc = 0;
 
-		case 1:			if((um6.gyr.y > RAMP_UM6_GYR_DELTAX) && //Arrived at upper end
+		case 1:			if((um6.gyr_y > RAMP_UM6_GYR_DELTAX) && //Arrived at upper end
 		 					 (speed < 0))
 						{
 		 					sm_ramp = 2;
 						}
-						else if((um6.gyr.y < -RAMP_UM6_GYR_DELTAX) && //Arrived at lower end
+						else if((um6.gyr_y < -RAMP_UM6_GYR_DELTAX) && //Arrived at lower end
 	 					 	 (speed > 0))
 						{
 							sm_ramp = 2;
