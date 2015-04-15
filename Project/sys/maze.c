@@ -468,8 +468,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										/////////////////Ramp/////////////////////////
 
-										if((maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir) &&
-											 (robot.pos.z == 0))
+										if(maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir)
 										{
 											if(abs(ramp_cnt) < RAMP_CNT_ISRAMP) //No ramp
 											{
@@ -477,37 +476,44 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											}
 											else
 											{
-												maze_solve_state_path = RAMP_UP;
+												if(robot.pos.z == 0)
+												{
+													maze_solve_state_path = RAMP_UP;
+												}
+												else if(robot.pos.z == 1)
+												{
+													maze_solve_state_path = RAMP_DOWN;
+												}
+												else
+												{
+													foutf(&str_error, "%i: ERR:RAMP_A\n\r", timer);
+												}
 											}
 										}
-										else if((maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir) &&
-												(robot.pos.z == 1))
-										{
-											if(abs(ramp_cnt) < RAMP_CNT_ISRAMP) //No ramp
-											{
-												maze_setRamp(&robot.pos, NONE, NONE, FALSE); //Delete Ramp
-											}
-											else
-											{
-												maze_solve_state_path = RAMP_DOWN;
-											}
-										}
-										else if((maze_getRampDir(0) == NONE) && (ramp_cnt > RAMP_CNT_ISRAMP)) //Rampe hoch
-										{
-											if((groundsens_r < GROUNDSENS_R_TH_BLACKTILE)) //No black tile
-												maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
-
-											maze_solve_state_path = RAMP_UP;
-										}
-										else if((maze_getRampDir(1) == NONE) && (ramp_cnt < -RAMP_CNT_ISRAMP)) //Rampe runter
+										else if((maze_getRampDir(robot.pos.z) == NONE) && (abs(ramp_cnt) > RAMP_CNT_ISRAMP)) //no ramp stored in current robot stage, yet
 										{
 											maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
 
-											maze_solve_state_path = RAMP_DOWN;
+											if(ramp_cnt > RAMP_CNT_ISRAMP)
+											{
+												foutf(&str_error, "RAMP_UP\n\r");
+
+												maze_solve_state_path = RAMP_UP;
+											}
+											else if(ramp_cnt < -RAMP_CNT_ISRAMP)
+											{
+												foutf(&str_error, "RAMP_DOWN\n\r");
+												maze_solve_state_path = RAMP_DOWN;
+											}
+											else
+											{
+												foutf(&str_error, "%i: ERR:RAMP_B\n\r", timer);
+											}
 										}
 									}
 
-									maze_solve_state_path = DRIVE_READY;
+									if(maze_solve_state_path != RAMP_DOWN && maze_solve_state_path != RAMP_UP) //If no ramp set
+										maze_solve_state_path = DRIVE_READY;
 								}
 							break;
 
@@ -547,6 +553,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 								
 		case RAMP_UP:
+								foutf(&str_error, "DR_RAMP_UP\n\r");
 								if(drive_ramp(RAMP_UP_SPEED) == 0)
 								{
 									robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
@@ -580,7 +587,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case RAMP_DOWN:
-
+								foutf(&str_error, "DR_RAMP_DOWN\n\r");
 								if(drive_ramp(-RAMP_DOWN_SPEED) == 0) //Herunterfahren
 								{
 									robot.pos.z --; //Muss jetzt 0 sein, wurde schon oben angepasst
@@ -1134,7 +1141,7 @@ void u8g_DrawMaze(void)
 							{
 								u8g_drawArrow(wall_size_part/2, disp_x+(wall_size_part/2), disp_y-(wall_size_part/2), maze_alignDir(ramp_dir + 3), 0);
 							}
-							else if((_maze.x == checkpoint_disp.x) && (_maze.y == checkpoint_disp.y)) //Where is the checkpoint?
+							else if((_maze.x == checkpoint_disp.x) && (_maze.y == checkpoint_disp.y) && (robot.pos.z == checkpoint_disp.z)) //Where is the checkpoint?
 							{
 								u8g_DrawLine(&u8g, disp_x, disp_y, disp_x + wall_size_part, disp_y - wall_size_part);
 								u8g_DrawLine(&u8g, disp_x, disp_y - wall_size_part, disp_x + wall_size_part, disp_y);
