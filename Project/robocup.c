@@ -430,7 +430,6 @@ int8_t task_maze(int8_t state)
 	if(setup == 0)
 	{
 		maze_solve();
-		//victim_check();
 	}
 
 	/*dep.amount_to = 1;
@@ -447,6 +446,22 @@ int8_t task_maze(int8_t state)
 			testvar = 2;
 			dep.state = DK_INIT;
 		}
+	}
+	else
+	{
+		if(get_incrOk())
+		{
+			testvar = 1;
+		}
+	}*/
+	/*if(testvar == 1)
+	{
+		if(drive_ramp(50) == 0)
+		{
+			testvar = 0;
+		}
+
+		displayvar[0] = ramp_checkpoint;
 	}
 	else
 	{

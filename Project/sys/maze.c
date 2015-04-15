@@ -496,13 +496,10 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 											if(ramp_cnt > RAMP_CNT_ISRAMP)
 											{
-												foutf(&str_error, "RAMP_UP\n\r");
-
 												maze_solve_state_path = RAMP_UP;
 											}
 											else if(ramp_cnt < -RAMP_CNT_ISRAMP)
 											{
-												foutf(&str_error, "RAMP_DOWN\n\r");
 												maze_solve_state_path = RAMP_DOWN;
 											}
 											else
@@ -553,7 +550,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 								
 		case RAMP_UP:
-								foutf(&str_error, "DR_RAMP_UP\n\r");
 								if(drive_ramp(RAMP_UP_SPEED) == 0)
 								{
 									robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
@@ -587,18 +583,17 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case RAMP_DOWN:
-								foutf(&str_error, "DR_RAMP_DOWN\n\r");
-								if(drive_ramp(-RAMP_DOWN_SPEED) == 0) //Herunterfahren
+								if(drive_ramp(-RAMP_DOWN_SPEED) == 0) //Drive ramp down
 								{
-									robot.pos.z --; //Muss jetzt 0 sein, wurde schon oben angepasst
+									robot.pos.z --; //Moved into lower stage
 
-									if(robot.pos.z < 0)
+									if(robot.pos.z < 0) //Change offset in z axis
 									{
 										maze_chgOffset(Z, NONE, -1);
 										robot.pos.z = 0;
 									}
 
-									if(maze_getRampDir(robot.pos.z) == NONE) //Rampe unten noch nicht gesetzt
+									if(maze_getRampDir(robot.pos.z) == NONE) //ramp in stage not yet set!
 									{
 										robot.pos.x = ROB_POS_X_MIN;
 										robot.pos.y = ROB_POS_Y_MIN;
@@ -608,7 +603,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									}
 									else
 									{
-										robot.pos = *maze_getRamp(robot.pos.z);
+										robot.pos = *maze_getRamp(robot.pos.z); //Set robot position to ramp position in stage
 
 										switch(maze_getRampDir(robot.pos.z))
 										{
