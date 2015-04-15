@@ -426,6 +426,7 @@ int8_t testvar = 0;
 uint8_t groundvar = 0;
 
 D_DEPLOYKIT dep;
+int8_t chp = 0;
 
 int8_t task_maze(int8_t state)
 {	
@@ -456,22 +457,6 @@ int8_t task_maze(int8_t state)
 			testvar = 1;
 		}
 	}*/
-	/*if(testvar == 1)
-	{
-		if(drive_ramp(50) == 0)
-		{
-			testvar = 0;
-		}
-
-		displayvar[0] = ramp_checkpoint;
-	}
-	else
-	{
-		if(get_incrOk())
-		{
-			testvar = 1;
-		}
-	}*/
 
 	return 0;
 }
@@ -483,7 +468,7 @@ int8_t task_maze(int8_t state)
 int8_t task_speedreg(int8_t state)
 {
 	//Turn motor off?
-	if(	mot.off || mot.off_invisible)
+	if(mot.off || mot.off_invisible)
 	{
 		mot.d[LEFT].speed.to = 0;
 		mot.d[RIGHT].speed.to = 0;
@@ -512,8 +497,6 @@ int8_t task_sensors(int8_t state)
 	check_um6 = um6_getUM6(&um6);
 	um6_checkRamp(&um6);
 	//pixy_get();
-	//displayvar[2] = pixy_number_of_blocks;
-	displayvar[2] = um6.isRamp;
 	return 0;
 }
 

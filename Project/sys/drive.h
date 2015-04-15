@@ -181,7 +181,7 @@ extern int8_t ramp_checkpoint;
 
 extern void drive_oneTile(DOT *d);
 
-extern uint8_t drive_ramp(int8_t speed_ramp_to);
+extern uint8_t drive_ramp(int8_t speed_ramp_to, int8_t *checkpoint_ramp);
 
 extern uint8_t drive_align(void);
 

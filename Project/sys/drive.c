@@ -741,122 +741,127 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 	}
 }
 
-////////////////////////////////////////////////////////
-#define DIST_SOLL_RAMP 70 //mm, Sollabstand Rampe
+//////////////////////////////////////////////////////////////////////////////
+/// \brief drive_ramp
+///		Drive the ramp up or down
+/// \param speed
+///		speed to drive the ramp. Only tested with positive speed, neg wont work!
+/// \param checkpoint_ramp
+///		pointer to the checkpoint var: Variable is set to 1 if there is a checkpoint
+///		on the ramp and 2 if the checkpoint was within the last 25cm
+/// \return
+///		1 if driving, 0 if arrived on the top of the ramp
+
+#define DIST_SOLL_RAMP 80 //distance to the wall
 
 #define KP_RAMP_DIR 0.9
 #define KP_RAMP_DIST KP_RAMP_DIR * 0.5
 
-#define RAMP_UM6_GYR_DELTAX 15 //Winkelgeschwindigkeit (Rampenerkennung)
-
 #define TILE1_DIST_FRONT_RAMP 70 //Vorne, IR
 
-int16_t steer_ramp = 0;
-int8_t sm_ramp = 0;
-int8_t ramp_checkpoint = 0;
-int32_t ramp_checkpoint_enc = 0;
+int16_t steer_ramp = 0; //Steering var for distance regulation of ramp
+int8_t sm_ramp = 0; //Statemachine for ramp
+int32_t ramp_checkpoint_enc = 0; //Encoder value for last checkpoint detection/sign
+uint16_t ramp_checkpoint_cnt = 0; //Counter for checkpoint detections
 
-uint16_t groundsens_ramp_start = 0;
-
-uint8_t drive_ramp(int8_t speed)
+uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 {
-	if((dist[LIN][LEFT][FRONT] < TILE1_SIDE_TH) &&
-		(dist[LIN][LEFT][BACK] < TILE1_SIDE_TH))
-	{
-		if(sensinfo.newDat.left && sensinfo.newDat.right)
-		{
-			if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
-				steer_ramp = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_RAMP_DIR);
-			else
-				steer_ramp = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_RAMP_DIR);
-
-			steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_RAMP_DIST);
-
-			sensinfo.newDat.left = 0;
-			sensinfo.newDat.right = 0;
-		}
-	}
-	else if((dist[LIN][RIGHT][FRONT] < TILE1_SIDE_TH) &&
-					(dist[LIN][RIGHT][BACK] < TILE1_SIDE_TH))
-	{
-		if(sensinfo.newDat.left && sensinfo.newDat.right)
-		{
-			if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-				steer_ramp = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_RAMP_DIR);
-			else
-				steer_ramp = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_RAMP_DIR);
-
-			steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_RAMP_DIST);
-
-			sensinfo.newDat.left = 0;
-			sensinfo.newDat.right = 0;
-		}
-	}
-	/////////////Checkpoints/////////////////
-
-	if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT)
-	{
-		ramp_checkpoint_enc = mot.enc;
-		ramp_checkpoint = 1;
-	}
-
-	if((((mot.enc - ramp_checkpoint_enc)/ENC_FAC_CM_LR) < 30) && (ramp_checkpoint == 1))
-		ramp_checkpoint = 2;
-	else if((((mot.enc - ramp_checkpoint_enc)/ENC_FAC_CM_LR) >= 30) && (ramp_checkpoint == 2))
-		ramp_checkpoint = 1;
-
-	//displayvar[4] = ramp_checkpoint;
-	//displayvar[5] = ((mot.enc - ramp_checkpoint_enc)/ENC_FAC_CM_LR);
-
-/////////////fertig?/////////////
 	uint8_t returnvar = 1;
 	
-	///////Geschw. setzen//////////
-
-	if(speed < 0)
-		speed *= -1;
-	
-	mot.d[LEFT].speed.to = (speed - steer_ramp);
-	mot.d[RIGHT].speed.to = (speed + steer_ramp);
-
-	drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, 80);
-
-	//Return
 	switch(sm_ramp)
 	{
-		case 0: //if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_ramp()"));}
-						sm_ramp = 1;
-						ramp_checkpoint = 0;
-						ramp_checkpoint_enc = 0;
+		case 0:
+			sm_ramp = 1;
+			ramp_checkpoint_enc = 0;
 
-		case 1:			if((um6.gyr_y > RAMP_UM6_GYR_DELTAX) && //Arrived at upper end
-		 					 (speed < 0))
-						{
-		 					sm_ramp = 2;
-						}
-						else if((um6.gyr_y < -RAMP_UM6_GYR_DELTAX) && //Arrived at lower end
-	 					 	 (speed > 0))
-						{
-							sm_ramp = 2;
-						}
-		 			break;
-		case 2:
+		case 1:
 
-						if((dist[LIN][FRONT][FRONT] < TILE1_DIST_FRONT_RAMP) &&
-							(dist[LIN][FRONT][LEFT] < TILE1_DIST_FRONT_RAMP))
-		 				{
-							returnvar = 0;
-	 						sm_ramp = 0;
-							mot.d[LEFT].speed.to = 0;
-							mot.d[RIGHT].speed.to = 0;
-							//if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": drive_ramp()::done::speed:")); bt_putLong(speed);}
+			//////////Speed/distance regulation
+			if((dist[LIN][LEFT][FRONT] < TILE1_SIDE_TH) &&
+				(dist[LIN][LEFT][BACK] < TILE1_SIDE_TH))
+			{
+				if(sensinfo.newDat.left && sensinfo.newDat.right)
+				{
+					if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
+						steer_ramp = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_RAMP_DIR);
+					else
+						steer_ramp = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_RAMP_DIR);
+
+					steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_RAMP_DIST);
+
+					sensinfo.newDat.left = 0;
+					sensinfo.newDat.right = 0;
+				}
+			}
+			else if((dist[LIN][RIGHT][FRONT] < TILE1_SIDE_TH) &&
+							(dist[LIN][RIGHT][BACK] < TILE1_SIDE_TH))
+			{
+				if(sensinfo.newDat.left && sensinfo.newDat.right)
+				{
+					if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
+						steer_ramp = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_RAMP_DIR);
+					else
+						steer_ramp = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_RAMP_DIR);
+
+					steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_RAMP_DIST);
+
+					sensinfo.newDat.left = 0;
+					sensinfo.newDat.right = 0;
+				}
+			}
+
+			mot.d[LEFT].speed.to = (speed - steer_ramp);
+			mot.d[RIGHT].speed.to = (speed + steer_ramp);
+
+			drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, 80);
+
+			/////////////Checkpoints/////////////////
+
+			if(checkpoint_ramp != NULL)
+			{
+				if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT)
+				{
+					if(((mot.enc - ramp_checkpoint_enc) > (1 * ENC_FAC_CM_LR)) ||
+					   (ramp_checkpoint_cnt == 0)) //Less than 4 centimeters since last checkpoint detection
+					{
+						ramp_checkpoint_enc = mot.enc;
+						ramp_checkpoint_cnt ++;
+						if(ramp_checkpoint_cnt > GROUNDSENS_CNT_TH_CHECKPOINT) //Detected many checkpoint-looking sings! This is a checkpoint
+						{
+							ramp_checkpoint_cnt = 0;
+							*checkpoint_ramp = 1;
 						}
-					break;
-		default:		foutf(&str_error, "%i: ERR:sw[drv.04]:DEF\n\r", timer);
-						fatal_err = 1;
-						returnvar = 0;
-							sm_ramp = 0;
-						break;
+					}
+				}
+				else if((mot.enc - ramp_checkpoint_enc) > (4 * ENC_FAC_CM_LR))
+				{
+					ramp_checkpoint_cnt = 0;
+				}
+			}
+
+			if((um6.isRamp == 0) && //Not at ramp anymore and distance sensors recognized ramp end
+			   ((dist[LIN][FRONT][FRONT] < TILE1_DIST_FRONT_RAMP) &&
+				(dist[LIN][FRONT][LEFT] < TILE1_DIST_FRONT_RAMP)))
+			{
+				if((checkpoint_ramp != NULL) &&
+				   (mot.enc - ramp_checkpoint_enc) < (25 * ENC_FAC_CM_LR)) //We are now on the end of the ramp and the last checkpoint detection happened within the last 25 cm
+				{
+					*checkpoint_ramp = 2; //Means that the checkpoint has to be on the uppder part of the ramp
+				}
+
+				returnvar = 0;
+				sm_ramp = 0;
+				mot.d[LEFT].speed.to = 0;
+				mot.d[RIGHT].speed.to = 0;
+			}
+			break;
+
+		default:
+			foutf(&str_error, "%i: ERR:sw[drv.04]:DEF\n\r", timer);
+			fatal_err = 1;
+			returnvar = 0;
+			sm_ramp = 0;
+			break;
 	}
 	return returnvar;
 }

@@ -58,7 +58,7 @@ D_TURN turn; //Turn main struct
 D_DEPLOYKIT deployKits; //Deploy kits settings
 
 uint8_t driveDot_state = 0;
-
+int8_t checkpoint_ramp = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -550,8 +550,14 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 								
 		case RAMP_UP:
-								if(drive_ramp(RAMP_UP_SPEED) == 0)
+								if(drive_ramp(RAMP_UP_SPEED, &checkpoint_ramp) == 0)
 								{
+									if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
+									{
+										maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
+										checkpoint_ramp = 0;
+									}
+
 									robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
 
 									if(maze_getRampDir(robot.pos.z) == NONE) //Rampe oben noch nicht gesetzt
@@ -577,14 +583,26 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										}
 									}
 
+									/*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
+									{
+										maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
+										checkpoint_ramp = 0;
+									}*/
+
 									maze_solve_state_path = DRIVE_READY;
 								}
 
 							break;
 
 		case RAMP_DOWN:
-								if(drive_ramp(-RAMP_DOWN_SPEED) == 0) //Drive ramp down
+								if(drive_ramp(RAMP_DOWN_SPEED, &checkpoint_ramp) == 0) //Drive ramp down
 								{
+									if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
+									{
+										maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
+										checkpoint_ramp = 0;
+									}
+
 									robot.pos.z --; //Moved into lower stage
 
 									if(robot.pos.z < 0) //Change offset in z axis
@@ -615,6 +633,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 														fatal_err = 1;
 										}
 									}
+
+									/*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
+									{
+										maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
+										checkpoint_ramp = 0;
+									}*/
 
 									maze_solve_state_path = DRIVE_READY;
 								}
