@@ -277,7 +277,7 @@ void maze_setWall(COORD *_coord, int8_t dir, int8_t value)
 			case WEST:
 								maze[c.x][c.y][c.z].wall_w = value; //Aktuelle Platte Wand Westen = Aktuelle Platte Wand Westen
 							break;
-			default: 	foutf(&str_error, "%i: ERR:sw[mazef.03]:DEF\n\r", timer);
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.03]:DEF:DIR:%i\n\r", timer, dir);
 						fatal_err = 1;
 		}
 	}
@@ -1483,18 +1483,18 @@ void maze_setRamp(COORD *_coord, int8_t ramp_dir, int8_t tile_dir, int8_t set)
 			default: 	foutf(&str_error, "%i: ERR:sw[mazef.13]:DEF\n\r", timer);
 						fatal_err = 1;
 		}
-		maze_setWall(&c, ramp_dir+1, MAZE_ISWALL+1);
+		/*maze_setWall(&c, ramp_dir+1, MAZE_ISWALL+1);
 		maze_setWall(&c, ramp_dir+3, MAZE_ISWALL+1);
 		maze_setWall(&c, ramp_dir, -100);
-		maze_setWall(&c, ramp_dir+2, -100);
+		maze_setWall(&c, ramp_dir+2, -100);*/
 		maze_setBeenthere(&c,NONE,TRUE);
 	}
 	else
 	{
-		maze_setWall(&robot.pos, ramp_dir+1, 0);
+	/*	maze_setWall(&robot.pos, ramp_dir+1, 0);
 		maze_setWall(&robot.pos, ramp_dir+3, 0);
 		maze_setWall(&robot.pos, ramp_dir, 0);
-		maze_setWall(&robot.pos, ramp_dir+2, 0);
+		maze_setWall(&robot.pos, ramp_dir+2, 0);*/
 		maze_setBeenthere(&c,NONE,FALSE);
 	}
 

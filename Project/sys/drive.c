@@ -41,7 +41,11 @@ void drive_limitSpeed(int16_t *speed_l, int16_t *speed_r, int8_t limit)
 
 void drive_oneTile(DOT *d)
 {
-	int16_t maxspeed = MAXSPEED;
+	if(d->maxspeed == 0) //Set to constant if not initialized
+		d->maxspeed = MAXSPEED;
+
+	int16_t speed_tmp = 0;
+	int16_t th_align_front = TILE1_FRONT_TH_FRONT;
 
 	int16_t rel_angle = 0;
 
@@ -110,7 +114,11 @@ void drive_oneTile(DOT *d)
 							rel_angle = abs((d->um6_phi_t_start - um6.phi_t) * 2);
 							if(rel_angle > 70)
 								rel_angle = 70;
-							maxspeed = MAXSPEED - rel_angle;
+
+							speed_tmp = d->maxspeed - rel_angle;
+
+							if(d->enc_lr_add > 0)
+								speed_tmp /= 2;
 
 							/////////Regelung (Abstand links/rechts)////////
 
@@ -167,20 +175,28 @@ void drive_oneTile(DOT *d)
 								}
 								else
 								{
-									maxspeed /= 2;
-									mot.d[LEFT].speed.to = -(maxspeed + d->steer);
-									mot.d[RIGHT].speed.to = -(maxspeed - d->steer);
+									speed_tmp /= 2;
+									mot.d[LEFT].speed.to = -(speed_tmp + d->steer);
+									mot.d[RIGHT].speed.to = -(speed_tmp - d->steer);
 								}
 							}
 							else
 							{
+								if(d->enc_lr_add == 0)
+								{
+									th_align_front = TILE1_FRONT_TH_FRONT;
+								}
+								else
+								{
+									th_align_front = TILE1_FRONT_TH_FRONT/2;
+								}
+
 								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+									(dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
 									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
 									(rel_angle < 20)) ||
-
 									get_bumpR() ||
-
 								   ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
 									(dist[LIN][RIGHT][FRONT] < 15)))
 								{
@@ -190,7 +206,8 @@ void drive_oneTile(DOT *d)
 									mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
 								}
 								else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) && (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+										 (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
 										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
 										 (rel_angle < 20)) ||
 
@@ -212,9 +229,9 @@ void drive_oneTile(DOT *d)
 								{
 									d->state = DOT_ROT_EAST;
 								}
-								else if((dist[LIN][FRONT][LEFT] < TILE1_FRONT_TH_FRONT) &&
-										(dist[LIN][FRONT][FRONT] < TILE1_FRONT_TH_FRONT) &&
-										(dist[LIN][FRONT][RIGHT] < TILE1_FRONT_TH_FRONT))
+								else if((dist[LIN][FRONT][LEFT] < th_align_front) &&
+										(dist[LIN][FRONT][FRONT] < th_align_front) &&
+										(dist[LIN][FRONT][RIGHT] < th_align_front))
 								{
 									if(d->timer == 0)
 									{
@@ -231,7 +248,7 @@ void drive_oneTile(DOT *d)
 										mot.d[LEFT].speed.to = d->steer;
 										mot.d[RIGHT].speed.to = d->steer;
 
-										drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
+										drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, speed_tmp);
 
 										if(abs(d->steer) <= STEER_ALIGN_BACK_END)
 										{
@@ -249,12 +266,12 @@ void drive_oneTile(DOT *d)
 								}
 								else //Normal driving forward
 								{
-									mot.d[LEFT].speed.to = (maxspeed - d->steer);
-									mot.d[RIGHT].speed.to = (maxspeed + d->steer);
+									mot.d[LEFT].speed.to = (speed_tmp - d->steer);
+									mot.d[RIGHT].speed.to = (speed_tmp + d->steer);
 								}
 							}
 
-							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, maxspeed);
+							drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, speed_tmp);
 
 						break;
 
@@ -611,7 +628,10 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 	{
 		case 0:
 
-				if(dist_back < TILE1_BACK_TH_BACK)
+				if((dist[LIN][BACK][LEFT] < TILE1_BACK_TH_BACK) &&
+					(dist[LIN][BACK][FRONT] < TILE1_BACK_TH_BACK) &&
+					(dist[LIN][BACK][RIGHT] < TILE1_BACK_TH_BACK))
+				//if(dist_back < TILE1_BACK_TH_BACK)
 				{
 					timer_alignBack = timer;
 					sm_dab = 1;

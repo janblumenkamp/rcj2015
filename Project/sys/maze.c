@@ -3,11 +3,11 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 //////////////////////////////////maze.c////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	Alles, was mit Kartierung und Navigation zu tun hat:
-//	- Entscheidung (Statemachine), wie der Roboter jetzt fährt
-//		- ggf. Tarry Algorithmus oder rechte Hand Regel
-//	- Kartierung
-//	- Anzeige der Karte und bzgl. Informationen
+///	Alles, was mit Kartierung und Navigation zu tun hat:
+///	- Entscheidung (Statemachine), wie der Roboter jetzt fährt
+///		- ggf. Tarry Algorithmus oder rechte Hand Regel
+///	- Kartierung
+///	- Anzeige der Karte und bzgl. Informationen
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,6 @@ POS ramp[MAZE_SIZE_Z];		//Rampenanschlüsse
 uint8_t maze_solve_state_path = DRIVE_READY;
 uint8_t maze_solve_state_ready = 0;
 uint8_t maze_solve_state_path_deplKitSave = DRIVE_READY; //In this var the value of maze_solve_state_path is stored before we deploy a rescuekit to proceed after deployment
-uint8_t maze_solve_check_blacktile = 0;
 uint8_t rt_noposs_radius = 0;
 
 int16_t tsl_th; //Schwellwert Sackgasse; Wird aus EEPROM gelesen
@@ -218,7 +217,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						
 											case RR_RTNOPOSS:	//That’s bad. The robot detected a wall or black tile wrong and can’t find the way or someone put the walls from their places. ;)
 
-																			cleartiles.beenthere = 0;
+																		/*	cleartiles.beenthere = 0;
 																			cleartiles.depthsearch = 1;
 																			cleartiles.ground = 1;
 																			cleartiles.wall_s = 1;
@@ -246,9 +245,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 																			{
 																				maze_clear(&cleartiles);
 																			}
-
-																			maze_solve_state_path = FOLLOW_RIGHTWALL;
-																			routeRequest = RR_NEARNOPOSS;
+*/
+																			maze_solve_state_path = DRIVE_READY;
+																			routeRequest = RR_WAIT;//RR_NEARNOPOSS;
 
 																		break;
 											default:
@@ -266,7 +265,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									if((maze_getDepthsearch(&robot.pos, robot.dir) < depthsearchNum) &&
 										maze_tileIsVisitable(&robot.pos, robot.dir))
 									{
-										maze_solve_state_path = DRIVE_DOT; //Geradeaus
+										maze_solve_state_path = DRIVE_DOT;
 									}
 									else if((maze_getDepthsearch(&robot.pos, robot.dir+1) < depthsearchNum) &&
 											 maze_tileIsVisitable(&robot.pos, robot.dir+1))
@@ -392,16 +391,39 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									//////Check for Black and silver tile
 
-									if((driveDot_state == 1) && (dot.abort == 0))
+									if((driveDot_state == 1) && (dot.abort == 0)) //Robot is on next tile (here can the black and silver tiles begin) and we are not driving back (aborting function)
 									{
-										if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) //Already on next tile tile
+										if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT)
 											groundsens_cnt ++;
-										if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) && !um6.isRamp)
+
+										if(//(groundsens_r > GROUNDSENS_R_TH_BLACKTILE) &&
+										   (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) &&
+										   !um6.isRamp)
 										{
 											groundsens_cnt --;
-											if(groundsens_cnt < GROUNDSENS_CNT_TH_BLACKTILE)
+
+											if(groundsens_cnt < -GROUNDSENS_CNT_TH_BLACKTILE)
 											{
-												maze_solve_state_path = CHECK_BLACKTILE;
+												dot.abort = 1;
+												if(driveDot_state == 0) //We are still on the old tile (bevore the crossing)
+												{
+													maze_corrGround(&robot.pos, robot.dir, 2);
+													foutf(&str_debug, "DETECT_BLACKTILE: val: %i\n", groundsens_cnt);
+												}
+												else //We are already on the next tile
+												{
+													driveDot_state = 0;
+													maze_corrGround(&robot.pos, NONE, 2);
+													switch(robot.dir)
+													{
+														case NORTH:	robot.pos.y--;	break;
+														case EAST:	robot.pos.x--;	break;
+														case SOUTH:	robot.pos.y++;	break;
+														case WEST:	robot.pos.x++;	break;
+														default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+																	fatal_err = 1;
+													}
+												}
 											}
 										}
 
@@ -463,6 +485,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										if((groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT && (driveDot_state == 1))) //Checkpoint detected and robot is on next tile (no change in position)
 										{
+											foutf(&str_debug, "DETECT_CHECKPOINT: val: %i\n", groundsens_cnt);
 											maze_setCheckpoint(&robot.pos, NONE);
 										}
 
@@ -470,12 +493,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										if(maze_getRampPosDirAtDir(&robot.pos, NONE) == robot.dir)
 										{
-											if(abs(ramp_cnt) < RAMP_CNT_ISRAMP) //No ramp
+											/*if(abs(ramp_cnt) < RAMP_CNT_ISRAMP) //No ramp
 											{
+												foutf(&str_debug, "%i: ERR:RAMP_DEL\n\r", timer);
 												maze_setRamp(&robot.pos, NONE, NONE, FALSE); //Delete Ramp
 											}
 											else
-											{
+											{*/
 												if(robot.pos.z == 0)
 												{
 													maze_solve_state_path = RAMP_UP;
@@ -488,10 +512,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 												{
 													foutf(&str_error, "%i: ERR:RAMP_A\n\r", timer);
 												}
-											}
+											//}
 										}
 										else if((maze_getRampDir(robot.pos.z) == NONE) && (abs(ramp_cnt) > RAMP_CNT_ISRAMP)) //no ramp stored in current robot stage, yet
 										{
+											foutf(&str_debug, "IS RAMP: %i\n", ramp_cnt);
+
 											maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
 
 											if(ramp_cnt > RAMP_CNT_ISRAMP)
@@ -641,6 +667,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									}*/
 
 									maze_solve_state_path = DRIVE_READY;
+									//foutf(&str_error, "RAMP_DOWN");
 								}
 
 							break;
@@ -661,27 +688,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 		case CHECK_BLACKTILE:
 
-								dot.abort = 1;
-								if(driveDot_state == 0) //We are still on the old tile (bevore the crossing)
-								{
-									maze_corrGround(&robot.pos, robot.dir, 2);
-								}
-								else //We are already on the next tile
-								{
-									driveDot_state = 0;
-									maze_corrGround(&robot.pos, NONE, 2);
-									switch(robot.dir)
-									{
-										case NORTH:	robot.pos.y--;	break;
-										case EAST:	robot.pos.x--;	break;
-										case SOUTH:	robot.pos.y++;	break;
-										case WEST:	robot.pos.x++;	break;
-										default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
-													fatal_err = 1;
-									}
-								}
-
-								maze_solve_check_blacktile = 0;
 								maze_solve_state_path = DRIVE_DOT;
 
 								break;
@@ -717,8 +723,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
 						{
 							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-								//	(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
-								//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
+									(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
+									(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
 									(maze_getVictim(&robot.pos, robot.dir+3) == 0))
 							{
 								timer_victim_led = TIMER_VICTIM_LED;
@@ -761,7 +767,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									timer_victim_led = -1;
 								}
 
-								foutf(&str_debug, "%i: vicFoundL: %i d°C\n\r", timer, mlx90614[LEFT].is);
+								foutf(&str_debug, "%i: vicFoundL: %i degC\n\r", timer, mlx90614[LEFT].is);
 							}
 						}
 					}
@@ -770,9 +776,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						if(dist[LIN][RIGHT][BACK] < DIST_VICTIM_MIN)
 						{
 							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+1) == 0) )// &&
-								//	(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-								//	(maze_getVictim(&robot.pos, robot.dir+3) == 0))
+									(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
+									(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
+									(maze_getVictim(&robot.pos, robot.dir+3) == 0))
 							{
 								timer_victim_led = TIMER_VICTIM_LED;
 
@@ -814,7 +820,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									timer_victim_led = -1;
 								}
 
-								foutf(&str_debug, "%i: vicFoundL: %i d°C\n\r", timer, mlx90614[RIGHT].is);
+								foutf(&str_debug, "%i: vicFoundL: %i degC\n\r", timer, mlx90614[RIGHT].is);
 							}
 						}
 					}

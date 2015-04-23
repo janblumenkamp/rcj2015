@@ -275,11 +275,11 @@ uint8_t um6_gyroZeroRate(UM6_t *_um6)
 
 void um6_checkRamp(UM6_t *um6)
 {
-	if((um6->theta_t) % 360 > 10)
+	if((um6->theta_t) % 360 > 12)
 	{
 		um6->isRamp = -1;
 	}
-	else if((um6->theta_t) % 360 < -10)
+	else if((um6->theta_t) % 360 < -12)
 	{
 		um6->isRamp = 1;
 	}

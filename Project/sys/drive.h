@@ -81,7 +81,7 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 ///////////////////////drive_oneTile//////////
 #define ENC_FAC_CM_L 22 //Fakor: Encoderwert in Strecke (cm) umrechnen
 #define ENC_FAC_CM_R 22
-#define ENC_FAC_CM_LR 23
+#define ENC_FAC_CM_LR 23.5
 
 #define TILE1_FRONT_FRONT 		60	//mm
 #define TILE1_FRONT_TH_FRONT	240
@@ -138,6 +138,8 @@ struct _dot {
 	int16_t um6_phi_t_start; //Slow down when getting odd (Ramp etc.)
 
 	int16_t steer; //Steering value for all the steering stuff. Has to be global, dont know why.
+
+	int8_t maxspeed; //Maximum speed to drive
 
 	D_ROTATE r; //For intern rotate function
 };

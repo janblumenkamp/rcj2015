@@ -865,10 +865,9 @@ void u8g_DrawCamRaw(void)
 	
 	u8g_SetFont(&u8g, u8g_font_4x6);
 
-	u8g_DrawStr(&u8g,		65, 	34, "Groundsens:"); u8g_DrawLong(110,	34, groundsens_r);
-	
-	u8g_DrawStr(&u8g,		65, 	41, "TH Cam_Al:"); 		u8g_DrawLong(110,	41, tsl_th);
-	u8g_DrawStr(&u8g,		65, 	48, "TH Cam_Gr:"); 		u8g_DrawLong(110,	48, tsl_th_ground);
+	u8g_DrawStr(&u8g,		65, 	34, "Groundsens l:"); u8g_DrawLong(110,	34, groundsens_l);
+	u8g_DrawStr(&u8g,		65, 	41, "Groundsens r:"); u8g_DrawLong(110,	34, groundsens_l);
+
 	u8g_DrawStr(&u8g,		65, 	55, "TH Ground:"); 	u8g_DrawLong(110,	55, ground_th);
 	u8g_DrawStr(&u8g,		65, 	62, "View:"); 			if(viewCam_sorted)	u8g_DrawStr(&u8g,	110, 	62, "srt");
 																								else								u8g_DrawStr(&u8g,	110, 	62, "raw");
