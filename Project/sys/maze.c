@@ -518,9 +518,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										}
 										else if((maze_getRampDir(robot.pos.z) == NONE) && (abs(ramp_cnt) > RAMP_CNT_ISRAMP)) //no ramp stored in current robot stage, yet
 										{
-											foutf(&str_debug, "IS RAMP: %i\n", ramp_cnt);
-
-											maze_setRamp(&robot.pos, robot.dir, NONE, TRUE);
+											foutf(&str_debug, "MAY BE RAMP: %i\n", ramp_cnt);
 
 											if(ramp_cnt > RAMP_CNT_ISRAMP)
 											{
@@ -580,42 +578,49 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		case RAMP_UP:
 								if(drive_ramp(RAMP_UP_SPEED, &checkpoint_ramp) == 0)
 								{
-									if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
+									if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
 									{
-										maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
-										checkpoint_ramp = 0;
-									}
+										foutf(&str_debug, "IS RAMP!\n");
 
-									robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
+										maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
 
-									if(maze_getRampDir(robot.pos.z) == NONE) //Rampe oben noch nicht gesetzt
-									{
-										robot.pos.x = ROB_POS_X_MIN;
-										robot.pos.y = ROB_POS_Y_MIN;
-
-										maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
-										maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
-									}
-									else
-									{
-										robot.pos = *maze_getRamp(robot.pos.z);
-
-										switch(maze_getRampDir(robot.pos.z))
+										if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
 										{
-											case NORTH:	robot.pos.y--;	break;
-											case EAST:	robot.pos.x--;	break;
-											case SOUTH:	robot.pos.y++;	break;
-											case WEST:	robot.pos.x++;	break;
-											default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
-														fatal_err = 1;
+											maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
+											checkpoint_ramp = 0;
 										}
-									}
 
-									/*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
-									{
-										maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
-										checkpoint_ramp = 0;
-									}*/
+										robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
+
+										if(maze_getRampDir(robot.pos.z) == NONE) //Rampe oben noch nicht gesetzt
+										{
+											robot.pos.x = ROB_POS_X_MIN;
+											robot.pos.y = ROB_POS_Y_MIN;
+
+											maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
+											maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
+										}
+										else
+										{
+											robot.pos = *maze_getRamp(robot.pos.z);
+
+											switch(maze_getRampDir(robot.pos.z))
+											{
+												case NORTH:	robot.pos.y--;	break;
+												case EAST:	robot.pos.x--;	break;
+												case SOUTH:	robot.pos.y++;	break;
+												case WEST:	robot.pos.x++;	break;
+												default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+															fatal_err = 1;
+											}
+										}
+
+										/*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
+										{
+											maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
+											checkpoint_ramp = 0;
+										}*/
+									}
 
 									maze_solve_state_path = DRIVE_READY;
 								}
@@ -625,51 +630,57 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		case RAMP_DOWN:
 								if(drive_ramp(RAMP_DOWN_SPEED, &checkpoint_ramp) == 0) //Drive ramp down
 								{
-									if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
+									if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
 									{
-										maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
-										checkpoint_ramp = 0;
-									}
+										foutf(&str_debug, "IS RAMP!\n");
 
-									robot.pos.z --; //Moved into lower stage
+										maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
 
-									if(robot.pos.z < 0) //Change offset in z axis
-									{
-										maze_chgOffset(Z, NONE, -1);
-										robot.pos.z = 0;
-									}
-
-									if(maze_getRampDir(robot.pos.z) == NONE) //ramp in stage not yet set!
-									{
-										robot.pos.x = ROB_POS_X_MIN;
-										robot.pos.y = ROB_POS_Y_MIN;
-
-										maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
-										maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
-									}
-									else
-									{
-										robot.pos = *maze_getRamp(robot.pos.z); //Set robot position to ramp position in stage
-
-										switch(maze_getRampDir(robot.pos.z))
+										if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
 										{
-											case NORTH:	robot.pos.y--;	break;
-											case EAST:	robot.pos.x--;	break;
-											case SOUTH:	robot.pos.y++;	break;
-											case WEST:	robot.pos.x++;	break;
-											default: 	foutf(&str_error, "%i: ERR:sw[maze.01]:DEF\n\r", timer);
-														fatal_err = 1;
+											maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
+											checkpoint_ramp = 0;
 										}
-									}
 
-									/*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
-									{
-										maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
-										checkpoint_ramp = 0;
-									}*/
+										robot.pos.z --; //Moved into lower stage
+
+										if(robot.pos.z < 0) //Change offset in z axis
+										{
+											maze_chgOffset(Z, NONE, -1);
+											robot.pos.z = 0;
+										}
+
+										if(maze_getRampDir(robot.pos.z) == NONE) //ramp in stage not yet set!
+										{
+											robot.pos.x = ROB_POS_X_MIN;
+											robot.pos.y = ROB_POS_Y_MIN;
+
+											maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
+											maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
+										}
+										else
+										{
+											robot.pos = *maze_getRamp(robot.pos.z); //Set robot position to ramp position in stage
+
+											switch(maze_getRampDir(robot.pos.z))
+											{
+												case NORTH:	robot.pos.y--;	break;
+												case EAST:	robot.pos.x--;	break;
+												case SOUTH:	robot.pos.y++;	break;
+												case WEST:	robot.pos.x++;	break;
+												default: 	foutf(&str_error, "%i: ERR:sw[maze.01]:DEF\n\r", timer);
+															fatal_err = 1;
+											}
+										}
+
+										/*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
+										{
+											maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
+											checkpoint_ramp = 0;
+										}*/
+									}
 
 									maze_solve_state_path = DRIVE_READY;
-									//foutf(&str_error, "RAMP_DOWN");
 								}
 
 							break;
@@ -725,9 +736,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
 						{
 							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+3) == 0))
+								//(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
+								//(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
+								(maze_getVictim(&robot.pos, robot.dir+3) == 0))
 							{
 								timer_victim_led = TIMER_VICTIM_LED;
 
@@ -778,9 +789,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						if(dist[LIN][RIGHT][BACK] < DIST_VICTIM_MIN)
 						{
 							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+3) == 0))
+									(maze_getVictim(&robot.pos, robot.dir+1) == 0) )//&&
+									//(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
+									//(maze_getVictim(&robot.pos, robot.dir+3) == 0))
 							{
 								timer_victim_led = TIMER_VICTIM_LED;
 

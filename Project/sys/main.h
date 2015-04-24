@@ -71,7 +71,7 @@ extern uint8_t setup;
 extern uint8_t debug;
 extern int32_t incremental;
 
-#define TIMER_VICTIM_LED	5000/25 //So lange leuchtet LED und steht Robo bei Fund
+#define TIMER_VICTIM_LED	2000/25 //So lange leuchtet LED und steht Robo bei Fund
 #define TIMER_ENTPR_TAST	500/25  //Timer zum Entprellen von Taster
 #define TIMER_GET_TAST		1300/25	//So lange muss der Taster gedrückt werden, bis eine Eingabe registriert wird
 #define TIMER_ENTPR_INCR	500/25  //Timer zum Entprellen von incr_ok

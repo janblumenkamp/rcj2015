@@ -588,11 +588,11 @@ void setupStep_Fac(int16_t fac)
 {
 	switch(setup_mode)
 	{
-		case 0: 	mlx90614[RIGHT].th += ((incremental-incremental_old_setup) * fac);
-							if(mlx90614[RIGHT].th < 0)
-								mlx90614[RIGHT].th = 0;
-							eepr_value_changed.temp = 1;
-						break;
+		case 0: 	mlx90614[RIGHT].th += ((incremental - incremental_old_setup) * fac);
+					if(mlx90614[RIGHT].th < 0)
+						mlx90614[RIGHT].th = 10000;
+					eepr_value_changed.temp = 1;
+					break;
 		case 1: 	setup = 4;
 						break;
 		case 2: 	setup = 2; //Modus 2
@@ -644,11 +644,15 @@ void setupStep_Fac(int16_t fac)
 ///////
 
 
+uint8_t init_setup = 0;
 void u8g_DrawSetUp(void)
 {
 	u8g_SetFont(&u8g, u8g_font_4x6);
 
-	if(get_incrOk() && (timer_incr_entpr == 0) && mot.off)
+	if(!get_incrOk())
+		init_setup = 1;
+
+	if(get_incrOk() && (timer_incr_entpr == 0) && init_setup)
 	{
 		switch(setup_mode)
 		{

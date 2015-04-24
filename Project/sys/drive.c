@@ -176,19 +176,19 @@ void drive_oneTile(DOT *d)
 								else
 								{
 									speed_tmp /= 2;
-									mot.d[LEFT].speed.to = -(speed_tmp + d->steer);
-									mot.d[RIGHT].speed.to = -(speed_tmp - d->steer);
+									mot.d[LEFT].speed.to = -40;//(speed_tmp + d->steer);
+									mot.d[RIGHT].speed.to = -40;//(speed_tmp - d->steer);
 								}
 							}
 							else
 							{
 								if(d->enc_lr_add == 0)
 								{
-									th_align_front = TILE1_FRONT_TH_FRONT;
+									th_align_front = 190;//TILE1_FRONT_TH_FRONT;
 								}
 								else
 								{
-									th_align_front = TILE1_FRONT_TH_FRONT/2;
+									th_align_front = 100;//TILE1_FRONT_TH_FRONT/2;
 								}
 
 								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
@@ -783,6 +783,7 @@ int16_t steer_ramp = 0; //Steering var for distance regulation of ramp
 int8_t sm_ramp = 0; //Statemachine for ramp
 int32_t ramp_checkpoint_enc = 0; //Encoder value for last checkpoint detection/sign
 uint16_t ramp_checkpoint_cnt = 0; //Counter for checkpoint detections
+int32_t ramp_enc_start = 0; //Encoder value on beginning of ramp
 
 uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 {
@@ -793,6 +794,7 @@ uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 		case 0:
 			sm_ramp = 1;
 			ramp_checkpoint_enc = 0;
+			ramp_enc_start = mot.enc;
 
 		case 1:
 

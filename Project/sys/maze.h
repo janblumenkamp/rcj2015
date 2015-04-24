@@ -97,7 +97,7 @@ struct _matchingWalls {
 #define SIDE_TH 		170 //Schwellwert zur Seite
 #define BACK_BACK_TH	170
 
-#define DIST_VICTIM_MIN 140
+#define DIST_VICTIM_MIN 100
 
 #define DRIVE_BUMPED_WIDTH 2
 
@@ -118,7 +118,7 @@ struct _matchingWalls {
 
 #define GROUNDSENS_R_TH_BLACKTILE 850 //Above this Threshold there is a black tile
 #define GROUNDSENS_L_TH_BLACKTILE 850 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_CHECKPOINT 650 //Below this Threshold there is a checkpoint
+#define GROUNDSENS_L_TH_CHECKPOINT 670 //Below this Threshold there is a checkpoint
 #define GROUNDDIST_TH_LOP		50 //Below this Threshold of the sharp IR looking down there is a LOP
 #define GROUNDDIST_TH_NORMAL		200 //Above this Threshold of the sharp IR looking down there is no more LOP
 #define GROUNDSENS_CNT_TH_CHECKPOINT 20 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
