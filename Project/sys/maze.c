@@ -760,7 +760,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								else if(((maze_solve_state_path == TURN_LEFT) ||
 										(maze_solve_state_path == TURN_RIGHT)) && turn.r.state == ROTATE) //Only if rotation has begin (to prevent progress being not set after ramp)
 								{
-									if(turn.r.progress < 50) //Robot rotates now...
+									if(turn.r.progress < 70) //Robot rotates now...
 									{
 										maze_corrVictim(&robot.pos, robot.dir+3, 1);
 									}
@@ -805,7 +805,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									maze_solve_state_path_deplKitSave = maze_solve_state_path;
 									maze_solve_state_path = VIC_DEPL;
 								}
-								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN))
+								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN) || um6.isRamp)
 								{
 									if(timer_vic_ramp > 0)
 										timer_victim_led = -1;
@@ -813,7 +813,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								else if((maze_solve_state_path == TURN_LEFT) ||
 										(maze_solve_state_path == TURN_RIGHT))
 								{
-									if(turn.r.progress < 50) //Robot rotates now...
+									if(turn.r.progress < 70) //Robot rotates now...
 									{
 										maze_corrVictim(&robot.pos, robot.dir+1, 1);
 									}

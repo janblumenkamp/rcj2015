@@ -590,7 +590,7 @@ void setupStep_Fac(int16_t fac)
 	{
 		case 0: 	mlx90614[RIGHT].th += ((incremental - incremental_old_setup) * fac);
 					if(mlx90614[RIGHT].th < 0)
-						mlx90614[RIGHT].th = 10000;
+						mlx90614[RIGHT].th = 4000;
 					eepr_value_changed.temp = 1;
 					break;
 		case 1: 	setup = 4;
@@ -707,12 +707,16 @@ void u8g_DrawSetUp(void)
 					fatal_err = 1;
 	}
 
-	u8g_DrawStr(&u8g, 0, 13, "IR:"); u8g_DrawLong(35, 20,victim_BufGetMaxDiff(RIGHT));		u8g_DrawLong(65, 13, mlx90614[RIGHT].th);
+	u8g_DrawStr(&u8g, 0, 13, "IR:"); /*u8g_DrawLong(35, 20,victim_BufGetMaxDiff(RIGHT));*/		u8g_DrawLong(65, 13, mlx90614[RIGHT].th);
 	u8g_DrawStr(&u8g, 0, 20, "Victim");
 	u8g_DrawStr(&u8g, 0, 27, "View");
 	u8g_DrawStr(&u8g, 0, 34, "Ground");
 
 	u8g_DrawStr(&u8g, 65,41, "ok");
+
+	u8g_DrawStr(&u8g, 0, 48, "IR l:"); u8g_DrawLong(65, 48, mlx90614[LEFT].is);
+	u8g_DrawStr(&u8g, 0, 55, "IR r:"); u8g_DrawLong(65, 55, mlx90614[RIGHT].is);
+
 }
 
 /////////////////////////////
