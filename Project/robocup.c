@@ -263,7 +263,7 @@ int main(void)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		if(timer_get_tast == 0)
+		if((timer_get_tast == 0) && (setup == 0))
 		{
 			timer_get_tast = -1;
 			mot.off = 0;
@@ -274,31 +274,6 @@ int main(void)
 			mot.off = 1;
 			timer_get_tast = 120;
 		}
-		/*if(get_t1())
-		{
-			if((timer_get_tast == 0) && (timer_entpr_tast == 0) && (!hold_t1))
-			{
-				timer_get_tast = TIMER_GET_TAST;
-				hold_t1 = 1;
-			}
-			else if((timer_get_tast == 0) && hold_t1)
-			{
-				maze_solve_drive_reset(); //Fahrfunktionen zurücksetzen
-				maze_clearDepthsearch();
-
-				maze_solve_state_path = DRIVE_READY;
-				routeRequest = RR_WAIT;
-
-				hold_t1 = 0;
-				mot.off ^= 1;
-				timer_entpr_tast = TIMER_ENTPR_TAST;
-			}
-		}
-		else
-		{
-			timer_get_tast = 0;
-			hold_t1 = 0;
-		}*/
 
 		////////////////////Sensorcoordination//////////////////////////////////////
 

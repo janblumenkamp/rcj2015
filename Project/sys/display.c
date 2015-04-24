@@ -569,7 +569,7 @@ void u8g_drawArrow(uint8_t size, uint8_t pos_x, uint8_t pos_y, uint8_t dir, int8
 #define SETUP_STEP_TOP_BIN 1
 	//1er
 
-int8_t setup_mode = 0; //Temp l, r, tarry, view, cam?
+int8_t setup_mode = 0; //Temp, view, ground?
 int8_t setup_step = 0;
 
 struct {
@@ -599,11 +599,11 @@ void setupStep_Fac(int16_t fac)
 						break;
 		case 3: 	setup = 3; //Modus 3
 						break;
-		case 4: 	if(eepr_value_changed.temp)
+		case 4: 	/*if(eepr_value_changed.temp)
 					{
 						eeprom_update_word((uint16_t*)0, mlx90614[LEFT].th);
 						eepr_value_changed.temp = 0;
-					}
+					}*/
 					if(eepr_value_changed.temp)
 					{
 						eeprom_update_word((uint16_t*)2, mlx90614[RIGHT].th);
@@ -633,7 +633,7 @@ void setupStep_Fac(int16_t fac)
 
 					setup = 0;
 					motor_activate(1); //Activate motor driver
-					mot.off = 0;
+					timer_get_tast = 120; //Start timer
 
 						break;
 		default:			foutf(&str_error, "%i: ERR:sw[disp.03]:DEF\n\r", timer);
@@ -652,20 +652,17 @@ void u8g_DrawSetUp(void)
 	{
 		switch(setup_mode)
 		{
-			case 0: break;
 			case 1:		setup_step ++;
-								if(setup_step > SETUP_STEP_TOP_MLX)
-									setup_step = 0;
-							break;
+						if(setup_step > SETUP_STEP_TOP_MLX)
+							setup_step = 0;
+						break;
+			case 0:
 			case 2:
-			case 3: 	setup_step ++;
-								if(setup_step > SETUP_STEP_TOP_BIN)
-									setup_step = 0;
-							break;
-			case 4:
-			case 5:
-			case 6: 	setup_step ++;
-							break;
+			case 3:
+			case 4: 	setup_step ++;
+						if(setup_step > SETUP_STEP_TOP_BIN)
+							setup_step = 0;
+						break;
 			default: 	foutf(&str_error, "%i: ERR:sw[disp.04]:DEF\n\r", timer);
 						fatal_err = 1;
 		}
@@ -675,13 +672,13 @@ void u8g_DrawSetUp(void)
 
 	switch(setup_step)
 	{
-		case 0:		setup_mode += (incremental-incremental_old_setup);
-							if(setup_mode > SETUP_MODE_TOP)
-								setup_mode = 0;
-							else if(setup_mode < 0)
-								setup_mode = SETUP_MODE_TOP;
+		case 0:		setup_mode += (incremental - incremental_old_setup);
+					if(setup_mode > SETUP_MODE_TOP)
+						setup_mode = 0;
+					else if(setup_mode < 0)
+						setup_mode = SETUP_MODE_TOP;
 						break;
-		case 1:		setupStep_Fac(1000);
+		case 1:		setupStep_Fac(100);
 						break;
 		case 2:		setupStep_Fac(100);
 						break;
@@ -697,26 +694,21 @@ void u8g_DrawSetUp(void)
 	switch(setup_mode)
 	{
 		case 0:
-		case 1: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), NORTH, 0);
-						break;
-		case 2:		u8g_drawArrow(5, 60, 10+(setup_mode*7), SOUTH, 0);
-				break;
+		case 1:
+		case 2:
 		case 3:
-		case 6: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), NORTH, 0);
-						break;
-		case 4:
-		case 5: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), SOUTH, 0);
+		case 4: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), NORTH, 0);
 						break;
 		default: 	foutf(&str_error, "%i: ERR:sw[disp.06]:DEF\n\r", timer);
 					fatal_err = 1;
 	}
 
-	u8g_DrawStr(&u8g, 0, 13, "IR:"); u8g_DrawLong(35, 20,victim_BufGetMaxDiff(RIGHT));		u8g_DrawLong(65, 20, mlx90614[RIGHT].th);
-	u8g_DrawStr(&u8g, 0, 	20, "Victim");
-	u8g_DrawStr(&u8g, 0, 	27, "View");
-	u8g_DrawStr(&u8g, 0, 	34, "Ground");
+	u8g_DrawStr(&u8g, 0, 13, "IR:"); u8g_DrawLong(35, 20,victim_BufGetMaxDiff(RIGHT));		u8g_DrawLong(65, 13, mlx90614[RIGHT].th);
+	u8g_DrawStr(&u8g, 0, 20, "Victim");
+	u8g_DrawStr(&u8g, 0, 27, "View");
+	u8g_DrawStr(&u8g, 0, 34, "Ground");
 
-	u8g_DrawStr(&u8g, 65, 	55, "ok");
+	u8g_DrawStr(&u8g, 65,41, "ok");
 }
 
 /////////////////////////////
@@ -865,12 +857,12 @@ void u8g_DrawCamRaw(void)
 	
 	u8g_SetFont(&u8g, u8g_font_4x6);
 
-	u8g_DrawStr(&u8g,		65, 	34, "Groundsens l:"); u8g_DrawLong(110,	34, groundsens_l);
-	u8g_DrawStr(&u8g,		65, 	41, "Groundsens r:"); u8g_DrawLong(110,	34, groundsens_l);
+	u8g_DrawStr(&u8g,		65, 	34, "Ground l:"); u8g_DrawLong(110,	34, groundsens_l);
+	u8g_DrawStr(&u8g,		65, 	41, "Ground r:"); u8g_DrawLong(110,	41, groundsens_r);
 
 	u8g_DrawStr(&u8g,		65, 	55, "TH Ground:"); 	u8g_DrawLong(110,	55, ground_th);
-	u8g_DrawStr(&u8g,		65, 	62, "View:"); 			if(viewCam_sorted)	u8g_DrawStr(&u8g,	110, 	62, "srt");
-																								else								u8g_DrawStr(&u8g,	110, 	62, "raw");
+	//u8g_DrawStr(&u8g,		65, 	62, "View:"); 			if(viewCam_sorted)	u8g_DrawStr(&u8g,	110, 	62, "srt");
+	//																							else								u8g_DrawStr(&u8g,	110, 	62, "raw");
 	
 	incremental_old_cam = incremental;
 }

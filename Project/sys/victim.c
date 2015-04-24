@@ -40,7 +40,7 @@ void victim_init(void)
 
 void victim_scan(void)
 {
-	if(maze_solve_state_path != VIC_DEPL && mot.d[LEFT].speed.to != 0 && mot.d[RIGHT].speed.to != 0) //No kit deployment, robot driving
+	if((maze_solve_state_path != VIC_DEPL) && ((mot.d[LEFT].speed.to != 0 && mot.d[RIGHT].speed.to != 0) || (setup != 0))) //No kit deployment, robot driving
 	{
 		for(uint8_t dir = 0; dir < NUMBER_OF_MLX; dir++)
 		{

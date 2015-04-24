@@ -396,7 +396,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT)
 											groundsens_cnt ++;
 
-										if(//(groundsens_r > GROUNDSENS_R_TH_BLACKTILE) &&
+										if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) &&
 										   (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) &&
 										   !um6.isRamp)
 										{
@@ -481,11 +481,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									if(!dot.abort)
 									{
+										foutf(&str_debug, "groundsens_cnt: %i\n", groundsens_cnt);
+
 										//////////////////////////Checkpoint///////////////////
 
 										if((groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT && (driveDot_state == 1))) //Checkpoint detected and robot is on next tile (no change in position)
 										{
-											foutf(&str_debug, "DETECT_CHECKPOINT: val: %i\n", groundsens_cnt);
+											foutf(&str_debug, "chp_detect\n");
 											maze_setCheckpoint(&robot.pos, NONE);
 										}
 
