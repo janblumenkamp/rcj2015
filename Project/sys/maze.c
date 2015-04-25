@@ -414,11 +414,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 											if(groundsens_cnt < -GROUNDSENS_CNT_TH_BLACKTILE)
 											{
+												foutf(&str_debug, "DETECT_BLACKTILE: val: %i\n\r", groundsens_cnt);
+
 												dot.abort = 1;
 												if(driveDot_state == 0) //We are still on the old tile (bevore the crossing)
 												{
 													maze_corrGround(&robot.pos, robot.dir, 2);
-													foutf(&str_debug, "DETECT_BLACKTILE: val: %i\n\r", groundsens_cnt);
 												}
 												else //We are already on the next tile
 												{

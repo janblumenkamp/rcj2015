@@ -97,7 +97,7 @@ struct _matchingWalls {
 #define SIDE_TH 		170 //Schwellwert zur Seite
 #define BACK_BACK_TH	170
 
-#define DIST_VICTIM_MIN 100
+#define DIST_VICTIM_MIN 150
 
 #define DRIVE_BUMPED_WIDTH 2
 

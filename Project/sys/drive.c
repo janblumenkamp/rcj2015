@@ -288,7 +288,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DOT_DRIVE;
+								d->state = DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
@@ -307,7 +307,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DOT_DRIVE;
+								d->state = DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
@@ -318,6 +318,14 @@ void drive_oneTile(DOT *d)
 
 						break;
 
+		case DRIVE_ROT_STRAIGHT:
+
+							if(drive_dist(0, 40, 1) == 0) //Drive one cm with speed 40 straight
+							{
+								d->state = DOT_DRIVE;
+							}
+						break;
+
 		case DOT_COMP_ENC:
 
 							if(abs((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT])) > 100)
@@ -326,10 +334,10 @@ void drive_oneTile(DOT *d)
 								{
 									d->corr_angle = ((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT]))/13;
 
-									if(d->corr_angle > 30)
-										d->corr_angle = 30;
-									else if(d->corr_angle < -30)
-										d->corr_angle = -30;
+									if(d->corr_angle > 40)
+										d->corr_angle = 40;
+									else if(d->corr_angle < -40)
+										d->corr_angle = -40;
 
 									d->state = DOT_CORR;
 								}
@@ -1095,6 +1103,8 @@ uint8_t sm_ddist = 0; //drivedist
 int32_t enc_l_start_ddist = 0;
 int32_t enc_r_start_ddist = 0;
 
+uint32_t drive_dist_timer = 0;
+
 uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to move: < 0 ~ left, 0 ~ both, > 0 ~ right
 {
 	uint8_t returnvar = 1;
@@ -1105,6 +1115,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 					enc_r_start_ddist = mot.d[RIGHT].enc;
 
 					sm_ddist = 1;
+
+					drive_dist_timer = timer;
 
 					foutf(&str_debugDrive, "%i: drDst\n\r", timer);
 					break;
@@ -1187,6 +1199,12 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 								sm_ddist = 2;
 							}
 						}
+					}
+
+					if((timer - drive_dist_timer) > 2000)
+					{
+						foutf(&str_debugDrive, "%i: drDst:abort:time\n\r", timer);
+						sm_ddist = 2;
 					}
 					break;
 		case 2:
