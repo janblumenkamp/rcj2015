@@ -229,9 +229,14 @@ void drive_oneTile(DOT *d)
 								{
 									d->state = DOT_ROT_EAST;
 								}
-								else if((dist[LIN][FRONT][LEFT] < th_align_front) &&
+								else if(((dist[LIN][FRONT][LEFT] < th_align_front) &&
 										(dist[LIN][FRONT][FRONT] < th_align_front) &&
-										(dist[LIN][FRONT][RIGHT] < th_align_front))
+										(dist[LIN][FRONT][RIGHT] < th_align_front)) ||
+
+										((dist[LIN][FRONT][LEFT] < TILE1_FRONT_TH_FRONT) &&
+										(dist[LIN][FRONT][FRONT] < TILE1_FRONT_TH_FRONT) &&
+										(dist[LIN][FRONT][RIGHT] < TILE1_FRONT_TH_FRONT) &&
+										(maze_getWall(&robot.pos, robot.dir) > MAZE_ISWALL)))
 								{
 									if(d->timer == 0)
 									{
@@ -674,6 +679,8 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 
 void drive_turn(D_TURN *t)
 {
+	uint8_t angle_tmp = t->r.angle;
+
 	switch(t->state)
 	{
 		case TURN_INIT:
@@ -723,6 +730,28 @@ void drive_turn(D_TURN *t)
 						t->state = TURN_FINISHED;
 
 		case TURN_FINISHED:
+
+						if((abs(t->r.angle) % 90) == 0)
+						{
+							if(angle_tmp > 0)
+							{
+								while(angle_tmp > 0)
+								{
+									angle_tmp -= 90;
+									robot.dir ++;
+								}
+							}
+							else
+							{
+								while(angle_tmp < 0)
+								{
+									angle_tmp += 90;
+									robot.dir --;
+								}
+							}
+
+							robot.dir = maze_alignDir(robot.dir);
+						}
 
 						foutf(&str_debugDrive, "%i: drTrn:end\n\r", timer);
 
@@ -774,7 +803,7 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 #define KP_RAMP_DIR 0.9
 #define KP_RAMP_DIST KP_RAMP_DIR * 0.5
 
-#define TILE1_DIST_FRONT_RAMP 70 //Vorne, IR
+#define TILE1_DIST_FRONT_RAMP 90 //Vorne, IR
 
 int16_t steer_ramp = 0; //Steering var for distance regulation of ramp
 int8_t sm_ramp = 0; //Statemachine for ramp
@@ -859,8 +888,8 @@ uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 			}
 
 			if((um6.isRamp == 0) && //Not at ramp anymore and distance sensors recognized ramp end
-			   ((dist[LIN][FRONT][FRONT] < TILE1_DIST_FRONT_RAMP) &&
-				(dist[LIN][FRONT][LEFT] < TILE1_DIST_FRONT_RAMP)))
+			   (dist[LIN][FRONT][FRONT] < TILE1_DIST_FRONT_RAMP) &&
+				(dist[LIN][FRONT][LEFT] < TILE1_DIST_FRONT_RAMP))
 			{
 				if((checkpoint_ramp != NULL) &&
 				   (mot.enc - ramp_checkpoint_enc) < (25 * ENC_FAC_CM_LR)) //We are now on the end of the ramp and the last checkpoint detection happened within the last 25 cm

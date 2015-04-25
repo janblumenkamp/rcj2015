@@ -408,7 +408,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 												if(driveDot_state == 0) //We are still on the old tile (bevore the crossing)
 												{
 													maze_corrGround(&robot.pos, robot.dir, 2);
-													foutf(&str_debug, "DETECT_BLACKTILE: val: %i\n", groundsens_cnt);
+													foutf(&str_debug, "DETECT_BLACKTILE: val: %i\n\r", groundsens_cnt);
 												}
 												else //We are already on the next tile
 												{
@@ -481,13 +481,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									if(!dot.abort)
 									{
-										foutf(&str_debug, "groundsens_cnt: %i\n", groundsens_cnt);
+										foutf(&str_debug, "groundsens_cnt: %i\n\r", groundsens_cnt);
 
 										//////////////////////////Checkpoint///////////////////
 
 										if((groundsens_cnt > GROUNDSENS_CNT_TH_CHECKPOINT && (driveDot_state == 1))) //Checkpoint detected and robot is on next tile (no change in position)
 										{
-											foutf(&str_debug, "chp_detect\n");
+											foutf(&str_debug, "chp_detect\n\r");
 											maze_setCheckpoint(&robot.pos, NONE);
 										}
 
@@ -518,7 +518,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 										}
 										else if((maze_getRampDir(robot.pos.z) == NONE) && (abs(ramp_cnt) > RAMP_CNT_ISRAMP)) //no ramp stored in current robot stage, yet
 										{
-											foutf(&str_debug, "MAY BE RAMP: %i\n", ramp_cnt);
+											foutf(&str_debug, "MAY BE RAMP: %i\n\r", ramp_cnt);
 
 											if(ramp_cnt > RAMP_CNT_ISRAMP)
 											{
@@ -533,6 +533,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 												foutf(&str_error, "%i: ERR:RAMP_B\n\r", timer);
 											}
 										}
+
+										foutf(&str_debug, "RAMP: %i\n\r", ramp_cnt);
+
 									}
 
 									if(maze_solve_state_path != RAMP_DOWN && maze_solve_state_path != RAMP_UP) //If no ramp set
@@ -551,8 +554,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									turn.state = TURN_INIT;
 									turn.r.progress = 0;
 
-									robot.dir = maze_alignDir(robot.dir + 1);
-
 									maze_solve_state_path = DRIVE_READY;
 								}
 
@@ -568,8 +569,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									turn.state = TURN_INIT;
 									turn.r.progress = 0;
 
-									robot.dir = maze_alignDir(robot.dir + 3);
-
 									maze_solve_state_path = DRIVE_READY;
 								}
 
@@ -580,7 +579,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
 									{
-										foutf(&str_debug, "IS RAMP!\n");
+										foutf(&str_debug, "IS RAMP!\n\r");
 
 										maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
 
@@ -632,7 +631,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
 									{
-										foutf(&str_debug, "IS RAMP!\n");
+										foutf(&str_debug, "IS RAMP!\n\r");
 
 										maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
 
@@ -988,7 +987,7 @@ uint8_t maze_updateWalls(void)
 					//If there are enough data
 					if((abs(maze_getWall(&robot.pos, NORTH)) >= MAZE_ISWALL) ||
 						 (abs(maze_getWall(&robot.pos, EAST)) >= MAZE_ISWALL) ||
-						 ((abs(maze_getWall(&robot.pos, SOUTH)) >= MAZE_ISWALL) && !um6.isRamp) ||
+						 (abs(maze_getWall(&robot.pos, SOUTH)) >= MAZE_ISWALL) ||
 						 (abs(maze_getWall(&robot.pos, WEST)) >= MAZE_ISWALL))
 					{
 						returnvar = 1;
