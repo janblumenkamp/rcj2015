@@ -52,6 +52,12 @@ extern void maze_corrGround(COORD *_coord, int8_t dir, int8_t value);
 
 extern int8_t maze_getGround(COORD *_coord, int8_t dir);
 
+extern void maze_setObstacle(COORD *_coord, int8_t dir, int8_t value);
+
+extern void maze_corrObstacle(COORD *_coord, int8_t dir, int8_t value);
+
+extern int8_t maze_getObstacle	(COORD *_coord, int8_t dir);
+
 extern uint8_t maze_tileIsVisitable(COORD *_coord, int8_t dir);
 
 extern void maze_setBeenthere(COORD *_coord, int8_t dir, uint8_t value);

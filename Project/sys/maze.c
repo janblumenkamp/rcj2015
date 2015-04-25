@@ -88,12 +88,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		maze_init();
 	}
 
-	if((dist[LIN][FRONT][LEFT] > 100) &&
-	   (dist[LIN][FRONT][FRONT] < 100) &&
-	   (dist[LIN][FRONT][RIGHT] > 100))
-	{
-	  maze_solve_state_path = MAZE_ERR;
-	}
 	if((!mot.off) && (incr_ok_mode == 4)) //If the robot does not moves and there is no input
 	{
 		uint8_t depthsearchNum = 0;

@@ -111,6 +111,9 @@ struct _matchingWalls {
 #define MAZE_GROUNDVALUE_MAX 63 ////++ ~ Overflow
 #define MAZE_GROUNDVALUE_MIN -63 ////-- ~ Overflow
 
+#define MAZE_OBSTACLEVALUE_MAX 126 ////++ ~ Overflow
+#define MAZE_OBSTACLEVALUE_MIN -127 ////-- ~ Overflow
+
 #define MAZE_VICTIMVALUE_MAX 7
 #define MAZE_VICTIMVALUE_MIN -7
 

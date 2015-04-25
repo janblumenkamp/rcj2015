@@ -469,6 +469,122 @@ int8_t maze_getGround(COORD *_coord, int8_t dir)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Sets the value of the obstacle (probility that there is something in the way/
+// path on this tile) at the given coordinate and direction to the value of @value.
+//
+// Param:
+// @*_coord:	Pointer to the Structure with the coordinate-information
+// @value: 		New value of the obstacle
+//
+// @return: void
+////////////////////////////////////////////////////////////////////////////////
+
+void maze_setObstacle(COORD *_coord, int8_t dir, int8_t value)
+{
+	COORD c = *_coord;
+
+	if(maze_adaptOffset(&c)) //Adapt position to offset of the map in the memory (RAM)switch(dir)
+	{
+		dir = maze_alignDir(dir); //NOW align the direction
+
+		switch(dir)
+		{
+			case NONE:
+							maze[c.x][c.y][c.z].obstacle += value;
+						break;
+			case NORTH:
+							if((c.y + 1) <= (MAZE_SIZE_Y-1))	maze[c.x][c.y + 1][c.z].obstacle = value;
+							else								maze[c.x][0		 ][c.z].obstacle = value;
+						break;
+			case EAST:
+							if((c.x + 1) <= (MAZE_SIZE_X-1))	maze[c.x + 1][c.y][c.z].obstacle = value;
+							else								maze[0		][c.y][c.z].obstacle = value;
+						break;
+			case SOUTH:
+							if((c.y - 1) >= 0)					maze[c.x][c.y - 1	   ][c.z].obstacle = value;
+							else								maze[c.x][MAZE_SIZE_Y-1][c.z].obstacle = value;
+						break;
+			case WEST:
+							if((c.x - 1) >= 0)					maze[c.x - 1	  ][c.y][c.z].obstacle = value;
+							else								maze[MAZE_SIZE_X-1][c.y][c.z].obstacle = value;
+						break;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.05]:DEF\n\r", timer);
+						fatal_err = 1;
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Changes the value of the obstacle (probility that there is something in the way/
+// path on this tile) at the given coordinate and direction to the value of @value.
+//
+// Param:
+// @*_coord:	Pointer to the Structure with the coordinate-information
+// @value: 		Change of the obstacle
+//
+// @return: void
+////////////////////////////////////////////////////////////////////////////////
+
+void maze_corrObstacle(COORD *_coord, int8_t dir, int8_t value)
+{
+	int16_t obstacleVal = maze_getObstacle(_coord, dir) + value;
+	if(obstacleVal > MAZE_OBSTACLEVALUE_MAX)
+		obstacleVal = MAZE_OBSTACLEVALUE_MAX;
+	else if(obstacleVal < MAZE_OBSTACLEVALUE_MIN)
+		obstacleVal = MAZE_OBSTACLEVALUE_MIN;
+
+	maze_setObstacle(_coord, dir, obstacleVal);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Returns the value of the obstacle at the given coordinate and direction.
+//
+// Param:
+// @*_coord:	Pointer to the Structure with the coordinate-information
+// @dir: 			The value of which obstacle in which direction of this tile should
+//						be returned?
+//
+// @return: value of the obstacle at the given coordinate and direction
+////////////////////////////////////////////////////////////////////////////////
+
+int8_t maze_getObstacle(COORD *_coord, int8_t dir)
+{
+	int8_t returnvar = -1;
+	COORD c = *_coord;
+
+	if(maze_adaptOffset(&c)) //Adapt position to offset of the map in the memory (RAM)
+	{
+		dir = maze_alignDir(dir);
+		switch(dir)
+		{
+			case NONE:
+							returnvar = maze[c.x][c.y][c.z].obstacle;
+						break;
+			case NORTH:
+							if((c.y + 1) <= (MAZE_SIZE_Y-1))	returnvar = maze[c.x][c.y + 1][c.z].obstacle;
+							else								returnvar = maze[c.x][0		 ][c.z].obstacle;
+						break;
+			case EAST:
+							if((c.x + 1) <= (MAZE_SIZE_X-1))	returnvar = maze[c.x + 1][c.y][c.z].obstacle;
+							else								returnvar = maze[0		][c.y][c.z].obstacle;
+						break;
+			case SOUTH:
+							if((c.y - 1) >= 0)					returnvar = maze[c.x][c.y - 1	   ][c.z].obstacle;
+							else								returnvar = maze[c.x][MAZE_SIZE_Y-1][c.z].obstacle;
+						break;
+			case WEST:
+							if((c.x - 1) >= 0)					returnvar = maze[c.x - 1	  ][c.y][c.z].obstacle;
+							else								returnvar = maze[MAZE_SIZE_X-1][c.y][c.z].obstacle;
+						break;
+			default: 	foutf(&str_error, "%i: ERR:sw[mazef.06]:DEF\n\r", timer);
+						fatal_err = 1;
+		}
+	}
+
+	return returnvar;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Sets the beenthere-bit of the tile at the given coordinate and direction to
 // the value of @value.
 //
