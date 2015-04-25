@@ -999,10 +999,10 @@ uint8_t maze_updateWalls(void)
 						checkObstacleProb = robot.pos;
 						checkObstacleProb.y ++;
 
-						if((maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL))
+						if((maze_getWall(&checkObstacleProb, NORTH) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, NORTH) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, NORTH) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, NORTH) < -MAZE_ISWALL))
 						{
 							maze_setObstacle(&checkObstacleProb, NONE, 1);
 						}
@@ -1014,10 +1014,10 @@ uint8_t maze_updateWalls(void)
 						checkObstacleProb = robot.pos;
 						checkObstacleProb.x ++;
 
-						if((maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL))
+						if((maze_getWall(&checkObstacleProb, EAST) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, EAST) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, EAST) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, EAST) < -MAZE_ISWALL))
 						{
 							maze_setObstacle(&checkObstacleProb, NONE, 1);
 						}
@@ -1029,10 +1029,10 @@ uint8_t maze_updateWalls(void)
 						checkObstacleProb = robot.pos;
 						checkObstacleProb.y --;
 
-						if((maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL))
+						if((maze_getWall(&checkObstacleProb, SOUTH) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, SOUTH) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, SOUTH) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, SOUTH) < -MAZE_ISWALL))
 						{
 							maze_setObstacle(&checkObstacleProb, NONE, 1);
 						}
@@ -1044,10 +1044,10 @@ uint8_t maze_updateWalls(void)
 						checkObstacleProb = robot.pos;
 						checkObstacleProb.x --;
 
-						if((maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL) &&
-						   (maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL))
+						if((maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL))
 						{
 							maze_setObstacle(&checkObstacleProb, NONE, 1);
 						}
