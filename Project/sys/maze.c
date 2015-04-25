@@ -993,6 +993,68 @@ uint8_t maze_updateWalls(void)
 					{
 						returnvar = 1;
 						sm_updateWalls = 0;
+
+						COORD checkObstacleProb;
+
+						checkObstacleProb = robot.pos;
+						checkObstacleProb.y ++;
+
+						if((maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, NORTH) < MAZE_ISWALL))
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, 1);
+						}
+						else
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, -1);
+						}
+
+						checkObstacleProb = robot.pos;
+						checkObstacleProb.x ++;
+
+						if((maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, EAST) < MAZE_ISWALL))
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, 1);
+						}
+						else
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, -1);
+						}
+
+						checkObstacleProb = robot.pos;
+						checkObstacleProb.y --;
+
+						if((maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, SOUTH) < MAZE_ISWALL))
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, 1);
+						}
+						else
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, -1);
+						}
+
+						checkObstacleProb = robot.pos;
+						checkObstacleProb.x --;
+
+						if((maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL) &&
+						   (maze_getWall(&checkObstacleProb, WEST) < MAZE_ISWALL))
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, 1);
+						}
+						else
+						{
+							maze_setObstacle(&checkObstacleProb, NONE, -1);
+						}
 					}
 				}
 			break;
@@ -1157,6 +1219,10 @@ void u8g_DrawMaze(void)
 
 					if(wall_size_y_temp > 0) //may be smaller than 0 if the box is out of the display area
 						u8g_DrawBox(&u8g, disp_x+1, (uint8_t)disp_y+1-wall_size_y_temp, wall_size_x_temp-1, wall_size_y_temp-1);
+				}
+				else if(maze_getObstacle(&_maze, NONE))
+				{
+					u8g_DrawStr(&u8g, disp_x + 2, disp_y - 1, "o");
 				}
 				else
 				{
