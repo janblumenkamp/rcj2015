@@ -249,8 +249,6 @@ int main(void)
 
 	mot.off = 1;
 
-	timer_get_tast = 120;
-
 	while(1)
     {
 		wdt_reset();
