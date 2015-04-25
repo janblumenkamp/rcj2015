@@ -628,46 +628,35 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 	{
 		case 0:
 
-				/*if((dist[LIN][BACK][LEFT] < TILE1_BACK_TH_BACK) &&
-					(dist[LIN][BACK][FRONT] < TILE1_BACK_TH_BACK) &&
-					(dist[LIN][BACK][RIGHT] < TILE1_BACK_TH_BACK))
-				//if(dist_back < TILE1_BACK_TH_BACK)
-				{*/
+				if(maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
+				{
 					timer_alignBack = timer;
 					sm_dab = 1;
-				/*}
+				}
 				else
-					sm_dab = 2;*/
+					sm_dab = 2;
 
 			break;
 
 		case 1:
 
 
-				if((dist[LIN][BACK][LEFT] < TILE1_BACK_TH_BACK) &&
-					(dist[LIN][BACK][FRONT] < TILE1_BACK_TH_BACK) &&
-					(dist[LIN][BACK][RIGHT] < TILE1_BACK_TH_BACK))
-				//if(dist_back < TILE1_BACK_TH_BACK)
+				steer_dab = ((dist_to - dist_back) * KP_ALIGN_BACK);
+
+				if((abs(steer_dab) <= STEER_ALIGN_BACK_END) || ((timer - timer_alignBack) > TIMER_ALIGN_BACK) ||
+					(dist_back > TILE1_BACK_TH_BACK))
 				{
-					steer_dab = ((dist_to - dist_back) * KP_ALIGN_BACK);
-
-					if((abs(steer_dab) <= STEER_ALIGN_BACK_END) || ((timer - timer_alignBack) > TIMER_ALIGN_BACK) ||
-						(dist_back > TILE1_BACK_TH_BACK))
-					{
-						mot.d[LEFT].speed.to = 0;
-						mot.d[RIGHT].speed.to = 0;
-						sm_dab = 2;
-					}
-					else
-					{
-						mot.d[LEFT].speed.to = steer_dab;
-						mot.d[RIGHT].speed.to = steer_dab;
-
-						drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, MAXSPEED);
-					}
+					mot.d[LEFT].speed.to = 0;
+					mot.d[RIGHT].speed.to = 0;
+					sm_dab = 2;
 				}
 				else
-					sm_dab = 2;
+				{
+					mot.d[LEFT].speed.to = steer_dab;
+					mot.d[RIGHT].speed.to = steer_dab;
+
+					drive_limitSpeed(&mot.d[LEFT].speed.to, &mot.d[RIGHT].speed.to, MAXSPEED);
+				}
 
 			break;
 
