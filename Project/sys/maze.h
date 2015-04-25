@@ -123,7 +123,7 @@ struct _matchingWalls {
 #define GROUNDDIST_TH_NORMAL		200 //Above this Threshold of the sharp IR looking down there is no more LOP
 #define GROUNDSENS_CNT_TH_CHECKPOINT 20 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
 #define GROUNDSENS_CNT_TH_BLACKTILE 20 //More than n times below the Threshold of a black tile
-#define RAMP_CNT_ISRAMP 50 //More than n times above the Threshold of ramp (up and down)
+#define RAMP_CNT_ISRAMP 40 //More than n times above the Threshold of ramp (up and down)
 
 #define MAZE_ERR_DEL_RADIUS_L 2 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Large Radius)
 #define MAZE_ERR_DEL_RADIUS_S 1 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Small Radius)
