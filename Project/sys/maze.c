@@ -48,6 +48,7 @@ uint8_t incr_ok_mode = 4; //Positions- oder Richtungswahl? Siehe auch unten
 
 int16_t groundsens_cnt; //Count times we are below or above threshold
 int16_t ramp_cnt; //Count times for threshold
+int32_t ramp_enc; //check fore ramp each x driven cm
 
 MATCHINGWALLS matchingWalls;
 TILE cleartiles;
@@ -81,7 +82,7 @@ void maze_solve_drive_reset(void)
 uint8_t maze_solve(void) //called from RIOS periodical task
 {
 	uint8_t returnvar = 1;
-	
+
 	if((timer_rdy_restart == 0) && !mot.off) //Neustart
 	{
 		timer_rdy_restart = -1;
@@ -217,13 +218,14 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						
 											case RR_RTNOPOSS:	//That’s bad. The robot detected a wall or black tile wrong and can’t find the way or someone put the walls from their places. ;)
 
-																		/*	cleartiles.beenthere = 0;
+																		foutf(&str_error, "ERR:NOPOSS\n\r");
+																			cleartiles.beenthere = 0;
 																			cleartiles.depthsearch = 1;
 																			cleartiles.ground = 1;
 																			cleartiles.wall_s = 1;
 																			cleartiles.wall_w = 1;
 
-																			COORD c = robot.pos;
+																		/*	COORD c = robot.pos;
 
 																			if((rt_noposs_radius < (MAZE_SIZE_X_USABLE)/2) &&
 																				(rt_noposs_radius < (MAZE_SIZE_Y_USABLE)/2))
@@ -380,6 +382,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									groundsens_cnt = 0;
 									ramp_cnt = 0;
+									ramp_enc = mot.enc;
 									driveDot_state = 0;
 								}
 
@@ -391,12 +394,19 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									//////Check for Black and silver tile
 
-									if((driveDot_state == 1) && (dot.abort == 0)) //Robot is on next tile (here can the black and silver tiles begin) and we are not driving back (aborting function)
+									/*if((driveDot_state == 1) && (dot.abort == 0)) //Robot is on next tile (here can the black and silver tiles begin) and we are not driving back (aborting function)
 									{
-										if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT)
+
+									}*/
+
+									if((mot.enc - ramp_enc) > (ENC_FAC_CM_LR / 2))
+									{
+										ramp_enc = mot.enc;
+
+										if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) //Silver tile? Positive val
 											groundsens_cnt ++;
 
-										if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) &&
+										if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && //Black: negative
 										   (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) &&
 										   !um6.isRamp)
 										{
@@ -431,6 +441,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											ramp_cnt ++;
 										else if(um6.isRamp < 0) //ramp down
 											ramp_cnt --;
+
+										foutf(&str_debugDrive, "ir: %i, r: %i, gr: %i\n\r", um6.isRamp, ramp_cnt, groundsens_cnt);
 									}
 
 									//////Driving straight, change position
@@ -554,6 +566,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									turn.state = TURN_INIT;
 									turn.r.progress = 0;
 
+									robot.dir = maze_alignDir(robot.dir + 1);
+
 									maze_solve_state_path = DRIVE_READY;
 								}
 
@@ -568,6 +582,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								{
 									turn.state = TURN_INIT;
 									turn.r.progress = 0;
+
+									robot.dir = maze_alignDir(robot.dir + 3);
 
 									maze_solve_state_path = DRIVE_READY;
 								}

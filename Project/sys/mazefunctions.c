@@ -24,12 +24,10 @@
 // @return: adapted direction
 ////////////////////////////////////////////////////////////////////////////////
 
-int8_t maze_alignDir(int8_t dir)
+uint8_t maze_alignDir(uint8_t dir)
 {
 	while(dir > WEST)
 		dir -= WEST;
-	while(dir < NORTH)
-		dir += WEST;
 
 	return dir;
 }

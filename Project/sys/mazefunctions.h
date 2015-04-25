@@ -22,7 +22,7 @@ struct _matchStages {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-extern int8_t maze_alignDir(int8_t dir);
+extern uint8_t maze_alignDir(uint8_t dir);
 
 extern uint8_t maze_cmpCoords(COORD *_coordA, COORD *_coordB);
 

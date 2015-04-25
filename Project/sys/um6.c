@@ -38,8 +38,9 @@
 
 void um6_init(UM6_t *_um6, void (*put_c)(unsigned char c), unsigned int (*get_c)(void))
 {
-	um6.put_c = put_c;
-	um6.get_c = get_c;
+	_um6->put_c = put_c;
+	_um6->get_c = get_c;
+	_um6->theta_off = 0xffff;
 }
 
 //Hilfsfunktion:
@@ -233,6 +234,11 @@ uint8_t um6_getUM6(UM6_t *_um6)
 			_um6->psi_t -= 360;
 		_um6->psi_t += (_um6->psi - _um6->psi_old);
 		_um6->psi_old = _um6->psi;
+
+		if(_um6->theta_off == 0xffff)
+		{
+			_um6->theta_off = _um6->theta_t;
+		}
 	}
 ////////////////////////////////
 
@@ -275,16 +281,21 @@ uint8_t um6_gyroZeroRate(UM6_t *_um6)
 
 void um6_checkRamp(UM6_t *um6)
 {
-	if((um6->theta_t) % 360 > 12)
+	if(um6->theta_off != 0xffff)
 	{
-		um6->isRamp = -1;
-	}
-	else if((um6->theta_t) % 360 < -12)
-	{
-		um6->isRamp = 1;
-	}
-	else
-	{
-		um6->isRamp = 0;
+		displayvar[0] = (um6->theta_t - um6->theta_off) % 360;
+
+		if((um6->theta_t - um6->theta_off) % 360 > 12)
+		{
+			um6->isRamp = -1;
+		}
+		else if((um6->theta_t - um6->theta_off) % 360 < -12)
+		{
+			um6->isRamp = 1;
+		}
+		else
+		{
+			um6->isRamp = 0;
+		}
 	}
 }

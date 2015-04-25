@@ -633,6 +633,7 @@ void setupStep_Fac(int16_t fac)
 
 					setup = 0;
 					motor_activate(1); //Activate motor driver
+					timer_get_tast = 120; //Start timer
 
 						break;
 		default:			foutf(&str_error, "%i: ERR:sw[disp.03]:DEF\n\r", timer);

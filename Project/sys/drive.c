@@ -679,8 +679,6 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 
 void drive_turn(D_TURN *t)
 {
-	uint8_t angle_tmp = t->r.angle;
-
 	switch(t->state)
 	{
 		case TURN_INIT:
@@ -730,28 +728,6 @@ void drive_turn(D_TURN *t)
 						t->state = TURN_FINISHED;
 
 		case TURN_FINISHED:
-
-						if((abs(t->r.angle) % 90) == 0)
-						{
-							if(angle_tmp > 0)
-							{
-								while(angle_tmp > 0)
-								{
-									angle_tmp -= 90;
-									robot.dir ++;
-								}
-							}
-							else
-							{
-								while(angle_tmp < 0)
-								{
-									angle_tmp += 90;
-									robot.dir --;
-								}
-							}
-
-							robot.dir = maze_alignDir(robot.dir);
-						}
 
 						foutf(&str_debugDrive, "%i: drTrn:end\n\r", timer);
 

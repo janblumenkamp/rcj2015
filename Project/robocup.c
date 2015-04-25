@@ -253,12 +253,6 @@ int main(void)
 
 	while(1)
     {
-		for(int8_t i = -10; i < 10; i++)
-		{
-			robot.dir = i;
-			robot.dir = maze_alignDir(robot.dir);
-			foutf(&str_error, "d: %i\n\r", robot.dir);
-		}
 		wdt_reset();
 
 		TOGGLE_MAIN_LED(); //Toggle LED on the RNmega Board
