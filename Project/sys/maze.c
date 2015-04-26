@@ -127,6 +127,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 													mot.d[LEFT].speed.to = 0;
 													mot.d[RIGHT].speed.to = 0;
 
+													um6.theta_off = um6.theta_t; //calibrate sensor
+
 													maze_solve_state_ready = DR_UPDATEWALLS;
 
 										case DR_UPDATEWALLS:
@@ -248,6 +250,28 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 																				maze_clear(&cleartiles);
 																			}
 */
+
+																			if(rt_noposs_radius == 0)
+																			{
+																				maze_setWall(&robot.pos, NORTH, 0);
+																				maze_setWall(&robot.pos, EAST, 0);
+																				maze_setWall(&robot.pos, SOUTH, 0);
+																				maze_setWall(&robot.pos, WEST, 0);
+
+																				maze_setGround(&robot.pos, NORTH, 0);
+																				maze_setGround(&robot.pos, EAST, 0);
+																				maze_setGround(&robot.pos, SOUTH, 0);
+																				maze_setGround(&robot.pos, WEST, 0);
+
+																				maze_clearDepthsearch();
+																				rt_noposs_radius ++;
+																			}
+																			else
+																			{
+																				rt_noposs_radius = 0;
+																				maze_clear(&cleartiles);
+																			}
+
 																			maze_solve_state_path = DRIVE_READY;
 																			routeRequest = RR_WAIT;//RR_NEARNOPOSS;
 
@@ -559,6 +583,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		case TURN_RIGHT:
 
 								turn.r.angle = 90;
+								turn.newRobDir = maze_alignDir(robot.dir + 1);
+
 
 								drive_turn(&turn);
 
@@ -567,7 +593,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									turn.state = TURN_INIT;
 									turn.r.progress = 0;
 
-									robot.dir = maze_alignDir(robot.dir + 1);
+									robot.dir = turn.newRobDir;
 
 									maze_solve_state_path = DRIVE_READY;
 								}
@@ -576,6 +602,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 		case TURN_LEFT:
 								turn.r.angle = -90;
+								turn.newRobDir = maze_alignDir(robot.dir + 3);
 
 								drive_turn(&turn);
 
@@ -584,7 +611,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									turn.state = TURN_INIT;
 									turn.r.progress = 0;
 
-									robot.dir = maze_alignDir(robot.dir + 3);
+									robot.dir = turn.newRobDir;
 
 									maze_solve_state_path = DRIVE_READY;
 								}

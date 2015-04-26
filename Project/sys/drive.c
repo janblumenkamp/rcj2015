@@ -73,10 +73,9 @@ void drive_oneTile(DOT *d)
 							else
 							{
 								if((dist[LIN][BACK][BACK] < TILE1_BACK_TH_BACK) && //Enough place in back of the robot
-									(maze_getWall(&robot.pos, robot.dir+2) > 0)) //AND there is a wall in the map (prevent false sensordata...)
+									(maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL)) //AND there is a wall in the map (prevent false sensordata...)
 								{
 									d->state = DOT_ALIGN_BACK;
-									d->timer = timer;
 								}
 								else //Directly jump to the drive part
 								{
@@ -95,7 +94,6 @@ void drive_oneTile(DOT *d)
 							if(!drive_align_back(TILE1_BACK_BACK))
 							{
 								d->state = DOT_ALIGN;
-								d->enc_lr_start = mot.enc;
 								d->timer = 0; //Unactivate timer
 							}
 							
@@ -103,7 +101,11 @@ void drive_oneTile(DOT *d)
 		case DOT_ALIGN:
 		
 							if(!drive_align())
+							{
 								d->state= DOT_DRIVE;
+								d->timer = timer;
+								d->enc_lr_start = mot.enc;
+							}
 							
 						break;
 						
@@ -641,7 +643,7 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 	{
 		case 0:
 
-				if(maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
+				if(dist_back != DIST_MAX_SRP_NEW)//maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
 				{
 					timer_alignBack = timer;
 					sm_dab = 1;
@@ -715,9 +717,16 @@ void drive_turn(D_TURN *t)
 						//GGf. Ausrichtung an Wand
 						if(!drive_align())
 						{
-							t->state = TURN_ALIGN_BACK;
-
 							foutf(&str_debugDrive, "%i: drTrn:algn\n\r", timer);
+
+							if((t->newRobDir != NONE) && (maze_getWall(&robot.pos, maze_alignDir(t->newRobDir + 2)) > MAZE_ISWALL))
+							{
+								t->state = TURN_ALIGN_BACK;
+							}
+							else
+							{
+								t->state = TURN_END;
+							}
 						}
 
 					break;
@@ -726,6 +735,7 @@ void drive_turn(D_TURN *t)
 
 							if(!drive_align_back(TILE1_BACK_BACK))
 							{
+								foutf(&str_debugDrive, "%i: drTrn:algnBack\n\r", timer);
 								t->state = TURN_END;
 							}
 

@@ -152,6 +152,7 @@ enum DRIVE_TURN {TURN_INIT, TURN, TURN_ALIGN, TURN_ALIGN_BACK, TURN_END, TURN_FI
 struct _d_turn {
 	unsigned state:7;
 	unsigned no_align:1; //dont alignment functions?
+	uint8_t newRobDir; //Planned robot direction after turn
 
 	D_ROTATE r; //For intern rotate function
 };
