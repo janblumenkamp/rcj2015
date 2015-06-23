@@ -34,6 +34,7 @@
 #include "victim.h"
 #include "pixy.h"
 #include "menu.h"
+#include "irdist.h"
 
 //////////////////////////////////////////////////////////////////////
 #define WDT_TRIGGERED() if(MCUSR & (1<<WDRF)) check_res = 1;
@@ -174,7 +175,6 @@ int main(void)
 	init_sys();
 	init_pwm();
 	init_timer();
-	dist_init();
 	uart1_init(UART_BAUD_SELECT(115200, F_CPU)); //IMU
 	um6_init(&um6, uart1_putc, uart1_getc);
 	bt_init();
@@ -214,12 +214,6 @@ int main(void)
 	tasks[TASK_SENSORS_ID].running = 0;
 	tasks[TASK_SENSORS_ID].task_fct = &task_sensors;
 
-	tasks[TASK_ANASENS_ID].state = -1;
-	tasks[TASK_ANASENS_ID].period = TASK_PERIOD_ANASENS;
-	tasks[TASK_ANASENS_ID].elapsedTime = 0;
-	tasks[TASK_ANASENS_ID].running = 0;
-	tasks[TASK_ANASENS_ID].task_fct = &task_anasens;
-	
 	if(get_incrOk())
 	{
 		motor_activate(0); //Shut down motor driver
@@ -465,24 +459,17 @@ int8_t task_sensors(int8_t state)
 	check_mlx = getIR();
 	victim_scan();
 
-	////Ultrasonic distance
-	//check_srf = getSRF();
+	//IR Dist
+	irDist_get();
 
 	//UM6
 	check_um6 = um6_getUM6(&um6);
 	um6_checkRamp(&um6);
 	//pixy_get();
-	return 0;
-}
 
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////TASK SENSANA/////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-int8_t task_anasens(int8_t state)
-{
 	//analog
-	get_analogSensors(); //Sharp infrared distance sensors, groundsensor
+	get_analogSensors(); //sharp dist down, battery, groundsensor
+
 	return 0;
 }
 

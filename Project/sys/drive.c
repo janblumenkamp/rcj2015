@@ -127,34 +127,22 @@ void drive_oneTile(DOT *d)
 							if((abs(dist[LIN][LEFT][FRONT] - d->dist_l_old) < DELTADIST_MAX) &&
 							   (abs(robot_angleToLeftWall) < abs(robot_angleToRightWall)))
 							{
-								if(sensinfo.newDat.left && sensinfo.newDat.right)
-								{
-									if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
-										d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
-									else
-										d->steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
-							
-									d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
-								
-									sensinfo.newDat.left = 0;
-									sensinfo.newDat.right = 0;
-								}
+								if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
+									d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
+								else
+									d->steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
+
+								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
 							}
 							else if((abs(dist[LIN][RIGHT][FRONT] - d->dist_r_old) < DELTADIST_MAX) &&
 									(abs(robot_angleToLeftWall) > abs(robot_angleToRightWall)))
 							{
-								if(sensinfo.newDat.left && sensinfo.newDat.right)
-								{
-									if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-										d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
-									else
-										d->steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
-							
-									d->steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
-									
-									sensinfo.newDat.left = 0;
-									sensinfo.newDat.right = 0;
-								}
+								if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
+									d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
+								else
+									d->steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
+
+								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
 							}
 							else
 							{
@@ -822,34 +810,22 @@ uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 			if((dist[LIN][LEFT][FRONT] < TILE1_SIDE_TH) &&
 				(dist[LIN][LEFT][BACK] < TILE1_SIDE_TH))
 			{
-				if(sensinfo.newDat.left && sensinfo.newDat.right)
-				{
-					if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
-						steer_ramp = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_RAMP_DIR);
-					else
-						steer_ramp = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_RAMP_DIR);
+				if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
+					steer_ramp = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_RAMP_DIR);
+				else
+					steer_ramp = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_RAMP_DIR);
 
-					steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_RAMP_DIST);
-
-					sensinfo.newDat.left = 0;
-					sensinfo.newDat.right = 0;
-				}
+				steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_RAMP_DIST);
 			}
 			else if((dist[LIN][RIGHT][FRONT] < TILE1_SIDE_TH) &&
 							(dist[LIN][RIGHT][BACK] < TILE1_SIDE_TH))
 			{
-				if(sensinfo.newDat.left && sensinfo.newDat.right)
-				{
-					if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-						steer_ramp = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_RAMP_DIR);
-					else
-						steer_ramp = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_RAMP_DIR);
+				if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
+					steer_ramp = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_RAMP_DIR);
+				else
+					steer_ramp = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_RAMP_DIR);
 
-					steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_RAMP_DIST);
-
-					sensinfo.newDat.left = 0;
-					sensinfo.newDat.right = 0;
-				}
+				steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_RAMP_DIST);
 			}
 
 			mot.d[LEFT].speed.to = (speed - steer_ramp);

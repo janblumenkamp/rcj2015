@@ -30,25 +30,13 @@ extern int16_t groundsens_r;
 
 extern int16_t batt_raw;
 
-struct _sensblock {
-	unsigned left:1;
-	unsigned right:1;
-	unsigned mid:1;
-};
 
-struct _sensinfo {
-	struct _sensblock request;
-	struct _sensblock newDat;
-};
-
-typedef struct _sensinfo __sensinfo;
 
 #define DIST_MAX_SRP_OLD 200
 #define DIST_MAX_SRP_NEW 400
 
 #define RAW 0
 #define LIN 1
-extern __sensinfo sensinfo;
 ////////////////////
 
 extern void limitVar(int16_t *var, int16_t limit);
@@ -64,8 +52,6 @@ extern void led_rgb(uint16_t heartbeat_color, uint16_t led_error, uint8_t led_to
 extern int16_t *get_sorted(uint8_t cnt, int16_t *data, uint8_t get);
 
 extern uint8_t robot_scanFront(uint8_t angle, uint8_t maxspeed);
-
-extern void dist_init(void);
 
 extern int16_t get_adc(uint8_t channel);
 

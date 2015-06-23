@@ -329,22 +329,10 @@ int16_t groundsens_r;
 int16_t dist_down;
 int16_t batt_raw;
 
-#define SHARP_BACK_RIGHT	0
-#define SHARP_RIGHT_BACK	1
-#define SHARP_LEFT_BACK		2
-#define SHARP_BACK_LEFT		3
-#define SHARP_FRONT_FRONT	4
-#define SHARP_BACK_BACK		5
-#define ADC_UNUSED_1		6
-#define SHARP_DOWN			7
-#define ADC_UNUSED_2		8
-#define ADC_BATTERY			9
-#define SHARP_FRONT_LEFT	10
-#define SHARP_LEFT_FRONT	11
-#define SENS_IMPASSE_1		12
-#define SENS_IMPASSE_2		13
-#define SHARP_RIGHT_FRONT	14
-#define SHARP_FRONT_RIGHT	15
+#define ADC_BATTERY			1
+#define SENS_IMPASSE_1		2
+#define SENS_IMPASSE_2		3
+#define SHARP_DOWN			5
 
 
 #define SENS_ACTIVE_PORT PORTA
@@ -355,59 +343,8 @@ int16_t batt_raw;
 
 #define MID 2 //LEFT = 0; RIGHT = 1 (main.h)
 
-__sensinfo sensinfo;
 
 int8_t sm_anaSens = 0;
-
-void dist_init(void)
-{
-	SENS_ACTIVE_PORTDIR |= (1<<SENS_MID_PIN);
-	SENS_ACTIVE_PORTDIR |= (1<<SENS_LEFT_PIN);
-	SENS_ACTIVE_PORTDIR |= (1<<SENS_RIGHT_PIN);
-	
-	sensinfo.request.left = 1;
-	sensinfo.request.right = 1;
-	sensinfo.request.mid = 1;
-	sensinfo.newDat.left = 0;
-	sensinfo.newDat.right = 0;
-	sensinfo.newDat.mid = 0;
-	
-	dist_setSensors(LEFT, TRUE);
-}
-
-void dist_setSensors(uint8_t block, uint8_t set)
-{
-	switch(block)
-	{
-		case LEFT:	if(set)
-								{
-									SENS_ACTIVE_PORT |= (1<<SENS_LEFT_PIN);
-								}
-								else
-								{
-									SENS_ACTIVE_PORT &= ~(1<<SENS_LEFT_PIN);
-								}
-						break;
-		case RIGHT:	if(set)
-								{
-									SENS_ACTIVE_PORT |= (1<<SENS_RIGHT_PIN);
-								}
-								else
-								{
-									SENS_ACTIVE_PORT &= ~(1<<SENS_RIGHT_PIN);
-								}
-						break;
-		case MID:		if(set)
-								{
-									SENS_ACTIVE_PORT |= (1<<SENS_MID_PIN);
-								}
-								else
-								{
-									SENS_ACTIVE_PORT &= ~(1<<SENS_MID_PIN);
-								}
-						break;
-	}
-}
 
 int16_t get_adc(uint8_t channel)
 {
@@ -419,11 +356,6 @@ int16_t get_adc(uint8_t channel)
 	return ADCW;
 }
 
-void get_otherSens(void)
-{
-	batt_raw = get_adc(ADC_BATTERY);
-	dist_down = get_adc(SHARP_DOWN);
-}
 
 uint8_t sm_groundSens = 0;
 
@@ -447,170 +379,8 @@ void get_groundSens(void)
 
 void get_analogSensors(void)
 {
-	switch(sm_anaSens)
-	{
-		case LEFT:
-						dist[RAW][FRONT][LEFT] = get_adc(SHARP_FRONT_LEFT);
-						if(dist[RAW][FRONT][LEFT] > 96)
-						{
-							dist[LIN][FRONT][LEFT]	= 	(uint16_t)(1.7853218E-8 * dist[RAW][FRONT][LEFT] * dist[RAW][FRONT][LEFT] * dist[RAW][FRONT][LEFT] * dist[RAW][FRONT][LEFT]) -
-																		(uint16_t)(2.770541E-5 * dist[RAW][FRONT][LEFT] * dist[RAW][FRONT][LEFT] * dist[RAW][FRONT][LEFT]) +
-																		(uint16_t)(0.016060371 * dist[RAW][FRONT][LEFT] * dist[RAW][FRONT][LEFT]) -
-																		(uint16_t)(4.317962105 * dist[RAW][FRONT][LEFT]) +
-																		489.25;
-						}
-						else dist[LIN][FRONT][LEFT] = DIST_MAX_SRP_OLD;
-						
-						dist[RAW][RIGHT][FRONT] = get_adc(SHARP_RIGHT_FRONT);
-						if(dist[RAW][RIGHT][FRONT] > 104)
-						{
-							dist[LIN][RIGHT][FRONT]	= (uint16_t)(2.268745E-8 * dist[RAW][RIGHT][FRONT] * dist[RAW][RIGHT][FRONT] * dist[RAW][RIGHT][FRONT] * dist[RAW][RIGHT][FRONT]) -
-																		(uint16_t)(3.321157E-5 * dist[RAW][RIGHT][FRONT] * dist[RAW][RIGHT][FRONT] * dist[RAW][RIGHT][FRONT]) +
-																		(uint16_t)(0.0182616737 * dist[RAW][RIGHT][FRONT] * dist[RAW][RIGHT][FRONT]) -
-																		(uint16_t)(4.700906244 * dist[RAW][RIGHT][FRONT]) +
-																		518.8;
-						}
-						else dist[LIN][RIGHT][FRONT] = DIST_MAX_SRP_OLD;
-						
-						dist[RAW][BACK][RIGHT] = get_adc(SHARP_BACK_RIGHT);
-						if(dist[RAW][BACK][RIGHT] > 120)
-						{
-							dist[LIN][BACK][RIGHT]	= 	(uint16_t)(1.9709952E-8 * dist[RAW][BACK][RIGHT] * dist[RAW][BACK][RIGHT] * dist[RAW][BACK][RIGHT] * dist[RAW][BACK][RIGHT]) -
-																		(uint16_t)(3.146821E-5 * dist[RAW][BACK][RIGHT] * dist[RAW][BACK][RIGHT] * dist[RAW][BACK][RIGHT]) +
-																		(uint16_t)(0.0189577999 * dist[RAW][BACK][RIGHT] * dist[RAW][BACK][RIGHT]) -
-																		(uint16_t)(5.335285586 * dist[RAW][BACK][RIGHT]) +
-																		633.18;
-						}
-						else dist[LIN][BACK][RIGHT] = DIST_MAX_SRP_OLD;
-
-						dist[RAW][LEFT][BACK] = get_adc(SHARP_LEFT_BACK);
-						if(dist[RAW][LEFT][BACK] > 96)
-						{
-							dist[LIN][LEFT][BACK]		= (uint16_t)(4.0632806E-8 * dist[RAW][LEFT][BACK] * dist[RAW][LEFT][BACK] * dist[RAW][LEFT][BACK] * dist[RAW][LEFT][BACK]) -
-									(uint16_t)(5.436834E-5 * dist[RAW][LEFT][BACK] * dist[RAW][LEFT][BACK] * dist[RAW][LEFT][BACK]) +
-									(uint16_t)(0.026689958 * dist[RAW][LEFT][BACK] * dist[RAW][LEFT][BACK]) -
-									(uint16_t)(5.997356831 * dist[RAW][LEFT][BACK]) +
-									571.55;
-						}
-						else dist[LIN][LEFT][BACK] = DIST_MAX_SRP_OLD;
-
-						get_otherSens();
-						sensinfo.newDat.left = 1;
-						
-						if(sensinfo.request.right)
-						{
-							dist_setSensors(LEFT, FALSE);
-							dist_setSensors(RIGHT, TRUE);
-							sm_anaSens = RIGHT;
-						}
-						else if(sensinfo.request.mid)
-						{
-							dist_setSensors(LEFT, FALSE);
-							dist_setSensors(MID, TRUE);
-							sm_anaSens = RIGHT;
-						}
-					break;
-				
-		case RIGHT:
-						dist[RAW][FRONT][RIGHT] = get_adc(SHARP_FRONT_RIGHT);
-						if(dist[RAW][FRONT][RIGHT] > 105)
-						{
-							dist[LIN][FRONT][RIGHT]	= (uint16_t)(1.9738502E-8 * dist[RAW][FRONT][RIGHT] * dist[RAW][FRONT][RIGHT] * dist[RAW][FRONT][RIGHT] * dist[RAW][FRONT][RIGHT]) -
-																		(uint16_t)(2.997331E-5 * dist[RAW][FRONT][RIGHT] * dist[RAW][FRONT][RIGHT] * dist[RAW][FRONT][RIGHT]) +
-																		(uint16_t)(0.0171289705 * dist[RAW][FRONT][RIGHT] * dist[RAW][FRONT][RIGHT]) -
-																		(uint16_t)(4.593806035 * dist[RAW][FRONT][RIGHT]) +
-																		528;
-						}
-						else dist[LIN][FRONT][RIGHT] = DIST_MAX_SRP_OLD;
-						
-						dist[RAW][RIGHT][BACK] = get_adc(SHARP_RIGHT_BACK);
-						if(dist[RAW][RIGHT][BACK] > 104)
-						{
-							dist[LIN][RIGHT][BACK]	= 	(uint16_t)(2.1739906E-8 * dist[RAW][RIGHT][BACK] * dist[RAW][RIGHT][BACK] * dist[RAW][RIGHT][BACK] * dist[RAW][RIGHT][BACK]) -
-																		(uint16_t)(3.207395E-5 * dist[RAW][RIGHT][BACK] * dist[RAW][RIGHT][BACK] * dist[RAW][RIGHT][BACK]) +
-																		(uint16_t)(0.0177574108 * dist[RAW][RIGHT][BACK] * dist[RAW][RIGHT][BACK]) -
-																		(uint16_t)(4.611348918 * dist[RAW][RIGHT][BACK]) +
-																		515.3;
-						}
-						else dist[LIN][RIGHT][BACK] = DIST_MAX_SRP_OLD;
-						
-						dist[RAW][BACK][LEFT] = get_adc(SHARP_BACK_LEFT);
-						if(dist[RAW][BACK][LEFT] > 100)
-						{
-							dist[LIN][BACK][LEFT]	= 	(uint16_t)(2.3960353E-8 * dist[RAW][BACK][LEFT] * dist[RAW][BACK][LEFT] * dist[RAW][BACK][LEFT] * dist[RAW][BACK][LEFT]) -
-																		(uint16_t)(3.446703E-5 * dist[RAW][BACK][LEFT] * dist[RAW][BACK][LEFT] * dist[RAW][BACK][LEFT]) +
-																		(uint16_t)(0.0185507698 * dist[RAW][BACK][LEFT] * dist[RAW][BACK][LEFT]) -
-																		(uint16_t)(4.681772179 * dist[RAW][BACK][LEFT]) +
-																		511.37;
-						}
-						else dist[LIN][BACK][LEFT] = DIST_MAX_SRP_OLD;
-						
-						dist[RAW][LEFT][FRONT] = get_adc(SHARP_LEFT_FRONT);
-						if(dist[RAW][LEFT][FRONT] > 96)
-						{
-							dist[LIN][LEFT][FRONT]	= 	(uint16_t)(2.5373381E-8 * dist[RAW][LEFT][FRONT] * dist[RAW][LEFT][FRONT] * dist[RAW][LEFT][FRONT] * dist[RAW][LEFT][FRONT]) -
-									(uint16_t)(3.589565E-5 * dist[RAW][LEFT][FRONT] * dist[RAW][LEFT][FRONT] * dist[RAW][LEFT][FRONT]) +
-									(uint16_t)(0.0190481789 * dist[RAW][LEFT][FRONT] * dist[RAW][LEFT][FRONT]) -
-									(uint16_t)(4.729367296 * dist[RAW][LEFT][FRONT]) +
-									504.85;
-						}
-						else dist[LIN][LEFT][FRONT] = DIST_MAX_SRP_OLD;
-						
-						get_otherSens();
-						sensinfo.newDat.right = 1;
-							
-						if(sensinfo.request.mid)
-						{
-							dist_setSensors(RIGHT, FALSE);
-							dist_setSensors(MID, TRUE);
-							sm_anaSens = MID;
-						}
-						else if(sensinfo.request.left)
-						{
-							dist_setSensors(RIGHT, FALSE);
-							dist_setSensors(LEFT, TRUE);
-							sm_anaSens = LEFT;
-						}
-					
-						break;
-					
-		case MID:
-						dist[RAW][FRONT][FRONT] = get_adc(SHARP_FRONT_FRONT);
-						if(dist[RAW][FRONT][FRONT] > 76)
-						{
-							dist[LIN][FRONT][FRONT]	= (uint16_t)(-1.40567659875 * dist[RAW][FRONT][FRONT]) +
-																		607.144;
-						}
-						else dist[LIN][FRONT][FRONT] = DIST_MAX_SRP_NEW;
-						
-						dist[RAW][BACK][BACK] = get_adc(SHARP_BACK_BACK);
-						if(dist[RAW][BACK][BACK] > 105)
-						{
-							dist[LIN][BACK][BACK]	= (uint16_t)(-1.390474576 * dist[RAW][BACK][BACK]) +
-																		662.874;
-						}
-						else dist[LIN][BACK][BACK] = DIST_MAX_SRP_NEW;
-
-						//check_tsl_state();
-
-						sensinfo.newDat.mid = 1;
-						
-						if(sensinfo.request.left)
-						{
-							dist_setSensors(MID, FALSE);
-							dist_setSensors(LEFT, TRUE);
-							sm_anaSens = LEFT;
-						}
-						else if(sensinfo.request.right)
-						{
-							dist_setSensors(MID, FALSE);
-							dist_setSensors(RIGHT, TRUE);
-							sm_anaSens = RIGHT;
-						}
-					break;
-	}
-
-	get_otherSens();
+	batt_raw = get_adc(ADC_BATTERY);
+	dist_down = get_adc(SHARP_DOWN);
 	get_groundSens();
 
 	if(um6.isRamp) //If on ramp set all front/ back sensors to max distance to not align

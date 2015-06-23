@@ -92,7 +92,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 	if((!mot.off) && (incr_ok_mode == 4)) //If the robot does not moves and there is no input
 	{
 		uint8_t depthsearchNum = 0;
-
 		//////////////////////////////LOP//////////////////////////////////////
 
 		if((maze_solve_state_path != LOP_INIT) && (maze_solve_state_path != LOP_WAIT))
@@ -166,7 +165,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						
 			case FOLLOW_RIGHTWALL:
 							
-
 									if(maze_tileIsVisitable(&robot.pos, robot.dir+1) &&
 									   !maze_getBeenthere(&robot.pos, robot.dir+1))
 									{
@@ -983,65 +981,39 @@ void maze_checkCorrWall(COORD *_coord, uint8_t sensinfoA, uint8_t sensinfoB, uin
 #define DIST_FRFR_FAC 7 //Mitlerer Sensor vorne
 #define DIST_BABA_FAC 7 //Mitlerer Sensor hinten
 
-uint8_t sm_updateWalls = 0;
-
 uint8_t maze_updateWalls(void)
 {
-	uint8_t returnvar = 0;
+	//////////Wand rechts/////////////
+	maze_checkCorrWall(&robot.pos, RIGHT, FRONT, robot.dir+1, SIDE_TH, DIST_FR_FAC);
+	maze_checkCorrWall(&robot.pos, RIGHT, BACK, robot.dir+1, SIDE_TH, DIST_BA_FAC);
 
-	switch(sm_updateWalls)
+	//////////Wand links/////////////
+
+	maze_checkCorrWall(&robot.pos, LEFT, FRONT, robot.dir+3, SIDE_TH, DIST_FR_FAC);
+	maze_checkCorrWall(&robot.pos, LEFT, BACK, robot.dir+3, SIDE_TH, DIST_BA_FAC);
+
+	//////////Wand vorne/////////////
+	maze_checkCorrWall(&robot.pos, FRONT, LEFT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
+	maze_checkCorrWall(&robot.pos, FRONT, RIGHT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
+	maze_checkCorrWall(&robot.pos, FRONT, FRONT, robot.dir, FRONT_FRONT_TH, DIST_FRFR_FAC);
+
+	//////////Wand hinten/////////////
+	if(!um6.isRamp)
 	{
-		case 0:
-				sensinfo.newDat.left = 0;
-				sensinfo.newDat.right = 0;
-				sensinfo.newDat.mid = 0;
-
-				sm_updateWalls = 1;
-
-			break;
-
-		case 1:
-
-				//////////Wand rechts/////////////
-				maze_checkCorrWall(&robot.pos, RIGHT, FRONT, robot.dir+1, SIDE_TH, DIST_FR_FAC);
-				maze_checkCorrWall(&robot.pos, RIGHT, BACK, robot.dir+1, SIDE_TH, DIST_BA_FAC);
-
-				//////////Wand links/////////////
-
-				maze_checkCorrWall(&robot.pos, LEFT, FRONT, robot.dir+3, SIDE_TH, DIST_FR_FAC);
-				maze_checkCorrWall(&robot.pos, LEFT, BACK, robot.dir+3, SIDE_TH, DIST_BA_FAC);
-
-				//////////Wand vorne/////////////
-				maze_checkCorrWall(&robot.pos, FRONT, LEFT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
-				maze_checkCorrWall(&robot.pos, FRONT, RIGHT, robot.dir, FRONT_TH, DIST_FRBA_FAC);
-				maze_checkCorrWall(&robot.pos, FRONT, FRONT, robot.dir, FRONT_FRONT_TH, DIST_FRFR_FAC);
-
-				//////////Wand hinten/////////////
-				if(!um6.isRamp)
-				{
-					maze_checkCorrWall(&robot.pos, BACK, LEFT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
-					maze_checkCorrWall(&robot.pos, BACK, RIGHT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
-					maze_checkCorrWall(&robot.pos, BACK, BACK, robot.dir+2, BACK_BACK_TH, DIST_BABA_FAC);
-				}
-
-				if(sensinfo.newDat.left &&
-				   sensinfo.newDat.right &&
-				   sensinfo.newDat.mid)
-				{
-					//If there are enough data
-					if((abs(maze_getWall(&robot.pos, NORTH)) >= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot.pos, EAST)) >= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot.pos, SOUTH)) >= MAZE_ISWALL) ||
-						 (abs(maze_getWall(&robot.pos, WEST)) >= MAZE_ISWALL))
-					{
-						returnvar = 1;
-						sm_updateWalls = 0;
-					}
-				}
-			break;
+		maze_checkCorrWall(&robot.pos, BACK, LEFT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
+		maze_checkCorrWall(&robot.pos, BACK, RIGHT, robot.dir+2, BACK_TH, DIST_FRBA_FAC);
+		maze_checkCorrWall(&robot.pos, BACK, BACK, robot.dir+2, BACK_BACK_TH, DIST_BABA_FAC);
 	}
 
-	return returnvar;
+	//If there are enough data
+	if((abs(maze_getWall(&robot.pos, NORTH)) >= MAZE_ISWALL) ||
+		 (abs(maze_getWall(&robot.pos, EAST)) >= MAZE_ISWALL) ||
+		 (abs(maze_getWall(&robot.pos, SOUTH)) >= MAZE_ISWALL) ||
+		 (abs(maze_getWall(&robot.pos, WEST)) >= MAZE_ISWALL))
+	{
+		return 1;
+	}
+	return 0;
 }
 
 ////Schwarze Fliesen

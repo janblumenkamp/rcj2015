@@ -23,7 +23,7 @@ extern u8g_t u8g; //Pointer für u8g muss hier eingebunden werden
 extern UM6_t um6; //UM6 sructure
 
 ///////////////////////////////////////////
-#define TASKS_NUM				5
+#define TASKS_NUM				4
 #define TASKPERIOD_GCD			1
 
 #define TASK_PERIOD_MAZE		5
@@ -32,10 +32,8 @@ extern UM6_t um6; //UM6 sructure
 	#define TASK_TIMER_ID			0
 #define TASK_PERIOD_SPEEDREG	25
 	#define TASK_SPEEDREG_ID		3
-#define TASK_PERIOD_SENSORS		15
+#define TASK_PERIOD_SENSORS		50
 	#define TASK_SENSORS_ID			2
-#define TASK_PERIOD_ANASENS		50
-	#define TASK_ANASENS_ID			4
 
 struct _task
 {
