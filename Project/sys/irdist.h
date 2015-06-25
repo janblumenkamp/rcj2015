@@ -20,6 +20,8 @@
 
 #define IRDIST_I2CDEV_NUM 10
 
+#define IRDIST_MAX 500
+
 //Not used: 0x40, 0x80, 0xD0, 0xF0
 
 #define IRDIST_I2CADR_B_B 0x20

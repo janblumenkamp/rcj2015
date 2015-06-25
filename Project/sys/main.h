@@ -87,7 +87,7 @@ extern int8_t timer_entpr_tast;
 extern int8_t timer_incr_entpr;
 extern int8_t timer_bt_is_busy;
 extern int8_t timer_disp_msg;
-extern int8_t timer_get_tast;
+extern int8_t timer_motoff;
 extern int16_t timer_rdy_restart;
 extern int8_t timer_map_wall_r;
 extern int16_t timer_lop;

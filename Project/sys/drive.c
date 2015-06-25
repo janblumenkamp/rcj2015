@@ -22,6 +22,7 @@
 #include "system.h"
 #include "bluetooth.h"
 #include "i2cdev.h"
+#include "irdist.h"
 
 void drive_limitSpeed(int16_t *speed_l, int16_t *speed_r, int8_t limit)
 {
@@ -181,30 +182,14 @@ void drive_oneTile(DOT *d)
 									th_align_front = 100;//TILE1_FRONT_TH_FRONT/2;
 								}
 
-								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-									(dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
-									(rel_angle < 20)) ||
-									get_bumpR() ||
-								   ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
-									(dist[LIN][RIGHT][FRONT] < 15)))
+								if(get_bumpR())
 								{
 									d->aligned_turn = WEST;
 
 									mot.d[LEFT].speed.to = -SPEED_COLLISION_AVOIDANCE;
 									mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
 								}
-								else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-										 (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
-										 (rel_angle < 20)) ||
-
-										get_bumpL() ||
-
-										((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
-										 (dist[LIN][LEFT][FRONT] < 15)))
+								else if(get_bumpL())
 								{
 									d->aligned_turn = EAST;
 
@@ -618,20 +603,20 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 	uint8_t returnvar = 1;
 
 	int16_t dist_back; //any of the distance sensor in the back
-	if(dist[LIN][BACK][BACK] != DIST_MAX_SRP_NEW)
+	if(dist[LIN][BACK][BACK] != IRDIST_MAX)
 		dist_back = dist[LIN][BACK][BACK];
-	else if(dist[LIN][BACK][LEFT] != DIST_MAX_SRP_OLD)
+	else if(dist[LIN][BACK][LEFT] != IRDIST_MAX)
 		dist_back = dist[LIN][BACK][LEFT];
-	else if(dist[LIN][BACK][RIGHT] != DIST_MAX_SRP_OLD)
+	else if(dist[LIN][BACK][RIGHT] != IRDIST_MAX)
 		dist_back = dist[LIN][BACK][RIGHT];
 	else
-		dist_back = DIST_MAX_SRP_NEW;
+		dist_back = IRDIST_MAX;
 
 	switch(sm_dab)
 	{
 		case 0:
 
-				if(dist_back != DIST_MAX_SRP_NEW)//maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
+				if(dist_back != IRDIST_MAX)//maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
 				{
 					timer_alignBack = timer;
 					sm_dab = 1;

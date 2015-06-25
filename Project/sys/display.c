@@ -25,6 +25,7 @@
 #include "i2cdev.h"
 #include "pixy.h"
 #include "victim.h"
+#include "irdist.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -633,7 +634,6 @@ void setupStep_Fac(int16_t fac)
 
 					setup = 0;
 					motor_activate(1); //Activate motor driver
-					timer_get_tast = 120; //Start timer
 
 						break;
 		default:			foutf(&str_error, "%i: ERR:sw[disp.03]:DEF\n\r", timer);
@@ -928,7 +928,7 @@ void u8g_DrawFrontScan(void)
 
 		int16_t y = 63 - ((data_scanFront[i]+incremental*10)/12) * sin(alpha_abs * (M_PI/180));
 
-		if(data_scanFront[i] < DIST_MAX_SRP_NEW)
+		if(data_scanFront[i] < IRDIST_MAX)
 			//u8g_DrawLine(&u8g, 40, 63, x, y);
 			u8g_DrawPixel(&u8g, x, y);
 		//u8g_DrawVLine(&u8g,i,64-(data_scanFront[i]/10),(data_scanFront[i]/10));

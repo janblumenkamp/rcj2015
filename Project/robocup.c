@@ -109,7 +109,8 @@ static int8_t enc_r_last = 0;
 //Encoderwert in Datenstruktur für Motoren
 
 //////////
-uint8_t hold_t1 = 0;
+uint8_t t1_state_off = 0; //On the beginning the robot should be off
+
 ////////////////////////////////////Sonstiges///////////////////////////////////
 
 uint8_t setup = 0; //Start the setup?
@@ -121,7 +122,7 @@ int8_t timer_entpr_tast = 0;
 int8_t timer_incr_entpr = 0;
 int8_t timer_bt_is_busy = 0;
 int8_t timer_disp_msg = 0;
-int8_t timer_get_tast = 0;
+int8_t timer_motoff = 0;
 int16_t timer_rdy_restart = -1;
 int8_t timer_map_wall_r = 0;
 int16_t timer_lop = -1;
@@ -243,8 +244,7 @@ int main(void)
 
 	mot.off = 1;
 
-	timer_get_tast = 120;
-
+	t1_state_off = get_t1(); //Detection of change of state in switch (on the boot, robot is always off)
 	while(1)
     {
 		wdt_reset();
@@ -257,16 +257,18 @@ int main(void)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		if((timer_get_tast == 0) && (setup == 0))
-		{
-			timer_get_tast = -1;
-			mot.off = 0;
-		}
-
-		if(get_t1()) //Always reset...
+		if(get_t1() == t1_state_off)
 		{
 			mot.off = 1;
-			timer_get_tast = 120;
+			timer_motoff = -1;
+		}
+		else if(timer_motoff == -1)
+		{
+			timer_motoff = 120;
+		}
+		else if(timer_motoff == 0)
+		{
+			mot.off = 0;
 		}
 
 		////////////////////Sensorcoordination//////////////////////////////////////
@@ -359,15 +361,15 @@ int main(void)
 			//          //Karte//       //
 			//////////////////////////////
 
-			if(timer_get_tast < 100 && timer_get_tast > 0)
+			if(timer_motoff < 100 && timer_motoff > 0)
 			{
 				u8g_SetFont(&u8g, u8g_font_fur30r);
 
-				if(timer_get_tast > 75)
+				if(timer_motoff > 75)
 					u8g_DrawStr(&u8g, 95, 50, "3");
-				else if(timer_get_tast > 50)
+				else if(timer_motoff > 50)
 					u8g_DrawStr(&u8g, 95, 50, "2");
-				else if(timer_get_tast > 25)
+				else if(timer_motoff > 25)
 					u8g_DrawStr(&u8g, 95, 50, "1");
 			}
 			else
@@ -531,8 +533,8 @@ int8_t task_timer(int8_t state)
 			timer_bt_is_busy --;
 		if(timer_disp_msg > 0)
 			timer_disp_msg --;
-		if(timer_get_tast > 0)
-			timer_get_tast --;
+		if(timer_motoff > 0)
+			timer_motoff --;
 		if(timer_rdy_restart > 0)
 			timer_rdy_restart --;
 		if(timer_map_wall_r > 0)

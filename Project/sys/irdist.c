@@ -26,31 +26,52 @@ const uint8_t i2c_addresses[IRDIST_I2CDEV_NUM] PROGMEM = {
 	IRDIST_I2CADR_R_B
 };
 
+void setSensorStandby(uint8_t adr, uint8_t state)
+{
+	if(state)
+		state = 1;
+
+	i2c_start(adr);
+	i2c_write(0xE8);
+	i2c_write(state);
+	i2c_stop();
+}
+
+int16_t getSensorDist(uint8_t adr)
+{
+	int16_t dist = -1;
+
+	if((i2c_start(adr) == 0) && //Auslesen der Entfernung
+	   (i2c_write(0x5E) == 0) &&
+	   (i2c_rep_start(adr + I2C_READ) == 0))
+	{
+		int16_t lsb = i2c_readAck();
+		int16_t msb = i2c_readNak();
+
+		dist = (((lsb << 4) + msb)*10)/64;
+	}
+	i2c_stop();
+
+	return dist;
+}
+
 //////////SM///////////////////
 int16_t dists_raw[IRDIST_I2CDEV_NUM];
-
+uint8_t toggle = 0;
 uint8_t irDist_get(void)
 {
 	for(uint8_t i = 0; i < IRDIST_I2CDEV_NUM; i++)
 	{
-		if((i2c_start(pgm_read_byte(&i2c_addresses[i])) == 0) && //Auslesen der Entfernung
-		   (i2c_write(0x5E) == 0) &&
-		   (i2c_rep_start(pgm_read_byte(&i2c_addresses[i])+I2C_READ) == 0))
-		{
-			int16_t lsb = i2c_readAck();
-			int16_t msb = i2c_readNak();
+		setSensorStandby(pgm_read_byte(&i2c_addresses[i]), 0);
+		//_delay_ms(50);
+		dists_raw[i] = getSensorDist(pgm_read_byte(&i2c_addresses[i]));
 
-			dists_raw[i] = (((lsb << 4) + msb)*10)/64;
-		}
-		else
-		{
-			dists_raw[i] = -1;
-		}
-		i2c_stop();
+		if(dists_raw[i] < -1 || dists_raw[i] > IRDIST_MAX)
+			dists_raw[i] = IRDIST_MAX;
 
-		if(dists_raw[i] == -385)
-			dists_raw[i] = 600;
+		setSensorStandby(pgm_read_byte(&i2c_addresses[i]), 1);
 	}
+
 
 	dist[LIN][BACK][BACK] = dists_raw[0];
 	dist[LIN][LEFT][BACK] = dists_raw[1];
@@ -62,6 +83,13 @@ uint8_t irDist_get(void)
 	dist[LIN][FRONT][RIGHT] = dists_raw[7];
 	dist[LIN][BACK][RIGHT] = dists_raw[8];
 	dist[LIN][RIGHT][BACK] = dists_raw[9];
+
+	if(um6.isRamp) //If on ramp set all front/ back sensors to max distance to not align
+	{
+		dist[LIN][BACK][LEFT] = IRDIST_MAX;
+		dist[LIN][BACK][BACK] = IRDIST_MAX;
+		dist[LIN][BACK][RIGHT] = IRDIST_MAX;
+	}
 
 	return 0;
 }

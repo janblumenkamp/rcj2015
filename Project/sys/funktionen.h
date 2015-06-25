@@ -30,11 +30,6 @@ extern int16_t groundsens_r;
 
 extern int16_t batt_raw;
 
-
-
-#define DIST_MAX_SRP_OLD 200
-#define DIST_MAX_SRP_NEW 400
-
 #define RAW 0
 #define LIN 1
 ////////////////////
