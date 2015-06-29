@@ -28,7 +28,7 @@ uint8_t maze_alignDir(uint8_t dir)
 {
 	while(dir > WEST)
 		dir -= WEST;
-	
+
 	return dir;
 }
 

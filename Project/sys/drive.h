@@ -26,8 +26,8 @@ typedef struct _d_deplKit D_DEPLOYKIT;
 #define ALIGN_OFFSET_LEFT 0
 #define ALIGN_OFFSET_RIGHT 0
 
-#define TILE1_FRONT_ALIGN_TH 100 //mm, Schwellwert nach vorne
-#define TILE1_SIDE_ALIGN_TH 100 //Schwellwert zur Seite
+#define TILE1_FRONT_ALIGN_TH 150 //mm, Schwellwert nach vorne
+#define TILE1_SIDE_ALIGN_TH 160 //Schwellwert zur Seite
 
 #define TURN_SENSDIFF_MAX 150 //-CONST - CONST ist Schwellwert für maximal erlaubte Sensordifferenz (ansonsten Fehler)
 
@@ -74,23 +74,23 @@ struct _d_rotate {
 /////////////////////////////////////////////////////////////////////////////
 
 
-enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT_WEST, DOT_ROT_EAST, DOT_COMP_ENC, DOT_CORR, DOT_ALIGN_WALL, DOT_END, DOT_FINISHED};
+enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT_WEST, DOT_ROT_EAST, DRIVE_ROT_STRAIGHT, DOT_COMP_ENC, DOT_CORR, DOT_ALIGN_WALL, DOT_END, DOT_FINISHED};
 
 #define MAXSPEED 100
 
 ///////////////////////drive_oneTile//////////
 #define ENC_FAC_CM_L 22 //Fakor: Encoderwert in Strecke (cm) umrechnen
 #define ENC_FAC_CM_R 22
-#define ENC_FAC_CM_LR 23.5
+#define ENC_FAC_CM_LR 23
 
-#define TILE1_FRONT_FRONT 		60	//mm
+#define TILE1_FRONT_FRONT 		55	//mm
 #define TILE1_FRONT_TH_FRONT	240
-#define TILE1_BACK_BACK			60	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
+#define TILE1_BACK_BACK			55	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
 #define TILE1_BACK_TH_BACK		230
 
 #define TILE1_SIDE_TH			150
 
-#define DIST_SOLL	56	//IR; Seitenabstand
+#define DIST_SOLL	55	//IR; Seitenabstand
 
 #define TILE_LENGTH				30	//cm
 #define TILE_DIST_COLLISION_AV	25	//Only if the robot has driven less than this distance, the collision avoidance is active.
@@ -124,9 +124,6 @@ struct _dot {
 
 	uint32_t timer; //Timer for all drive functions (to abort after time...)
 
-	int16_t dist_r_old; //Last sensor distance (avoid huge jumps)
-	int16_t dist_l_old;
-
 	uint8_t aligned_turn; //The robot had to align via the front Sensors (collision avoidance)?
 
 	int32_t enc_comp[2]; //Compare angle of robot (driven not straight? Has to correct angle (important if there is no wall)?)
@@ -152,6 +149,7 @@ enum DRIVE_TURN {TURN_INIT, TURN, TURN_ALIGN, TURN_ALIGN_BACK, TURN_END, TURN_FI
 struct _d_turn {
 	unsigned state:7;
 	unsigned no_align:1; //dont alignment functions?
+	uint8_t newRobDir; //Planned robot direction after turn
 
 	D_ROTATE r; //For intern rotate function
 };

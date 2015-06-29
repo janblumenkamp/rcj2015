@@ -34,6 +34,7 @@
 #include "victim.h"
 #include "pixy.h"
 #include "menu.h"
+#include "irdist.h"
 
 //////////////////////////////////////////////////////////////////////
 #define WDT_TRIGGERED() if(MCUSR & (1<<WDRF)) check_res = 1;
@@ -108,7 +109,8 @@ static int8_t enc_r_last = 0;
 //Encoderwert in Datenstruktur für Motoren
 
 //////////
-uint8_t hold_t1 = 0;
+uint8_t t1_state_off = 0; //On the beginning the robot should be off
+
 ////////////////////////////////////Sonstiges///////////////////////////////////
 
 uint8_t setup = 0; //Start the setup?
@@ -120,7 +122,7 @@ int8_t timer_entpr_tast = 0;
 int8_t timer_incr_entpr = 0;
 int8_t timer_bt_is_busy = 0;
 int8_t timer_disp_msg = 0;
-int8_t timer_get_tast = 0;
+int8_t timer_motoff = 0;
 int16_t timer_rdy_restart = -1;
 int8_t timer_map_wall_r = 0;
 int16_t timer_lop = -1;
@@ -174,7 +176,6 @@ int main(void)
 	init_sys();
 	init_pwm();
 	init_timer();
-	dist_init();
 	uart1_init(UART_BAUD_SELECT(115200, F_CPU)); //IMU
 	um6_init(&um6, uart1_putc, uart1_getc);
 	bt_init();
@@ -214,12 +215,6 @@ int main(void)
 	tasks[TASK_SENSORS_ID].running = 0;
 	tasks[TASK_SENSORS_ID].task_fct = &task_sensors;
 
-	tasks[TASK_ANASENS_ID].state = -1;
-	tasks[TASK_ANASENS_ID].period = TASK_PERIOD_ANASENS;
-	tasks[TASK_ANASENS_ID].elapsedTime = 0;
-	tasks[TASK_ANASENS_ID].running = 0;
-	tasks[TASK_ANASENS_ID].task_fct = &task_anasens;
-	
 	if(get_incrOk())
 	{
 		motor_activate(0); //Shut down motor driver
@@ -249,8 +244,7 @@ int main(void)
 
 	mot.off = 1;
 
-	timer_get_tast = 120;
-
+	t1_state_off = get_t1(); //Detection of change of state in switch (on the boot, robot is always off)
 	while(1)
     {
 		wdt_reset();
@@ -263,16 +257,18 @@ int main(void)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		if((timer_get_tast == 0) && (setup == 0))
-		{
-			timer_get_tast = -1;
-			mot.off = 0;
-		}
-
-		if(get_t1()) //Always reset...
+		if(get_t1() == t1_state_off)
 		{
 			mot.off = 1;
-			timer_get_tast = 120;
+			timer_motoff = -1;
+		}
+		else if(timer_motoff == -1)
+		{
+			timer_motoff = 120;
+		}
+		else if(timer_motoff == 0)
+		{
+			mot.off = 0;
 		}
 
 		////////////////////Sensorcoordination//////////////////////////////////////
@@ -365,15 +361,15 @@ int main(void)
 			//          //Karte//       //
 			//////////////////////////////
 
-			if(timer_get_tast < 100 && timer_get_tast > 0)
+			if(timer_motoff < 100 && timer_motoff > 0)
 			{
 				u8g_SetFont(&u8g, u8g_font_fur30r);
 
-				if(timer_get_tast > 75)
+				if(timer_motoff > 75)
 					u8g_DrawStr(&u8g, 95, 50, "3");
-				else if(timer_get_tast > 50)
+				else if(timer_motoff > 50)
 					u8g_DrawStr(&u8g, 95, 50, "2");
-				else if(timer_get_tast > 25)
+				else if(timer_motoff > 25)
 					u8g_DrawStr(&u8g, 95, 50, "1");
 			}
 			else
@@ -433,6 +429,7 @@ int8_t task_maze(int8_t state)
 		}
 	}*/
 
+	displayvar[1] = robot_getAngleToWall(EAST);
 	return 0;
 }
 
@@ -465,24 +462,17 @@ int8_t task_sensors(int8_t state)
 	check_mlx = getIR();
 	victim_scan();
 
-	////Ultrasonic distance
-	//check_srf = getSRF();
+	//IR Dist
+	irDist_get();
 
 	//UM6
 	check_um6 = um6_getUM6(&um6);
 	um6_checkRamp(&um6);
 	//pixy_get();
-	return 0;
-}
 
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////TASK SENSANA/////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-int8_t task_anasens(int8_t state)
-{
 	//analog
-	get_analogSensors(); //Sharp infrared distance sensors, groundsensor
+	get_analogSensors(); //sharp dist down, battery, groundsensor
+
 	return 0;
 }
 
@@ -544,8 +534,8 @@ int8_t task_timer(int8_t state)
 			timer_bt_is_busy --;
 		if(timer_disp_msg > 0)
 			timer_disp_msg --;
-		if(timer_get_tast > 0)
-			timer_get_tast --;
+		if(timer_motoff > 0)
+			timer_motoff --;
 		if(timer_rdy_restart > 0)
 			timer_rdy_restart --;
 		if(timer_map_wall_r > 0)

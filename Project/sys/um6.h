@@ -36,6 +36,7 @@ struct _um6_t {
 	int32_t phi_t; //total
 	int16_t theta;
 	int16_t theta_t; //total
+	int16_t theta_off; //offset
 	int16_t psi;
 	int32_t psi_t; //total
 	int16_t accl_x;

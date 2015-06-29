@@ -22,6 +22,7 @@
 #include "system.h"
 #include "bluetooth.h"
 #include "i2cdev.h"
+#include "irdist.h"
 
 void drive_limitSpeed(int16_t *speed_l, int16_t *speed_r, int8_t limit)
 {
@@ -73,10 +74,9 @@ void drive_oneTile(DOT *d)
 							else
 							{
 								if((dist[LIN][BACK][BACK] < TILE1_BACK_TH_BACK) && //Enough place in back of the robot
-									(maze_getWall(&robot.pos, robot.dir+2) > 0)) //AND there is a wall in the map (prevent false sensordata...)
+									(maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL)) //AND there is a wall in the map (prevent false sensordata...)
 								{
 									d->state = DOT_ALIGN_BACK;
-									d->timer = timer;
 								}
 								else //Directly jump to the drive part
 								{
@@ -95,7 +95,6 @@ void drive_oneTile(DOT *d)
 							if(!drive_align_back(TILE1_BACK_BACK))
 							{
 								d->state = DOT_ALIGN;
-								d->enc_lr_start = mot.enc;
 								d->timer = 0; //Unactivate timer
 							}
 							
@@ -103,7 +102,11 @@ void drive_oneTile(DOT *d)
 		case DOT_ALIGN:
 		
 							if(!drive_align())
-								d->state= DOT_DRIVE;
+							{
+								d->state = DOT_DRIVE;
+								d->timer = timer;
+								d->enc_lr_start = mot.enc;
+							}
 							
 						break;
 						
@@ -122,46 +125,29 @@ void drive_oneTile(DOT *d)
 
 							/////////Regelung (Abstand links/rechts)////////
 
-							if((abs(dist[LIN][LEFT][FRONT] - d->dist_l_old) < DELTADIST_MAX) &&
-							   (abs(robot_angleToLeftWall) < abs(robot_angleToRightWall)))
+							if(abs(robot_angleToLeftWall) < abs(robot_angleToRightWall))
 							{
-								if(sensinfo.newDat.left && sensinfo.newDat.right)
-								{
-									if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
-										d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
-									else
-										d->steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
-							
-									d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
-								
-									sensinfo.newDat.left = 0;
-									sensinfo.newDat.right = 0;
-								}
+								if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
+									d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
+								else
+									d->steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
+
+								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
 							}
-							else if((abs(dist[LIN][RIGHT][FRONT] - d->dist_r_old) < DELTADIST_MAX) &&
-									(abs(robot_angleToLeftWall) > abs(robot_angleToRightWall)))
+							else if(abs(robot_angleToLeftWall) > abs(robot_angleToRightWall))
 							{
-								if(sensinfo.newDat.left && sensinfo.newDat.right)
-								{
-									if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-										d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
-									else
-										d->steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
-							
-									d->steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
-									
-									sensinfo.newDat.left = 0;
-									sensinfo.newDat.right = 0;
-								}
+								if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
+									d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
+								else
+									d->steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
+
+								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
 							}
 							else
 							{
 								d->steer = 0;
 							}
 
-							d->dist_l_old = dist[LIN][LEFT][FRONT];
-							d->dist_r_old = dist[LIN][RIGHT][FRONT];
-							
 							////////////////////////////////////////////////////////////////////////
 							////////Ziel erreicht? Kollision? Sollgeschwindigkeiten berechnen///////
 
@@ -184,37 +170,21 @@ void drive_oneTile(DOT *d)
 							{
 								if(d->enc_lr_add == 0)
 								{
-									th_align_front = 190;//TILE1_FRONT_TH_FRONT;
+									th_align_front = TILE1_FRONT_TH_FRONT;
 								}
 								else
 								{
 									th_align_front = 100;//TILE1_FRONT_TH_FRONT/2;
 								}
 
-								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-									(dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
-									(rel_angle < 20)) ||
-									get_bumpR() ||
-								   ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
-									(dist[LIN][RIGHT][FRONT] < 15)))
+								if(get_bumpR())
 								{
 									d->aligned_turn = WEST;
 
 									mot.d[LEFT].speed.to = -SPEED_COLLISION_AVOIDANCE;
 									mot.d[RIGHT].speed.to = SPEED_COLLISION_AVOIDANCE;
 								}
-								else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
-										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-										 (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
-										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
-										 (rel_angle < 20)) ||
-
-										get_bumpL() ||
-
-										((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
-										 (dist[LIN][LEFT][FRONT] < 15)))
+								else if(get_bumpL())
 								{
 									d->aligned_turn = EAST;
 
@@ -229,9 +199,14 @@ void drive_oneTile(DOT *d)
 								{
 									d->state = DOT_ROT_EAST;
 								}
-								else if((dist[LIN][FRONT][LEFT] < th_align_front) &&
+								else if(((dist[LIN][FRONT][LEFT] < th_align_front) &&
 										(dist[LIN][FRONT][FRONT] < th_align_front) &&
-										(dist[LIN][FRONT][RIGHT] < th_align_front))
+										(dist[LIN][FRONT][RIGHT] < th_align_front)) ||
+
+										((dist[LIN][FRONT][LEFT] < TILE1_FRONT_TH_FRONT) &&
+										(dist[LIN][FRONT][FRONT] < TILE1_FRONT_TH_FRONT) &&
+										(dist[LIN][FRONT][RIGHT] < TILE1_FRONT_TH_FRONT) &&
+										(maze_getWall(&robot.pos, robot.dir) > MAZE_ISWALL)))
 								{
 									if(d->timer == 0)
 									{
@@ -283,7 +258,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DOT_DRIVE;
+								d->state = DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
@@ -302,7 +277,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DOT_DRIVE;
+								d->state = DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
@@ -313,6 +288,14 @@ void drive_oneTile(DOT *d)
 
 						break;
 
+		case DRIVE_ROT_STRAIGHT:
+
+							if(drive_dist(0, 40, 1) == 0) //Drive one cm with speed 40 straight
+							{
+								d->state = DOT_DRIVE;
+							}
+						break;
+
 		case DOT_COMP_ENC:
 
 							if(abs((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT])) > 100)
@@ -321,10 +304,10 @@ void drive_oneTile(DOT *d)
 								{
 									d->corr_angle = ((mot.d[RIGHT].enc - d->enc_comp[RIGHT]) - (mot.d[LEFT].enc - d->enc_comp[LEFT]))/13;
 
-									if(d->corr_angle > 30)
-										d->corr_angle = 30;
-									else if(d->corr_angle < -30)
-										d->corr_angle = -30;
+									if(d->corr_angle > 40)
+										d->corr_angle = 40;
+									else if(d->corr_angle < -40)
+										d->corr_angle = -40;
 
 									d->state = DOT_CORR;
 								}
@@ -615,20 +598,20 @@ uint8_t drive_align_back(uint8_t dist_to) //Distance to the back
 	uint8_t returnvar = 1;
 
 	int16_t dist_back; //any of the distance sensor in the back
-	if(dist[LIN][BACK][BACK] != DIST_MAX_SRP_NEW)
+	if(dist[LIN][BACK][BACK] != IRDIST_MAX)
 		dist_back = dist[LIN][BACK][BACK];
-	else if(dist[LIN][BACK][LEFT] != DIST_MAX_SRP_OLD)
+	else if(dist[LIN][BACK][LEFT] != IRDIST_MAX)
 		dist_back = dist[LIN][BACK][LEFT];
-	else if(dist[LIN][BACK][RIGHT] != DIST_MAX_SRP_OLD)
+	else if(dist[LIN][BACK][RIGHT] != IRDIST_MAX)
 		dist_back = dist[LIN][BACK][RIGHT];
 	else
-		dist_back = DIST_MAX_SRP_NEW;
+		dist_back = IRDIST_MAX;
 
 	switch(sm_dab)
 	{
 		case 0:
 
-				if(maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
+				if(dist_back != IRDIST_MAX)//maze_getWall(&robot.pos, robot.dir+2) > MAZE_ISWALL) //There IS a wall behind the robot
 				{
 					timer_alignBack = timer;
 					sm_dab = 1;
@@ -677,8 +660,15 @@ void drive_turn(D_TURN *t)
 	switch(t->state)
 	{
 		case TURN_INIT:
-		
-						t->state = TURN;
+						mot.d[LEFT].speed.to = 0;
+						mot.d[RIGHT].speed.to = 0;
+
+						if(mot.d[LEFT].speed.is == 0 && mot.d[RIGHT].speed.is == 0)
+						{
+							t->state = TURN;
+						}
+
+					break;
 						
 		case TURN:
 						drive_rotate(&t->r);
@@ -702,9 +692,16 @@ void drive_turn(D_TURN *t)
 						//GGf. Ausrichtung an Wand
 						if(!drive_align())
 						{
-							t->state = TURN_ALIGN_BACK;
-
 							foutf(&str_debugDrive, "%i: drTrn:algn\n\r", timer);
+
+							if((t->newRobDir != NONE) && (maze_getWall(&robot.pos, maze_alignDir(t->newRobDir + 2)) > MAZE_ISWALL))
+							{
+								t->state = TURN_ALIGN_BACK;
+							}
+							else
+							{
+								t->state = TURN_END;
+							}
 						}
 
 					break;
@@ -713,6 +710,7 @@ void drive_turn(D_TURN *t)
 
 							if(!drive_align_back(TILE1_BACK_BACK))
 							{
+								foutf(&str_debugDrive, "%i: drTrn:algnBack\n\r", timer);
 								t->state = TURN_END;
 							}
 
@@ -774,7 +772,7 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 #define KP_RAMP_DIR 0.9
 #define KP_RAMP_DIST KP_RAMP_DIR * 0.5
 
-#define TILE1_DIST_FRONT_RAMP 70 //Vorne, IR
+#define TILE1_DIST_FRONT_RAMP 90 //Vorne, IR
 
 int16_t steer_ramp = 0; //Steering var for distance regulation of ramp
 int8_t sm_ramp = 0; //Statemachine for ramp
@@ -799,34 +797,22 @@ uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 			if((dist[LIN][LEFT][FRONT] < TILE1_SIDE_TH) &&
 				(dist[LIN][LEFT][BACK] < TILE1_SIDE_TH))
 			{
-				if(sensinfo.newDat.left && sensinfo.newDat.right)
-				{
-					if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
-						steer_ramp = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_RAMP_DIR);
-					else
-						steer_ramp = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_RAMP_DIR);
+				if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
+					steer_ramp = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_RAMP_DIR);
+				else
+					steer_ramp = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_RAMP_DIR);
 
-					steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_RAMP_DIST);
-
-					sensinfo.newDat.left = 0;
-					sensinfo.newDat.right = 0;
-				}
+				steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_RAMP_DIST);
 			}
 			else if((dist[LIN][RIGHT][FRONT] < TILE1_SIDE_TH) &&
 							(dist[LIN][RIGHT][BACK] < TILE1_SIDE_TH))
 			{
-				if(sensinfo.newDat.left && sensinfo.newDat.right)
-				{
-					if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-						steer_ramp = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_RAMP_DIR);
-					else
-						steer_ramp = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_RAMP_DIR);
+				if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
+					steer_ramp = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_RAMP_DIR);
+				else
+					steer_ramp = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_RAMP_DIR);
 
-					steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_RAMP_DIST);
-
-					sensinfo.newDat.left = 0;
-					sensinfo.newDat.right = 0;
-				}
+				steer_ramp += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_RAMP_DIST);
 			}
 
 			mot.d[LEFT].speed.to = (speed - steer_ramp);
@@ -859,8 +845,8 @@ uint8_t drive_ramp(int8_t speed, int8_t *checkpoint_ramp)
 			}
 
 			if((um6.isRamp == 0) && //Not at ramp anymore and distance sensors recognized ramp end
-			   ((dist[LIN][FRONT][FRONT] < TILE1_DIST_FRONT_RAMP) &&
-				(dist[LIN][FRONT][LEFT] < TILE1_DIST_FRONT_RAMP)))
+			   (dist[LIN][FRONT][FRONT] < TILE1_DIST_FRONT_RAMP) &&
+				(dist[LIN][FRONT][LEFT] < TILE1_DIST_FRONT_RAMP))
 			{
 				if((checkpoint_ramp != NULL) &&
 				   (mot.enc - ramp_checkpoint_enc) < (25 * ENC_FAC_CM_LR)) //We are now on the end of the ramp and the last checkpoint detection happened within the last 25 cm
@@ -1090,6 +1076,8 @@ uint8_t sm_ddist = 0; //drivedist
 int32_t enc_l_start_ddist = 0;
 int32_t enc_r_start_ddist = 0;
 
+uint32_t drive_dist_timer = 0;
+
 uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to move: < 0 ~ left, 0 ~ both, > 0 ~ right
 {
 	uint8_t returnvar = 1;
@@ -1100,6 +1088,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 					enc_r_start_ddist = mot.d[RIGHT].enc;
 
 					sm_ddist = 1;
+
+					drive_dist_timer = timer;
 
 					foutf(&str_debugDrive, "%i: drDst\n\r", timer);
 					break;
@@ -1182,6 +1172,12 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 								sm_ddist = 2;
 							}
 						}
+					}
+
+					if((timer - drive_dist_timer) > 2000)
+					{
+						foutf(&str_debugDrive, "%i: drDst:abort:time\n\r", timer);
+						sm_ddist = 2;
 					}
 					break;
 		case 2:
