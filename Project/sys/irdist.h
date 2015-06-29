@@ -21,6 +21,7 @@
 #define IRDIST_I2CDEV_NUM 10
 
 #define IRDIST_MAX 500
+#define IRDIST_OFFSET 44 //Make the vorder of the robot 0mm
 
 //Not used: 0x40, 0x80, 0xD0, 0xF0
 
@@ -35,9 +36,10 @@
 #define IRDIST_I2CADR_B_R 0x60
 #define IRDIST_I2CADR_R_B 0x10
 
-extern int16_t dists_raw[IRDIST_I2CDEV_NUM];
 /////////////////////////////////////////////////////
 //Prototypes
+
+extern void irDist_setSensorStandby(uint8_t adr, uint8_t state);
 
 extern uint8_t irDist_get(void);
 

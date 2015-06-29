@@ -13,20 +13,21 @@
 #include "main.h"
 #include "funktionen.h"
 
-const uint8_t i2c_addresses[IRDIST_I2CDEV_NUM] PROGMEM = {
-	IRDIST_I2CADR_B_B,
-	IRDIST_I2CADR_L_B,
-	IRDIST_I2CADR_B_L,
-	IRDIST_I2CADR_F_L,
-	IRDIST_I2CADR_L_F,
-	IRDIST_I2CADR_F_F,
-	IRDIST_I2CADR_R_F,
-	IRDIST_I2CADR_F_R,
-	IRDIST_I2CADR_B_R,
-	IRDIST_I2CADR_R_B
-};
+void irDist_init(void)
+{
+	irDist_setSensorStandby(IRDIST_I2CADR_B_B, 0);
+	irDist_setSensorStandby(IRDIST_I2CADR_F_F, 0);
+	irDist_setSensorStandby(IRDIST_I2CADR_B_L, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_B_R, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_F_L, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_F_R, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_R_F, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_R_B, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_L_B, 1);
+	irDist_setSensorStandby(IRDIST_I2CADR_L_F, 1);
+}
 
-void setSensorStandby(uint8_t adr, uint8_t state)
+void irDist_setSensorStandby(uint8_t adr, uint8_t state)
 {
 	if(state)
 		state = 1;
@@ -37,7 +38,7 @@ void setSensorStandby(uint8_t adr, uint8_t state)
 	i2c_stop();
 }
 
-int16_t getSensorDist(uint8_t adr)
+int16_t irDist_getSensorDist(uint8_t adr)
 {
 	int16_t dist = -1;
 
@@ -52,37 +53,73 @@ int16_t getSensorDist(uint8_t adr)
 	}
 	i2c_stop();
 
+	if(dist < -1)
+		dist = IRDIST_MAX;
+
 	return dist;
 }
 
 //////////SM///////////////////
-int16_t dists_raw[IRDIST_I2CDEV_NUM];
-uint8_t toggle = 0;
+
+uint8_t sm = 0;
+
 uint8_t irDist_get(void)
 {
-	for(uint8_t i = 0; i < IRDIST_I2CDEV_NUM; i++)
-	{
-		setSensorStandby(pgm_read_byte(&i2c_addresses[i]), 0);
-		//_delay_ms(50);
-		dists_raw[i] = getSensorDist(pgm_read_byte(&i2c_addresses[i]));
+	switch (sm) {
+		case 0:
+			//Mid
+			dist[LIN][FRONT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_F_F) - IRDIST_OFFSET;
+			dist[LIN][BACK][BACK] = irDist_getSensorDist(IRDIST_I2CADR_B_B) - 12;
 
-		if(dists_raw[i] < -1 || dists_raw[i] > IRDIST_MAX)
-			dists_raw[i] = IRDIST_MAX;
+			irDist_setSensorStandby(IRDIST_I2CADR_F_F, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_B_B, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_B_L, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_F_R, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_R_B, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_L_F, 0);
 
-		setSensorStandby(pgm_read_byte(&i2c_addresses[i]), 1);
+			sm = 1;
+
+			break;
+		case 1:
+			//Right
+			dist[LIN][BACK][LEFT] = irDist_getSensorDist(IRDIST_I2CADR_B_L) - IRDIST_OFFSET;
+			dist[LIN][FRONT][RIGHT] = irDist_getSensorDist(IRDIST_I2CADR_F_R) - IRDIST_OFFSET;
+			dist[LIN][RIGHT][BACK] = irDist_getSensorDist(IRDIST_I2CADR_R_B) - IRDIST_OFFSET;
+			dist[LIN][LEFT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_L_F) - IRDIST_OFFSET;
+
+			irDist_setSensorStandby(IRDIST_I2CADR_B_L, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_F_R, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_R_B, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_L_F, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_B_R, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_F_L, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_R_F, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_L_B, 0);
+
+			sm = 2;
+
+			break;
+		case 2:
+			//Right
+			dist[LIN][BACK][RIGHT] = irDist_getSensorDist(IRDIST_I2CADR_B_R) - IRDIST_OFFSET;
+			dist[LIN][FRONT][LEFT] = irDist_getSensorDist(IRDIST_I2CADR_F_L) - IRDIST_OFFSET;
+			dist[LIN][RIGHT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_R_F) - IRDIST_OFFSET;
+			dist[LIN][LEFT][BACK] = irDist_getSensorDist(IRDIST_I2CADR_L_B) - IRDIST_OFFSET;
+
+			irDist_setSensorStandby(IRDIST_I2CADR_B_R, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_F_L, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_R_F, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_L_B, 1);
+			irDist_setSensorStandby(IRDIST_I2CADR_B_B, 0);
+			irDist_setSensorStandby(IRDIST_I2CADR_F_F, 0);
+
+			sm = 0;
+
+			break;
+		default:
+			break;
 	}
-
-
-	dist[LIN][BACK][BACK] = dists_raw[0];
-	dist[LIN][LEFT][BACK] = dists_raw[1];
-	dist[LIN][BACK][LEFT] = dists_raw[2];
-	dist[LIN][FRONT][LEFT] = dists_raw[3];
-	dist[LIN][LEFT][FRONT] = dists_raw[4];
-	dist[LIN][FRONT][FRONT] = dists_raw[5];
-	dist[LIN][RIGHT][FRONT] = dists_raw[6];
-	dist[LIN][FRONT][RIGHT] = dists_raw[7];
-	dist[LIN][BACK][RIGHT] = dists_raw[8];
-	dist[LIN][RIGHT][BACK] = dists_raw[9];
 
 	if(um6.isRamp) //If on ramp set all front/ back sensors to max distance to not align
 	{

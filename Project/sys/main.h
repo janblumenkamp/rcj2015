@@ -32,7 +32,7 @@ extern UM6_t um6; //UM6 sructure
 	#define TASK_TIMER_ID			0
 #define TASK_PERIOD_SPEEDREG	25
 	#define TASK_SPEEDREG_ID		3
-#define TASK_PERIOD_SENSORS		50
+#define TASK_PERIOD_SENSORS		40
 	#define TASK_SENSORS_ID			2
 
 struct _task

@@ -103,7 +103,7 @@ void drive_oneTile(DOT *d)
 		
 							if(!drive_align())
 							{
-								d->state= DOT_DRIVE;
+								d->state = DOT_DRIVE;
 								d->timer = timer;
 								d->enc_lr_start = mot.enc;
 							}
@@ -125,8 +125,7 @@ void drive_oneTile(DOT *d)
 
 							/////////Regelung (Abstand links/rechts)////////
 
-							if((abs(dist[LIN][LEFT][FRONT] - d->dist_l_old) < DELTADIST_MAX) &&
-							   (abs(robot_angleToLeftWall) < abs(robot_angleToRightWall)))
+							if(abs(robot_angleToLeftWall) < abs(robot_angleToRightWall))
 							{
 								if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
 									d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
@@ -135,8 +134,7 @@ void drive_oneTile(DOT *d)
 
 								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
 							}
-							else if((abs(dist[LIN][RIGHT][FRONT] - d->dist_r_old) < DELTADIST_MAX) &&
-									(abs(robot_angleToLeftWall) > abs(robot_angleToRightWall)))
+							else if(abs(robot_angleToLeftWall) > abs(robot_angleToRightWall))
 							{
 								if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
 									d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
@@ -150,9 +148,6 @@ void drive_oneTile(DOT *d)
 								d->steer = 0;
 							}
 
-							d->dist_l_old = dist[LIN][LEFT][FRONT];
-							d->dist_r_old = dist[LIN][RIGHT][FRONT];
-							
 							////////////////////////////////////////////////////////////////////////
 							////////Ziel erreicht? Kollision? Sollgeschwindigkeiten berechnen///////
 
@@ -175,7 +170,7 @@ void drive_oneTile(DOT *d)
 							{
 								if(d->enc_lr_add == 0)
 								{
-									th_align_front = 190;//TILE1_FRONT_TH_FRONT;
+									th_align_front = TILE1_FRONT_TH_FRONT;
 								}
 								else
 								{
@@ -665,8 +660,15 @@ void drive_turn(D_TURN *t)
 	switch(t->state)
 	{
 		case TURN_INIT:
-		
-						t->state = TURN;
+						mot.d[LEFT].speed.to = 0;
+						mot.d[RIGHT].speed.to = 0;
+
+						if(mot.d[LEFT].speed.is == 0 && mot.d[RIGHT].speed.is == 0)
+						{
+							t->state = TURN;
+						}
+
+					break;
 						
 		case TURN:
 						drive_rotate(&t->r);

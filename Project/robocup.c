@@ -429,6 +429,7 @@ int8_t task_maze(int8_t state)
 		}
 	}*/
 
+	displayvar[1] = robot_getAngleToWall(EAST);
 	return 0;
 }
 
