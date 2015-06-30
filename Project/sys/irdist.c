@@ -38,7 +38,7 @@ void irDist_setSensorStandby(uint8_t adr, uint8_t state)
 	i2c_stop();
 }
 
-int16_t irDist_getSensorDist(uint8_t adr)
+int16_t irDist_getSensorDist(uint8_t adr, uint8_t offset)
 {
 	int16_t dist = -1;
 
@@ -55,6 +55,8 @@ int16_t irDist_getSensorDist(uint8_t adr)
 
 	if(dist < -1)
 		dist = IRDIST_MAX;
+	else
+		dist -= offset;
 
 	return dist;
 }
@@ -68,8 +70,8 @@ uint8_t irDist_get(void)
 	switch (sm) {
 		case 0:
 			//Mid
-			dist[LIN][FRONT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_F_F) - IRDIST_OFFSET;
-			dist[LIN][BACK][BACK] = irDist_getSensorDist(IRDIST_I2CADR_B_B) - 12;
+			dist[LIN][FRONT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_F_F, IRDIST_OFFSET);
+			dist[LIN][BACK][BACK] = irDist_getSensorDist(IRDIST_I2CADR_B_B, 12);
 
 			irDist_setSensorStandby(IRDIST_I2CADR_F_F, 1);
 			irDist_setSensorStandby(IRDIST_I2CADR_B_B, 1);
@@ -83,10 +85,10 @@ uint8_t irDist_get(void)
 			break;
 		case 1:
 			//Right
-			dist[LIN][BACK][LEFT] = irDist_getSensorDist(IRDIST_I2CADR_B_L) - IRDIST_OFFSET;
-			dist[LIN][FRONT][RIGHT] = irDist_getSensorDist(IRDIST_I2CADR_F_R) - IRDIST_OFFSET;
-			dist[LIN][RIGHT][BACK] = irDist_getSensorDist(IRDIST_I2CADR_R_B) - IRDIST_OFFSET;
-			dist[LIN][LEFT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_L_F) - IRDIST_OFFSET;
+			dist[LIN][BACK][LEFT] = irDist_getSensorDist(IRDIST_I2CADR_B_L, IRDIST_OFFSET);
+			dist[LIN][FRONT][RIGHT] = irDist_getSensorDist(IRDIST_I2CADR_F_R, IRDIST_OFFSET);
+			dist[LIN][RIGHT][BACK] = irDist_getSensorDist(IRDIST_I2CADR_R_B, IRDIST_OFFSET);
+			dist[LIN][LEFT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_L_F, IRDIST_OFFSET);
 
 			irDist_setSensorStandby(IRDIST_I2CADR_B_L, 1);
 			irDist_setSensorStandby(IRDIST_I2CADR_F_R, 1);
@@ -102,10 +104,10 @@ uint8_t irDist_get(void)
 			break;
 		case 2:
 			//Right
-			dist[LIN][BACK][RIGHT] = irDist_getSensorDist(IRDIST_I2CADR_B_R) - IRDIST_OFFSET;
-			dist[LIN][FRONT][LEFT] = irDist_getSensorDist(IRDIST_I2CADR_F_L) - IRDIST_OFFSET;
-			dist[LIN][RIGHT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_R_F) - IRDIST_OFFSET;
-			dist[LIN][LEFT][BACK] = irDist_getSensorDist(IRDIST_I2CADR_L_B) - IRDIST_OFFSET;
+			dist[LIN][BACK][RIGHT] = irDist_getSensorDist(IRDIST_I2CADR_B_R, IRDIST_OFFSET);
+			dist[LIN][FRONT][LEFT] = irDist_getSensorDist(IRDIST_I2CADR_F_L, IRDIST_OFFSET);
+			dist[LIN][RIGHT][FRONT] = irDist_getSensorDist(IRDIST_I2CADR_R_F, IRDIST_OFFSET);
+			dist[LIN][LEFT][BACK] = irDist_getSensorDist(IRDIST_I2CADR_L_B, IRDIST_OFFSET);
 
 			irDist_setSensorStandby(IRDIST_I2CADR_B_R, 1);
 			irDist_setSensorStandby(IRDIST_I2CADR_F_L, 1);

@@ -79,16 +79,16 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define MAXSPEED 100
 
 ///////////////////////drive_oneTile//////////
-#define ENC_FAC_CM_L 22 //Fakor: Encoderwert in Strecke (cm) umrechnen
-#define ENC_FAC_CM_R 22
-#define ENC_FAC_CM_LR 23
+#define ENC_FAC_CM_L 23.5 //Fakor: Encoderwert in Strecke (cm) umrechnen
+#define ENC_FAC_CM_R 23.5
+#define ENC_FAC_CM_LR 23.5
 
 #define TILE1_FRONT_FRONT 		55	//mm
 #define TILE1_FRONT_TH_FRONT	190
 #define TILE1_BACK_BACK			55	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
 #define TILE1_BACK_TH_BACK		230
 
-#define TILE1_SIDE_TH			150
+#define TILE1_SIDE_TH			120
 
 #define DIST_SOLL	55	//IR; Seitenabstand
 

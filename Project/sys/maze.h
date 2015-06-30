@@ -119,9 +119,9 @@ struct _matchingWalls {
 
 #define TSL_GROUNDSENS_DIFF 50
 
-#define GROUNDSENS_R_TH_BLACKTILE 850 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_BLACKTILE 850 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_CHECKPOINT 680 //Below this Threshold there is a checkpoint
+#define GROUNDSENS_R_TH_BLACKTILE 800 //Above this Threshold there is a black tile
+#define GROUNDSENS_L_TH_BLACKTILE 800 //Above this Threshold there is a black tile
+#define GROUNDSENS_L_TH_CHECKPOINT 570 //Below this Threshold there is a checkpoint
 #define GROUNDDIST_TH_LOP		50 //Below this Threshold of the sharp IR looking down there is a LOP
 #define GROUNDDIST_TH_NORMAL		200 //Above this Threshold of the sharp IR looking down there is no more LOP
 #define GROUNDSENS_CNT_TH_CHECKPOINT 5 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
