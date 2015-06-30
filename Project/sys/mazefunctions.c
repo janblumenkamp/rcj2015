@@ -490,7 +490,7 @@ void maze_setObstacle(COORD *_coord, int8_t dir, int8_t value)
 		switch(dir)
 		{
 			case NONE:
-							maze[c.x][c.y][c.z].obstacle += value;
+							maze[c.x][c.y][c.z].obstacle = value;
 						break;
 			case NORTH:
 							if((c.y + 1) <= (MAZE_SIZE_Y-1))	maze[c.x][c.y + 1][c.z].obstacle = value;
@@ -827,7 +827,8 @@ uint8_t maze_tileIsVisitable(COORD *_coord, int8_t dir)
 	dir = maze_alignDir(dir);
 	
 	if((maze_getGround(_coord, dir) < MAZE_ISBLTILE) &&
-		 (maze_getWall(_coord, dir) < MAZE_ISWALL))
+		 (maze_getWall(_coord, dir) < MAZE_ISWALL) &&
+		 (maze_getObstacle(_coord, dir) < 2))
 	{
 		returnvar = 1;
 	}

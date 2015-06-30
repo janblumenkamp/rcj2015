@@ -283,8 +283,6 @@ void um6_checkRamp(UM6_t *um6)
 {
 	if(um6->theta_off != 0xffff)
 	{
-		displayvar[0] = (um6->theta_t - um6->theta_off) % 360;
-
 		if((um6->theta_t - um6->theta_off) % 360 > 12)
 		{
 			um6->isRamp = -1;

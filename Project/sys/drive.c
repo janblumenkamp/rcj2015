@@ -58,8 +58,6 @@ void drive_oneTile(DOT *d)
 		case DOT_INIT:
 							d->abort = 0; //Should never be 1 on this point -> Reset it in case it is still set
 
-							d->enc_comp[LEFT] = mot.d[LEFT].enc;
-							d->enc_comp[RIGHT] = mot.d[RIGHT].enc;
 							d->enc_lr_add = 0;
 
 							d->um6_phi_t_start = um6.phi_t;
@@ -81,6 +79,8 @@ void drive_oneTile(DOT *d)
 								else //Directly jump to the drive part
 								{
 									d->state = DOT_DRIVE;
+									d->enc_comp[LEFT] = mot.d[LEFT].enc;
+									d->enc_comp[RIGHT] = mot.d[RIGHT].enc;
 									d->enc_lr_start = mot.enc;
 									d->timer = 0; //Unactivate timer
 								}
@@ -104,6 +104,8 @@ void drive_oneTile(DOT *d)
 							if(!drive_align())
 							{
 								d->state = DOT_DRIVE;
+								d->enc_comp[LEFT] = mot.d[LEFT].enc;
+								d->enc_comp[RIGHT] = mot.d[RIGHT].enc;
 								d->timer = timer;
 								d->enc_lr_start = mot.enc;
 							}
@@ -122,6 +124,7 @@ void drive_oneTile(DOT *d)
 
 							if(d->enc_lr_add > 0)
 								speed_tmp /= 2;
+
 
 							/////////Regelung (Abstand links/rechts)////////
 
@@ -290,7 +293,7 @@ void drive_oneTile(DOT *d)
 
 		case DRIVE_ROT_STRAIGHT:
 
-							if(drive_dist(0, 40, 1) == 0) //Drive one cm with speed 40 straight
+							if(drive_dist(0, 40, 2) == 0) //Drive one cm with speed 40 straight
 							{
 								d->state = DOT_DRIVE;
 							}

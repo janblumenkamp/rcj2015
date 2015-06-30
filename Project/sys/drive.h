@@ -84,7 +84,7 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define ENC_FAC_CM_LR 23
 
 #define TILE1_FRONT_FRONT 		55	//mm
-#define TILE1_FRONT_TH_FRONT	240
+#define TILE1_FRONT_TH_FRONT	190
 #define TILE1_BACK_BACK			55	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
 #define TILE1_BACK_TH_BACK		230
 

@@ -195,8 +195,7 @@ uint8_t get_bumpR(void) //Bumper right
 
 void servo_setPos(uint8_t angle)
 {
-    displayvar[2] = angle;
-    uint16_t servo_time = -21*angle+SERVO_T_LOW;
+	uint16_t servo_time = -21*angle+SERVO_T_LOW;
 	if(servo_time < SERVO_T_MIN)
 		servo_time = SERVO_T_MIN;
 	else if(servo_time > SERVO_T_MAX)

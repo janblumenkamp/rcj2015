@@ -245,6 +245,7 @@ int main(void)
 	mot.off = 1;
 
 	t1_state_off = get_t1(); //Detection of change of state in switch (on the boot, robot is always off)
+
 	while(1)
     {
 		wdt_reset();
@@ -429,7 +430,6 @@ int8_t task_maze(int8_t state)
 		}
 	}*/
 
-	displayvar[1] = robot_getAngleToWall(EAST);
 	return 0;
 }
 

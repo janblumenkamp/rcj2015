@@ -167,6 +167,8 @@ enum MAZE_RR {RR_WAIT, RR_CALCNEARESTTILE, RR_CALCROUTE,
 					
 enum MAZE_LR {LR_WAIT, LR_MATCH, LR_SUCCESS, LR_FAILURE}; //LR = LocalizationRequest;
 		
+enum DRIVE_ACTION {DA_DOT, DA_TURN_L, DA_TURN_R, DA_DEPLKIT, DA_RAMP_UP, DA_RAMP_DOWN}; // DA = DriveAction; Last driving action
+
 extern uint8_t maze_solve_state_path;
 
 extern int16_t tsl_th;
