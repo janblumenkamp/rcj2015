@@ -180,12 +180,14 @@ void drive_oneTile(DOT *d)
 									th_align_front = 100;//TILE1_FRONT_TH_FRONT/2;
 								}
 
-								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+								if(/*((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
 									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
 									(dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
 									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
-									(rel_angle < 20)) ||
-									get_bumpR() ||
+									(rel_angle < 20)) ||*/
+									(get_bumpR() &&
+									 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
+									 (rel_angle < 20)) ||
 								   ((robot_angleToRightWall > 20) && (robot_angleToRightWall != GETANGLE_NOANGLE) &&
 									(dist[LIN][RIGHT][FRONT] < 15)))
 								{
