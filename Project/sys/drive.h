@@ -27,7 +27,7 @@ typedef struct _d_deplKit D_DEPLOYKIT;
 #define ALIGN_OFFSET_RIGHT 0
 
 #define TILE1_FRONT_ALIGN_TH 150 //mm, Schwellwert nach vorne
-#define TILE1_SIDE_ALIGN_TH 160 //Schwellwert zur Seite
+#define TILE1_SIDE_ALIGN_TH 132 //Schwellwert zur Seite
 
 #define TURN_SENSDIFF_MAX 150 //-CONST - CONST ist Schwellwert für maximal erlaubte Sensordifferenz (ansonsten Fehler)
 
@@ -49,7 +49,7 @@ enum DRIVE_ROTATE {ROTATE_INIT, ROTATE, ROTATE_END, ROTATE_FINISHED};
 #define STEER_ROTATE_ENC_TH 1 //Wenn UM6 eigtl. fertig ist, ENC aber noch nciht weitgenug gezählt haben (TH für Steer (=> Ende naht))
 #define STEER_ROTATE_ENC 100//Mit dem Steer drehen (bei UM6 err)
 
-#define UM6_ROTATE_OFFSET -3 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
+#define UM6_ROTATE_OFFSET -2 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
 
 #define STEER_ROTATE_TH_TIMER 20 //Unter diesem Wert (Betrag) wird ein Timer aktivierter, in dem Zeitraum 0 erreicht werden muss, ansonsten abbruch.
 
@@ -79,18 +79,18 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define MAXSPEED 100
 
 ///////////////////////drive_oneTile//////////
-#define ENC_FAC_CM_L 23.5 //Fakor: Encoderwert in Strecke (cm) umrechnen
-#define ENC_FAC_CM_R 23.5
-#define ENC_FAC_CM_LR 23.5
+#define ENC_FAC_CM_L 22 //Fakor: Encoderwert in Strecke (cm) umrechnen
+#define ENC_FAC_CM_R 22
+#define ENC_FAC_CM_LR 22
 
-#define TILE1_FRONT_FRONT 		55	//mm
+#define TILE1_FRONT_FRONT 		45	//mm
 #define TILE1_FRONT_TH_FRONT	190
-#define TILE1_BACK_BACK			55	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
+#define TILE1_BACK_BACK			45	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
 #define TILE1_BACK_TH_BACK		230
 
 #define TILE1_SIDE_TH			120
 
-#define DIST_SOLL	55	//IR; Seitenabstand
+#define DIST_SOLL	50	//IR; Seitenabstand
 
 #define TILE_LENGTH				30	//cm
 #define TILE_DIST_COLLISION_AV	25	//Only if the robot has driven less than this distance, the collision avoidance is active.

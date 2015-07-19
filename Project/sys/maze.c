@@ -439,7 +439,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 										if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && //Black: negative
 										   (groundsens_l > GROUNDSENS_L_TH_BLACKTILE) &&
-										   !um6.isRamp)
+										   !um6.isRamp &&
+										   !maze_getRampPosDirAtDir(&robot.pos, robot.dir))
 										{
 											groundsens_cnt --;
 
@@ -775,14 +776,10 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 		if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
 			(maze_solve_state_path <= TURN_LEFT))
 		{
-
-			if((groundsens_r < GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l < GROUNDSENS_L_TH_BLACKTILE))
+			if(1)//(groundsens_r < GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l < GROUNDSENS_L_TH_BLACKTILE))
 			{
 				if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
 				{
-					ui_setLED(-1, 0);
-					ui_setLED(1, 0);
-
 					////////////////
 					/// On victim deployment there are three cases:
 					/// 1) Robot detects victim while driving straight: Turn and deploy kit left or right, then proceed driving straight
@@ -813,8 +810,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								}
 								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
 								{
-									//if(timer_vic_ramp > 0)
-									//	timer_victim_led = -1;
+									if(timer_vic_ramp > 0)
+										timer_victim_led = -1;
 								}
 								else if(((maze_solve_state_path == TURN_LEFT) ||
 										(maze_solve_state_path == TURN_RIGHT)) && turn.r.state == ROTATE) //Only if rotation has begin (to prevent progress being not set after ramp)
@@ -915,6 +912,11 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 			ui_setLED(-1, 255);
 			ui_setLED(1, 255);
+		}
+		else
+		{
+			ui_setLED(-1, 0);
+			ui_setLED(1, 0);
 		}
 	}
 

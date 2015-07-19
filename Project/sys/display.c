@@ -857,7 +857,7 @@ void u8g_DrawCamRaw(void)
 		tsl_th += (incremental-incremental_old_cam)*10;
 		if(tsl_th < 0)
 			tsl_th = 0;
-		tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;
+		//tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;
 		if((int8_t)(incremental-incremental_old_cam) != 0) //etwas wurde geändert
 			eepr_value_changed.cam = 1;
 	}

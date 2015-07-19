@@ -74,7 +74,7 @@ void init_sys(void)
 	//debug = eeprom_read_byte((uint8_t*)5);
 	ground_th = eeprom_read_word((uint16_t*)6); //tsl_th...
 	//ground_th = 900;//eeprom_read_word((uint16_t*)8);
-	tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;//eeprom_read_word((uint16_t*)10);
+//	tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;//eeprom_read_word((uint16_t*)10);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
