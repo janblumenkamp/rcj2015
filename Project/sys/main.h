@@ -75,7 +75,7 @@ extern int32_t incremental;
 #define TIMER_ENTPR_INCR	500/25  //Timer zum Entprellen von incr_ok
 #define TIMER_BT_IS_BUSY	127 //Timer für Bluetooth DIsplayanzeige (Nach Funkstille Anzeige deaktivieren)
 #define TIMER_DISP_MSG		127 //Bei mehreren Statusmeldungen werden die der Reihe nach oben angezeigt.
-#define TIMER_RDY_RESTART	15000/25 //Nachdem Labyrinth (vermeintlich?) fertig, wrid nach TIMER neugestartet.
+#define TIMER_RDY_RESTART	45000/25 //Nachdem Labyrinth (vermeintlich?) fertig, wrid nach TIMER neugestartet.
 #define TIMER_MAP_WALL_R	50/25		//Wait this time until the wallvalues will be refreshed again (let the distance sensros time to refresh)
 #define TIMER_LOP_SENSOR	1000/25 //The groundsens has to be above it’s threshold for this time
 #define TIMER_LOP_RESET		5000/25 //After an LOP was detected (the robot was lifted) and set down again, the robot waits this time until it proceeds

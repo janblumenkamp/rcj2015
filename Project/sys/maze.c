@@ -85,6 +85,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 	if((timer_rdy_restart == 0) && !mot.off) //Neustart
 	{
+		display_setBGLED(1);
 		timer_rdy_restart = -1;
 		maze_init();
 	}
@@ -338,7 +339,10 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									returnvar = 0; //0 zurückgeben, wenn fertig, sonst 1
 
 									if(timer_rdy_restart == -1)
+									{
 										timer_rdy_restart = TIMER_RDY_RESTART; //Setze Timer
+										display_setBGLED(0);
+									}
 
 									depthsearchNum = maze_getDepthsearch(&robot.pos, NONE);
 									for(uint8_t dir = NORTH; dir <= WEST; dir++) //check for each direction

@@ -119,7 +119,9 @@ void led_rgb(uint16_t heartbeat_color, uint16_t led_error, uint8_t led_top)
 		
 		if(led_error == 0)
 		{
-			display_setBGLED(1);
+			if(timer_rdy_restart == -1) //Only switch display LED if we are not restarting right now (turning display off)
+				display_setBGLED(1);
+
 			if(led_heartbeat > 1) //Nicht ganz aus
 				led_hsvToRgb(heartbeat_color, 255, led_heartbeat);
 		}
@@ -133,7 +135,8 @@ void led_rgb(uint16_t heartbeat_color, uint16_t led_error, uint8_t led_top)
 			else if(led_heartbeat == 0)
 			{
 				led_hsvToRgb(led_error, 255, 0);
-				display_setBGLED(1);
+				if(timer_rdy_restart == -1) //Only switch display LED if we are not restarting right now (turning display off)
+					display_setBGLED(1);
 			}
 		}
 	}
