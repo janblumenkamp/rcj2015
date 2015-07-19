@@ -74,6 +74,10 @@ extern int16_t maze_findPath(COORD *_start, COORD *_goal);
 
 extern void maze_clearDepthsearch(void);
 
+extern void maze_clearGround(void);
+
+extern void maze_clearWalls(void);
+
 extern void maze_rotateStage(uint8_t stage);
 
 extern void maze_matchStages(MATCHSTAGES *matchStages);
@@ -89,6 +93,8 @@ extern uint8_t maze_stageGetVisitedTiles(uint8_t stage);
 extern uint16_t maze_GetVisitedTiles(void);
 
 extern void maze_clearStage(uint8_t stage, TILE *clear);
+
+extern void maze_clearRamp(void);
 
 extern void maze_clear(TILE *clear);
 

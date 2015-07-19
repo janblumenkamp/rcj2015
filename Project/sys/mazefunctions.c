@@ -1027,6 +1027,73 @@ void maze_clearDepthsearch(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Fills the .ground variables in the maze with 0 (clears the ground)
+//
+// Param:
+// NONE
+//
+// @return: NONE
+////////////////////////////////////////////////////////////////////////////////
+
+void maze_clearGround(void)
+{
+	for(uint8_t maze_z = 0; maze_z < MAZE_SIZE_Z; maze_z++)
+	{
+		for(uint8_t maze_y = 0; maze_y < MAZE_SIZE_Y; maze_y++)
+		{
+			for(uint8_t maze_x = 0; maze_x < MAZE_SIZE_X; maze_x++)
+			{
+				maze[maze_x][maze_y][maze_z].ground = 0;
+			}
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Resets the ramp
+//
+// Param:
+// NONE
+//
+// @return: NONE
+////////////////////////////////////////////////////////////////////////////////
+
+void maze_clearRamp(void)
+{
+	for(uint8_t i = 0; i < MAZE_SIZE_Z; i++)
+	{
+		ramp[i].dir = NONE;
+		ramp[i].pos.x = 0;
+		ramp[i].pos.y = 0;
+		ramp[i].pos.z = 0;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Fills the .wall_x variables in the maze with 0 (clears the walls)
+//
+// Param:
+// NONE
+//
+// @return: NONE
+////////////////////////////////////////////////////////////////////////////////
+
+void maze_clearWalls(void)
+{
+	for(uint8_t maze_z = 0; maze_z < MAZE_SIZE_Z; maze_z++)
+	{
+		for(uint8_t maze_y = 0; maze_y < MAZE_SIZE_Y; maze_y++)
+		{
+			for(uint8_t maze_x = 0; maze_x < MAZE_SIZE_X; maze_x++)
+			{
+				maze[maze_x][maze_y][maze_z].wall_s = 0;
+				maze[maze_x][maze_y][maze_z].wall_w = 0;
+
+			}
+		}
+	}
+}
+////////////////////////////////////////////////////////////////////////////////
 // Tries to find a match between the savecard and the original card
 //
 ////////////////////////////////////////////////////////////////////////////////
