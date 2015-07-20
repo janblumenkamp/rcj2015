@@ -100,7 +100,7 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define SPEED_COLLISION_AVOIDANCE		20	//After the robot detected a collision, he turns with this speed at the point until the object in the way is gone
 #define TURN_ANGLE_COLLISION_AVOIDED	12	//After the object in the way is gone, the robot turns on this angle to be sure
 
-#define COLLISIONAVOIDANCE_SENS_TH_1	60	//If one front sensor is UNDER this threshold
+#define COLLISIONAVOIDANCE_SENS_TH_1	40	//If one front sensor is UNDER this threshold
 #define COLLISIONAVOIDANCE_SENS_TH_2	150	//and the other two front sensors are ABOVE this threshold, there will happen a collision!
 
 #define KP_DOT_DIR	1.3

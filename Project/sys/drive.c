@@ -180,11 +180,12 @@ void drive_oneTile(DOT *d)
 									th_align_front = 120;//TILE1_FRONT_TH_FRONT/2;
 								}
 
-								if(/*((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+								if(((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
 									(dist[LIN][FRONT][LEFT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
 									(dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
 									(mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
-									(rel_angle < 20)) ||*/
+									(rel_angle < 20)) ||
+
 									(get_bumpR() &&
 									 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
 									 (rel_angle < 20)) ||
@@ -204,7 +205,13 @@ void drive_oneTile(DOT *d)
 										get_bumpL() ||
 										((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
 										 (dist[LIN][LEFT][FRONT] < 15)))*/
-								else if((get_bumpL() &&
+								else if(((dist[LIN][FRONT][LEFT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
+										 (dist[LIN][FRONT][RIGHT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+										 (dist[LIN][FRONT][FRONT] >= COLLISIONAVOIDANCE_SENS_TH_2) &&
+										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
+										 (rel_angle < 20)) ||
+
+										 (get_bumpL() &&
 										 (mot.enc < (d->enc_lr_start + (TILE_DIST_COLLISION_AV * ENC_FAC_CM_LR) + d->enc_lr_add/2)) &&
 										 (rel_angle < 20)) ||
 										((robot_angleToLeftWall > 20) && (robot_angleToLeftWall != GETANGLE_NOANGLE) &&
