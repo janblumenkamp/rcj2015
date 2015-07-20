@@ -19,8 +19,8 @@
 #define I2C_MLX90614_L 0x5A<<1
 #define I2C_MLX90614_R 0x5C<<1
 
-#define I2C_SRF10_R 0xE4
-#define I2C_SRF10_L 0xF2
+#define I2C_SRF10 0xE6
+//#define I2C_SRF10_L 0xF2
 
 //Commands für I²C
 #define I2C_REG_MLX90614 0x07
@@ -31,7 +31,7 @@ struct _SRF {
 	int16_t dist;
 };
 
-#define NUMBER_OF_SRF 2
+#define NUMBER_OF_SRF 1
 
 extern struct _SRF srf[NUMBER_OF_SRF];
 

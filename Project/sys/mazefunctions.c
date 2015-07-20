@@ -827,8 +827,8 @@ uint8_t maze_tileIsVisitable(COORD *_coord, int8_t dir)
 	dir = maze_alignDir(dir);
 	
 	if((maze_getGround(_coord, dir) < MAZE_ISBLTILE) &&
-		 (maze_getWall(_coord, dir) < MAZE_ISWALL) &&
-		 (maze_getObstacle(_coord, dir) < 2))
+		 (maze_getWall(_coord, dir) < MAZE_ISWALL) )//&&
+		 //(maze_getObstacle(_coord, dir) <= 0))
 	{
 		returnvar = 1;
 	}

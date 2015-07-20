@@ -176,14 +176,14 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									{
 										maze_solve_state_path = DRIVE_DOT;
 
-										if(maze_getObstacle(&robot.pos, robot.dir) > 0)
+										/*if(maze_getObstacle(&robot.pos, robot.dir) > 0)
 										{
 											if(dist[LIN][FRONT][FRONT] < 200)
 											{
 												maze_setObstacle(&robot.pos, robot.dir, 2);
-												maze_solve_state_path = DRIVE_READY;
+												//maze_solve_state_path = DRIVE_READY;
 											}
-										}
+										}*/
 									}
 									else if(maze_tileIsVisitable(&robot.pos, robot.dir+3) &&
 											!maze_getBeenthere(&robot.pos, robot.dir+3))
@@ -229,13 +229,13 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											case RR_RTNOPOSS:	//That’s bad. The robot detected a wall or black tile wrong and can’t find the way or someone put the walls from their places. ;)
 
 																		foutf(&str_error, "ERR:NOPOSS\n\r");
-																		/*	cleartiles.beenthere = 0;
+																			cleartiles.beenthere = 0;
 																			cleartiles.depthsearch = 1;
 																			cleartiles.ground = 1;
 																			cleartiles.wall_s = 1;
 																			cleartiles.wall_w = 1;
 
-																			COORD c = robot.pos;
+																		/*	COORD c = robot.pos;
 
 																			if((rt_noposs_radius < (MAZE_SIZE_X_USABLE)/2) &&
 																				(rt_noposs_radius < (MAZE_SIZE_Y_USABLE)/2))
@@ -259,7 +259,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 																			}
 */
 
-																			if(rt_noposs_radius == 0)
+																			/*if(rt_noposs_radius == 0)
 																			{
 																				maze_setWall(&robot.pos, NORTH, 0);
 																				maze_setWall(&robot.pos, EAST, 0);
@@ -276,9 +276,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 																			}
 																			else
 																			{
-																				rt_noposs_radius = 0;
+																				rt_noposs_radius = 0;*/
 																				maze_clear(&cleartiles);
-																			}
+																			//}
 
 																			maze_solve_state_path = DRIVE_READY;
 																			routeRequest = RR_WAIT;//RR_NEARNOPOSS;
@@ -429,6 +429,33 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								if(dot.state == DOT_DRIVE) //Driving straight, not aligning -> Check for ground tiles
 								{
+									//Is wall  (ultrasonic low and at least )
+									if((srf[0].dist <= 15) &&
+										(((dist[LIN][FRONT][LEFT] > 170) &&
+										 (dist[LIN][FRONT][FRONT] > 170)) ||
+										((dist[LIN][FRONT][RIGHT] > 170) &&
+										 (dist[LIN][FRONT][FRONT] > 170)) ||
+										((dist[LIN][FRONT][LEFT] > 170) &&
+										 (dist[LIN][FRONT][RIGHT] > 170))))
+									{
+										dot.abort = 1;
+										if(driveDot_state == 1) //We crossed the tiles
+										{
+											driveDot_state = 0;
+											switch(robot.dir)
+											{
+												case NORTH:	robot.pos.y--;	break;
+												case EAST:	robot.pos.x--;	break;
+												case SOUTH:	robot.pos.y++;	break;
+												case WEST:	robot.pos.x++;	break;
+												default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+															fatal_err = 1;
+											}
+										}
+
+										maze_setWall(&robot.pos, robot.dir, 50);
+									}
+
 									//////Check for Black and silver tile
 
 									/*if((driveDot_state == 1) && (dot.abort == 0)) //Robot is on next tile (here can the black and silver tiles begin) and we are not driving back (aborting function)
@@ -455,7 +482,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 												foutf(&str_debug, "DETECT_BLACKTILE: val: %i\n\r", groundsens_cnt);
 
 												dot.abort = 1;
-												if(driveDot_state == 0) //We are still on the old tile (bevore the crossing)
+												if(driveDot_state == 0) //We are still on the old tile (before the crossing)
 												{
 													maze_corrGround(&robot.pos, robot.dir, 2);
 												}
@@ -530,6 +557,11 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									if(!dot.abort)
 									{
+										if((mot.enc - dot.enc_lr_start) < 50)
+										{
+											maze_setWall(&robot.pos, robot.dir, 50);
+										}
+
 										foutf(&str_debug, "groundsens_cnt: %i\n\r", groundsens_cnt);
 
 										//////////////////////////Checkpoint///////////////////
@@ -1050,6 +1082,7 @@ uint8_t maze_updateWalls(void)
 			   (maze_getBeenthere(&checkObstacleProb, NONE) == 0))
 			{
 				maze_setObstacle(&checkObstacleProb, NONE, 1);
+				maze_setGround(&checkObstacleProb, NONE, 5);
 			}
 			else
 			{
@@ -1065,6 +1098,7 @@ uint8_t maze_updateWalls(void)
 			   (maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL) &&
 			   (maze_getBeenthere(&checkObstacleProb, NONE) == 0))
 			{
+				maze_setGround(&checkObstacleProb, NONE, 5);
 				maze_setObstacle(&checkObstacleProb, NONE, 1);
 			}
 			else
@@ -1081,6 +1115,7 @@ uint8_t maze_updateWalls(void)
 			   (maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL) &&
 			   (maze_getBeenthere(&checkObstacleProb, NONE) == 0))
 			{
+				maze_setGround(&checkObstacleProb, NONE, 5);
 				maze_setObstacle(&checkObstacleProb, NONE, 1);
 			}
 			else
@@ -1097,6 +1132,7 @@ uint8_t maze_updateWalls(void)
 			   (maze_getWall(&checkObstacleProb, WEST) < -MAZE_ISWALL) &&
 			   (maze_getBeenthere(&checkObstacleProb, NONE) == 0))
 			{
+				maze_setGround(&checkObstacleProb, NONE, 5);
 				maze_setObstacle(&checkObstacleProb, NONE, 1);
 			}
 			else

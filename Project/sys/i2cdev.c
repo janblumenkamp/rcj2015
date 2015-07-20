@@ -62,18 +62,18 @@ uint8_t srf_sm_manage = 0;
 struct _SRF srf[NUMBER_OF_SRF];
 
 const uint8_t srf_i2c_addresses[NUMBER_OF_SRF] PROGMEM = {
-	I2C_SRF10_L,
-	I2C_SRF10_R//,
+	I2C_SRF10//,
+	//I2C_SRF10_R//,
 	//I2C_SRF10_F
 };
 
 void init_srf10(void)
 {
-	srf_writeByte(I2C_SRF10_L, 1, 50); //Reinforcement (Register 1); 0..255 (max. reinforcement)
-	srf_writeByte(I2C_SRF10_R, 1, 50); //"
+	srf_writeByte(I2C_SRF10, 1, 50); //Reinforcement (Register 1); 0..255 (max. reinforcement)
+	//srf_writeByte(I2C_SRF10_R, 1, 50); //"
 
-	srf_writeByte(I2C_SRF10_L, 2, 6); //Maximum reach (Register 2); 0..16: 43mm + 6*43mm = 301mm
-	srf_writeByte(I2C_SRF10_R, 2, 6); //"
+	srf_writeByte(I2C_SRF10, 2, 6); //Maximum reach (Register 2); 0..16: 43mm + 6*43mm = 301mm
+	//srf_writeByte(I2C_SRF10_R, 2, 6); //"
 }
 
 uint8_t srf_writeByte(uint8_t adr, uint8_t reg, uint8_t val)

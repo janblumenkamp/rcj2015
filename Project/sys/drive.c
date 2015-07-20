@@ -290,7 +290,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DOT_DRIVE;//DRIVE_ROT_STRAIGHT;
+								d->state = DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
@@ -309,7 +309,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DOT_DRIVE;//DRIVE_ROT_STRAIGHT;
+								d->state = DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))

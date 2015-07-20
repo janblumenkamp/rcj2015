@@ -181,6 +181,7 @@ int main(void)
 	bt_init();
 	init_display(1);
 	//init_m2(); //Menu lib
+	init_srf10();
 	init_adc();
 	init_i2c();
 	maze_init();
@@ -470,6 +471,10 @@ int8_t task_sensors(int8_t state)
 	check_um6 = um6_getUM6(&um6);
 	um6_checkRamp(&um6);
 	//pixy_get();
+
+	getSRF();
+
+	displayvar[0] = srf[0].dist;
 
 	//analog
 	get_analogSensors(); //sharp dist down, battery, groundsensor
