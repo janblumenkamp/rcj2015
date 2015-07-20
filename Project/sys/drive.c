@@ -171,13 +171,13 @@ void drive_oneTile(DOT *d)
 							}
 							else
 							{
-								if(d->enc_lr_add == 0)
+								if(d->enc_lr_add == 0) //If the robot did not had to pass an obstacle or so look wide forward
 								{
 									th_align_front = TILE1_FRONT_TH_FRONT;
 								}
-								else
+								else //otherwise not
 								{
-									th_align_front = 100;//TILE1_FRONT_TH_FRONT/2;
+									th_align_front = 120;//TILE1_FRONT_TH_FRONT/2;
 								}
 
 								if(/*((dist[LIN][FRONT][RIGHT] < COLLISIONAVOIDANCE_SENS_TH_1) &&
@@ -224,13 +224,11 @@ void drive_oneTile(DOT *d)
 									d->state = DOT_ROT_EAST;
 								}
 								else if(((dist[LIN][FRONT][LEFT] < th_align_front) &&
-										(dist[LIN][FRONT][FRONT] < th_align_front) &&
-										(dist[LIN][FRONT][RIGHT] < th_align_front)) ||
-
-										((dist[LIN][FRONT][LEFT] < TILE1_FRONT_TH_FRONT) &&
-										(dist[LIN][FRONT][FRONT] < TILE1_FRONT_TH_FRONT) &&
-										(dist[LIN][FRONT][RIGHT] < TILE1_FRONT_TH_FRONT) &&
-										(maze_getWall(&robot.pos, robot.dir) > MAZE_ISWALL)))
+										 (dist[LIN][FRONT][FRONT] < th_align_front)) ||
+										((dist[LIN][FRONT][RIGHT] < th_align_front) &&
+										 (dist[LIN][FRONT][FRONT] < th_align_front)) ||
+										((dist[LIN][FRONT][LEFT] < th_align_front) &&
+										 (dist[LIN][FRONT][RIGHT] < th_align_front)))
 								{
 									if(d->timer == 0)
 									{
@@ -242,7 +240,17 @@ void drive_oneTile(DOT *d)
 									}
 									else
 									{
-										d->steer = ((TILE1_FRONT_FRONT - (dist[LIN][FRONT][FRONT])) * (-KP_ALIGN_FRONT));
+										int16_t frontval = dist[LIN][FRONT][FRONT];
+										int16_t sensdiff_fl = abs(dist[LIN][FRONT][FRONT] - dist[LIN][FRONT][LEFT]);
+										int16_t sensdiff_fr = abs(dist[LIN][FRONT][FRONT] - dist[LIN][FRONT][RIGHT]);
+										int16_t sensdiff_lr = abs(dist[LIN][FRONT][LEFT] - dist[LIN][FRONT][RIGHT]);
+
+										if((abs(sensdiff_fl) > abs(sensdiff_lr)) && (abs(sensdiff_fr) > abs(sensdiff_lr)))
+										{
+											frontval = dist[LIN][FRONT][LEFT];
+										}
+
+										d->steer = ((TILE1_FRONT_FRONT - frontval) * (-KP_ALIGN_FRONT));
 
 										mot.d[LEFT].speed.to = d->steer;
 										mot.d[RIGHT].speed.to = d->steer;
@@ -282,7 +290,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DRIVE_ROT_STRAIGHT;
+								d->state = DOT_DRIVE;//DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))
@@ -301,7 +309,7 @@ void drive_oneTile(DOT *d)
 							{
 								d->r.state = ROTATE_INIT; //Allow rotate function with this object to start again...
 
-								d->state = DRIVE_ROT_STRAIGHT;
+								d->state = DOT_DRIVE;//DRIVE_ROT_STRAIGHT;
 								d->aligned_turn = NONE;
 
 								if(d->enc_lr_add < (DIST_ADD_COLLISION_MAX * ENC_FAC_CM_LR))

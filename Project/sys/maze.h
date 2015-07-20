@@ -118,19 +118,19 @@ struct _matchingWalls {
 #define MAZE_VICTIMVALUE_MIN -7
 
 
-#define GROUNDSENS_R_TH_BLACKTILE 800 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_BLACKTILE 800 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_CHECKPOINT 620 //Below this Threshold there is a checkpoint
+#define GROUNDSENS_R_TH_BLACKTILE 860 //Above this Threshold there is a black tile
+#define GROUNDSENS_L_TH_BLACKTILE 860 //Above this Threshold there is a black tile
+#define GROUNDSENS_L_TH_CHECKPOINT 630 //Below this Threshold there is a checkpoint
 #define GROUNDDIST_TH_LOP		50 //Below this Threshold of the sharp IR looking down there is a LOP
 #define GROUNDDIST_TH_NORMAL		200 //Above this Threshold of the sharp IR looking down there is no more LOP
-#define GROUNDSENS_CNT_TH_CHECKPOINT 6 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
+#define GROUNDSENS_CNT_TH_CHECKPOINT 4 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
 #define GROUNDSENS_CNT_TH_BLACKTILE 8 //More than n times below the Threshold of a black tile
 #define RAMP_CNT_ISRAMP 7 //More than n times above the Threshold of ramp (up and down)
 
 #define MAZE_ERR_DEL_RADIUS_L 2 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Large Radius)
 #define MAZE_ERR_DEL_RADIUS_S 1 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Small Radius)
 
-#define TILE_LENGTH_MIN_DRIVE	18.5	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
+#define TILE_LENGTH_MIN_DRIVE	16	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
 
 extern TILE maze[MAZE_SIZE_X][MAZE_SIZE_Y][MAZE_SIZE_Z];
 extern OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset

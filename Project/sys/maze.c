@@ -367,6 +367,8 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								maze_solve_drive_reset(); //Reset Drive Functions...
 								maze_clearDepthsearch();
+								maze_clearGround();
+								maze_clearRamp();
 
 								robot.pos = *maze_getCheckpoint(&robot.pos);
 
@@ -480,8 +482,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											ramp_cnt --;
 									}
 
-									//////Driving straight, change position
-									if((mot.enc > (dot.enc_lr_start + dot.enc_lr_add/2 + (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR))) && !dot.abort && !driveDot_state)
+									if(((mot.enc - dot.enc_lr_start) > (TILE_LENGTH_MIN_DRIVE * ENC_FAC_CM_LR)) && !dot.abort && !driveDot_state)
 									{
 										switch(robot.dir)
 										{

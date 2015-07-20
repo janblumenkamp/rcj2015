@@ -407,6 +407,7 @@ int8_t task_maze(int8_t state)
 		maze_solve();
 	}
 
+
 	/*dep.amount_to = 1;
 	dep.config_dir = LEFT;
 	dep.config_turnA = incremental%2; //Turn towards victim
