@@ -22,6 +22,7 @@
 #include "um6.h"
 #include "victim.h"
 #include "i2cdev.h"
+#include "uart.h"
 
 TILE maze[MAZE_SIZE_X][MAZE_SIZE_Y][MAZE_SIZE_Z];
 OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset
@@ -81,6 +82,23 @@ void maze_solve_drive_reset(void)
 
 uint8_t maze_solve(void) //called from RIOS periodical task
 {
+	uint16_t btVar = uart_getc();
+	if(btVar == UART_NO_DATA)
+	{
+		ui_setLED(-1, 0);
+		ui_setLED(1, 0);
+	}
+	else
+	{
+		ui_setLED(-1, 255);
+		ui_setLED(1, 255);
+		uart_putc((unsigned char) btVar);
+	}
+
+
+
+
+
 	uint8_t returnvar = 1;
 
 	if((timer_rdy_restart == 0) && !mot.off) //Neustart
@@ -175,15 +193,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 											!maze_getBeenthere(&robot.pos, robot.dir))
 									{
 										maze_solve_state_path = DRIVE_DOT;
-
-										/*if(maze_getObstacle(&robot.pos, robot.dir) > 0)
-										{
-											if(dist[LIN][FRONT][FRONT] < 200)
-											{
-												maze_setObstacle(&robot.pos, robot.dir, 2);
-												//maze_solve_state_path = DRIVE_READY;
-											}
-										}*/
 									}
 									else if(maze_tileIsVisitable(&robot.pos, robot.dir+3) &&
 											!maze_getBeenthere(&robot.pos, robot.dir+3))
@@ -365,33 +374,12 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 		case LOP_INIT:
 
-								maze_solve_drive_reset(); //Reset Drive Functions...
-								maze_clearDepthsearch();
-								maze_clearGround();
-
-								robot.pos = *maze_getCheckpoint(&robot.pos);
-
-								mot.off_invisible = 1;
-
-								wall_size_part = WALL_SIZE_MEDIUM; //Detailed view of the tile
-
 								maze_solve_state_path = LOP_WAIT;
 
 		case LOP_WAIT:
-								if(dist_down > GROUNDDIST_TH_NORMAL)
-								{
-									if(timer_lop == -1)
-									{
-										timer_lop = TIMER_LOP_RESET;
-									}
-									else if(timer_lop == 0)
-									{
-										mot.off_invisible = 0;
-										wall_size_part = WALL_SIZE_STD;
-										timer_lop = -1;
-										maze_solve_state_path = DRIVE_READY;
-									}
-								}
+								mot.off_invisible = 0;
+								wall_size_part = WALL_SIZE_STD;
+								maze_solve_state_path = DRIVE_READY;
 
 							break;
 		///////////////////////////////////////////////////////////////////////////////
@@ -428,33 +416,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								if(dot.state == DOT_DRIVE) //Driving straight, not aligning -> Check for ground tiles
 								{
-									//Is wall  (ultrasonic low and at least )
-									if((srf[0].dist <= 15) &&
-										(((dist[LIN][FRONT][LEFT] > 170) &&
-										 (dist[LIN][FRONT][FRONT] > 170)) ||
-										((dist[LIN][FRONT][RIGHT] > 170) &&
-										 (dist[LIN][FRONT][FRONT] > 170)) ||
-										((dist[LIN][FRONT][LEFT] > 170) &&
-										 (dist[LIN][FRONT][RIGHT] > 170))))
-									{
-										dot.abort = 1;
-										if(driveDot_state == 1) //We crossed the tiles
-										{
-											driveDot_state = 0;
-											switch(robot.dir)
-											{
-												case NORTH:	robot.pos.y--;	break;
-												case EAST:	robot.pos.x--;	break;
-												case SOUTH:	robot.pos.y++;	break;
-												case WEST:	robot.pos.x++;	break;
-												default: 	foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
-															fatal_err = 1;
-											}
-										}
-
-										maze_setWall(&robot.pos, robot.dir, 50);
-									}
-
 									//////Check for Black and silver tile
 
 									/*if((driveDot_state == 1) && (dot.abort == 0)) //Robot is on next tile (here can the black and silver tiles begin) and we are not driving back (aborting function)
@@ -774,24 +735,23 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									lastDriveAction = DA_RAMP_DOWN;
 
-									maze_solve_state_path = DRIVE_READY;
+									maze_setWall(&robot.pos, robot.dir, 100); //Set three walls as from now we stay here and pre-map to the right door
+									maze_setWall(&robot.pos, robot.dir+1, 100);
+									maze_setWall(&robot.pos, robot.dir+3, 100);
+
+									maze_solve_state_path = ST_PREMAP;
 								}
 
 							break;
 
+		case ST_PREMAP:
+
+							//routeRequest = RR_NEARNOPOSS;
+							break;
+
 		case VIC_DEPL:
-								drive_deployResKit(&deployKits);
-
-								if(deployKits.state == DK_FINISHED)
-								{
-									deployKits.state = DK_INIT;
-
-									lastDriveAction = DA_DEPLKIT;
-
-									timer_victim_led = -1;
 
 									maze_solve_state_path = maze_solve_state_path_deplKitSave;
-								}
 
 								break;
 
@@ -804,155 +764,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 			default:
 								foutf(&str_error, "%i: ERR:sw[maze.03]:DEF\n\r", timer);
 								fatal_err = 1;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////
-		////////////////////////////////////////Victim//////////////////////////////////
-
-		if((maze_solve_state_path >= DRIVE_DOT_DRIVE) && //Only if the robot is actually driving and not calculating anything
-			(maze_solve_state_path <= TURN_LEFT))
-		{
-			if(1)//(groundsens_r < GROUNDSENS_R_TH_BLACKTILE) && (groundsens_l < GROUNDSENS_L_TH_BLACKTILE))
-			{
-				if((timer_victim_led < 0) && (timer_lop == -1)) //Timer not running, no Lack of progress
-				{
-					////////////////
-					/// On victim deployment there are three cases:
-					/// 1) Robot detects victim while driving straight: Turn and deploy kit left or right, then proceed driving straight
-					/// 2) Robot detects victim while turning:
-					///		2.1) The robot rotated only 30% of the 90°: The victim is on the old right side of the robot
-					///		2.2) The robot rotated more than the 30%: The victim is on the old front side of the robot
-
-					if(victim_BufIsVic(LEFT))
-					{
-						if(dist[LIN][LEFT][BACK] < DIST_VICTIM_MIN)
-						{
-							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-								//(maze_getVictim(&robot.pos, robot.dir+1) == 0) &&
-								//(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-								(maze_getVictim(&robot.pos, robot.dir+3) == 0))
-							{
-								timer_victim_led = TIMER_VICTIM_LED;
-
-								if(maze_solve_state_path == DRIVE_DOT_DRIVE)
-								{
-									maze_corrVictim(&robot.pos, robot.dir+3, 1);
-
-									deployKits.amount_to = 1;
-									deployKits.config_dir = LEFT;
-									deployKits.config_turnBack = 1; //Turn back after deployment
-									maze_solve_state_path_deplKitSave = maze_solve_state_path;
-									maze_solve_state_path = VIC_DEPL;
-								}
-								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) //DONT DEPLOY, ONLY SIGNALIZE!
-								{
-									if(timer_vic_ramp > 0)
-										timer_victim_led = -1;
-								}
-								else if(((maze_solve_state_path == TURN_LEFT) ||
-										(maze_solve_state_path == TURN_RIGHT)) && turn.r.state == ROTATE) //Only if rotation has begin (to prevent progress being not set after ramp)
-								{
-									if(turn.r.progress < 70) //Robot rotates now...
-									{
-										maze_corrVictim(&robot.pos, robot.dir+3, 1);
-									}
-									else
-									{
-										maze_corrVictim(&robot.pos, robot.dir, 1);
-									}
-
-									deployKits.amount_to = 1;
-									deployKits.config_dir = LEFT;
-									deployKits.config_turnBack = 1; //Don`t turn back after deployment!
-									maze_solve_state_path_deplKitSave = maze_solve_state_path;
-									maze_solve_state_path = VIC_DEPL;
-								}
-								else
-								{
-									timer_victim_led = -1;
-								}
-
-								foutf(&str_debug, "%i: vicFoundL: %i degC\n\r", timer, mlx90614[LEFT].is);
-							}
-						}
-					}
-					else if(victim_BufIsVic(RIGHT))
-					{
-						if(dist[LIN][RIGHT][BACK] < DIST_VICTIM_MIN)
-						{
-							if((maze_getVictim(&robot.pos, robot.dir) == 0) &&
-									(maze_getVictim(&robot.pos, robot.dir+1) == 0) )//&&
-									//(maze_getVictim(&robot.pos, robot.dir+2) == 0) &&
-									//(maze_getVictim(&robot.pos, robot.dir+3) == 0))
-							{
-								timer_victim_led = TIMER_VICTIM_LED;
-
-								if(maze_solve_state_path == DRIVE_DOT_DRIVE)
-								{
-									maze_corrVictim(&robot.pos, robot.dir+1, 1);
-
-									deployKits.amount_to = 1;
-									deployKits.config_dir = RIGHT;
-									deployKits.config_turnBack = 1; //Turn back after deployment
-									maze_solve_state_path_deplKitSave = maze_solve_state_path;
-									maze_solve_state_path = VIC_DEPL;
-								}
-								else if((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN) || um6.isRamp)
-								{
-									if(timer_vic_ramp > 0)
-										timer_victim_led = -1;
-								}
-								else if((maze_solve_state_path == TURN_LEFT) ||
-										(maze_solve_state_path == TURN_RIGHT))
-								{
-									if(turn.r.progress < 70) //Robot rotates now...
-									{
-										maze_corrVictim(&robot.pos, robot.dir+1, 1);
-									}
-									else
-									{
-										maze_corrVictim(&robot.pos, robot.dir, 1);
-									}
-
-									deployKits.amount_to = 1;
-									deployKits.config_dir = RIGHT;
-									deployKits.config_turnBack = 1; //Don`t turn back after deployment!
-									maze_solve_state_path_deplKitSave = maze_solve_state_path;
-									maze_solve_state_path = VIC_DEPL;
-								}
-								else
-								{
-									timer_victim_led = -1;
-								}
-
-								foutf(&str_debug, "%i: vicFoundL: %i degC\n\r", timer, mlx90614[RIGHT].is);
-							}
-						}
-					}
-				}
-
-				if(((maze_solve_state_path == RAMP_UP) || (maze_solve_state_path == RAMP_DOWN)) && (timer_victim_led == 0))
-				{
-					timer_victim_led = -1;
-					timer_vic_ramp = TIMER_VIC_RAMP;
-				}
-			}
-		}
-
-		if(timer_victim_led > 0) //Timer running
-		{
-			//wall_size_part = WALL_SIZE_LARGE; //Detailed view of the tile
-
-			mot.d[LEFT].speed.to = 0;
-			mot.d[RIGHT].speed.to = 0;
-
-			ui_setLED(-1, 255);
-			ui_setLED(1, 255);
-		}
-		else
-		{
-			ui_setLED(-1, 0);
-			ui_setLED(1, 0);
 		}
 	}
 

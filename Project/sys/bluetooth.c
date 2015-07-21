@@ -22,7 +22,7 @@ stream_t str_error;
 
 void bt_init(void)
 {
-	uart_init(UART_BAUD_SELECT(115200, F_CPU)); //Bluetooth
+	uart_init(UART_BAUD_SELECT(9600, F_CPU)); //Bluetooth
 
 	/*
 	 Foreground Colours
@@ -46,27 +46,27 @@ void bt_init(void)
 	47	White
 	 */
 
-	str_pcui.active = 1;
+	str_pcui.active = 0;
 	str_pcui.bgcolor = 0;
 	str_pcui.textcolor = 0;
 	str_pcui.put_c = &bt_putCh;
 
-	str_debug.active = 1;
+	str_debug.active = 0;
 	str_debug.bgcolor = 42; //green
 	str_debug.textcolor = 30; //black
 	str_debug.put_c = &bt_putCh;
 
-	str_debugOS.active = 1;
+	str_debugOS.active = 0;
 	str_debugOS.bgcolor = 43; //Yellow
 	str_debugOS.textcolor = 30; //black
 	str_debugOS.put_c = &bt_putCh;
 
-	str_debugDrive.active = 1;
+	str_debugDrive.active = 0;
 	str_debugDrive.bgcolor = 43; //Yellow
 	str_debugDrive.textcolor = 30; //black
 	str_debugDrive.put_c = &bt_putCh;
 
-	str_error.active = 1;
+	str_error.active = 0;
 	str_error.bgcolor = 41; //red
 	str_error.textcolor = 30; //black
 	str_error.put_c = &bt_putCh;
