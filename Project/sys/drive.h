@@ -49,7 +49,7 @@ enum DRIVE_ROTATE {ROTATE_INIT, ROTATE, ROTATE_END, ROTATE_FINISHED};
 #define STEER_ROTATE_ENC_TH 1 //Wenn UM6 eigtl. fertig ist, ENC aber noch nciht weitgenug gezählt haben (TH für Steer (=> Ende naht))
 #define STEER_ROTATE_ENC 100//Mit dem Steer drehen (bei UM6 err)
 
-#define UM6_ROTATE_OFFSET -5 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
+#define UM6_ROTATE_OFFSET -4 //The smaller this offset, the less the robot rotates (usually as high as drift of the UM6)
 
 #define STEER_ROTATE_TH_TIMER 20 //Unter diesem Wert (Betrag) wird ein Timer aktivierter, in dem Zeitraum 0 erreicht werden muss, ansonsten abbruch.
 
