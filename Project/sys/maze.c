@@ -738,6 +738,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									maze_setWall(&robot.pos, robot.dir, 100); //Set three walls as from now we stay here and pre-map to the right door
 									maze_setWall(&robot.pos, robot.dir+1, 100);
 									maze_setWall(&robot.pos, robot.dir+3, 100);
+									maze_setBeenthere(&robot.pos, NONE, 1);
 
 									maze_solve_state_path = ST_PREMAP;
 								}
@@ -745,8 +746,17 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case ST_PREMAP:
+							if(routeRequest == RR_WAIT)
+							{
+								rr_result = *maze_getStartPos(); //Request start position, save it in the vars for the route calculation
+								routeRequest = RR_CALCROUTE;
+							}
+							else if(routeRequest == RR_RTDONE)
+							{
+								routeRequest = RR_WAIT;
+								maze_solve_state_path = FOLLOW_DFS;
+							}
 
-							//routeRequest = RR_NEARNOPOSS;
 							break;
 
 		case VIC_DEPL:
