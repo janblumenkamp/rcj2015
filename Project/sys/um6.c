@@ -36,16 +36,22 @@
 
 //////////////////////////
 
+void um6_init(UM6_t *_um6, void (*put_c)(unsigned char c), unsigned int (*get_c)(void))
+{
+	_um6->put_c = put_c;
+	_um6->get_c = get_c;
+	_um6->theta_off = 0xffff;
+}
+
 //Hilfsfunktion:
-void flushdata(void)
+void flushdata(UM6_t *_um6)
 {
 	for(uint8_t i = 0; i < 20; i++)
-		uart1_getc(); 
+		_um6->get_c();
 }
 //////////////////
-uint8_t um6_isBusy = 0; //Wird auf eine Antwort o.Ä. gewartet?
 
-uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6_result[], uint8_t data_size)
+uint8_t um6_rwc(UM6_t *_um6, uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6_result[], uint8_t data_size)
 {
 	uint8_t checksum0 = 0;
 	uint8_t checksum1 = 0;
@@ -63,18 +69,18 @@ uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6
 	checksum1 = checksum >> 8;
 	checksum0 = checksum & 0xff;
 
-	uart1_putc('s');
-	uart1_putc('n');
-	uart1_putc('p');
+	_um6->put_c('s');
+	_um6->put_c('n');
+	_um6->put_c('p');
 	if(r_w_c == UM6_DATA_READ)
-		uart1_putc(pt_is_batch | batch); //PT
+		_um6->put_c(pt_is_batch | batch);
 	else if(r_w_c == UM6_DATA_WRITE)
-		uart1_putc(PT_HAS_DATA | pt_is_batch | batch);
+		_um6->put_c(PT_HAS_DATA | pt_is_batch | batch);
 	else //if(r_w_c == UM6_DATA_CMD)
-		uart1_putc(0);
-	uart1_putc(um6_register); //ADR
-	uart1_putc(checksum1); //Checksum1
-	uart1_putc(checksum0); //Checksum1
+		_um6->put_c(0);
+	_um6->put_c(um6_register);
+	_um6->put_c(checksum1);
+	_um6->put_c(checksum0);
 
 	uint8_t data[8] = {0};
 	uint16_t data_sum = 0;
@@ -82,7 +88,7 @@ uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6
 	//if((r_w_c == UM6_DATA_CMD) || (r_w_c == UM6_DATA_WRITE))
 	//	_delay_ms(25); //UM6 braucht dann etwas Zeit zum Antworten
 
-	uint8_t new_dat = uart1_getc();
+	uint8_t new_dat = _um6->get_c();
 	if(new_dat & UART_NO_DATA)
 	{
 		//no data
@@ -90,16 +96,16 @@ uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6
 	}
 	else if(new_dat == 's')
 	{
-		if(uart1_getc() == 'n')
+		if(_um6->get_c() == 'n')
 		{
-			if(uart1_getc() == 'p')
+			if(_um6->get_c() == 'p')
 			{
-				uint8_t r_w_c_batch = uart1_getc();
+				uint8_t r_w_c_batch = _um6->get_c();
 				if( ((r_w_c_batch == (PT_HAS_DATA | pt_is_batch | batch)) && (r_w_c == UM6_DATA_READ)) ||
 						((r_w_c_batch == 0) && (r_w_c == UM6_DATA_WRITE)) || //== 0 wegen COMMAND_COMPLETE
 						((r_w_c_batch == 0) && (r_w_c == UM6_DATA_CMD)))
 				{
-					if(uart1_getc() == um6_register)
+					if(_um6->get_c() == um6_register)
 					{	
 						uint8_t i_stop = 0;
 						if(batch > 0)
@@ -109,11 +115,11 @@ uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6
 						
 						for(uint8_t i = 0; i<i_stop; i++)
 						{
-							data[i] = uart1_getc();
+							data[i] = _um6->get_c();
 							data_sum += data[i];
 						}
-						checksum1 = uart1_getc();
-						checksum0 = uart1_getc();
+						checksum1 = _um6->get_c();
+						checksum0 = _um6->get_c();
 						checksum = ((checksum1 << 8) | checksum0);
 						if( ((checksum == ('s' + 'n' + 'p' + (PT_HAS_DATA | pt_is_batch | batch) + um6_register + data_sum)) && (r_w_c == UM6_DATA_READ)) ||
 								((checksum == 0) && (r_w_c == UM6_DATA_WRITE)) ||
@@ -126,37 +132,37 @@ uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6
 						}
 						else
 						{
-							flushdata();
+							flushdata(_um6);
 							return 1;
 						}
 					}
 					else
 					{
-						flushdata();
+						flushdata(_um6);
 						return 2;
 					}
 				}
 				else
 				{
-					flushdata();
+					flushdata(_um6);
 					return 3;
 				}
 			}
 			else
 			{
-				flushdata();
+				flushdata(_um6);
 				return 4;
 			}
 		}
 		else
 		{
-			flushdata();
+			flushdata(_um6);
 			return 5;
 		}
 	}
 	else
 	{
-		flushdata();
+		flushdata(_um6);
 		return 6;
 	}
 }
@@ -170,15 +176,7 @@ uint8_t um6_rwc(uint8_t um6_register, uint8_t batch, uint8_t r_w_c, uint16_t um6
 #define UM6_GYR_MAXDRIFT 2 //Maximal zugelassener Drift bei Stillstand
 #define UM6_GYR_DRIFT_CNT_TOP 80
 
-uint8_t um6_gyr_drift_cnt = 0;
-
-int16_t um6_phi_old;
-int16_t um6_psi_old;
-int16_t um6_theta_old;
-
-UM6_t um6; //Globale Datenstruktur deklarieren
-
-uint8_t um6_getUM6(void)
+uint8_t um6_getUM6(UM6_t *_um6)
 {
 	uint16_t um6_data[UM6_DATA_BUFFER_SIZE]; //Wenn batch abgefragt wird, werden hier hintereinander die Daten abgelegt
 	
@@ -197,71 +195,76 @@ uint8_t um6_getUM6(void)
 	}*/
 	
 /////////////////////////////
-	if(um6_rwc(UM6_EULER_PHI_THETA, 8, UM6_DATA_READ, um6_data, UM6_DATA_BUFFER_SIZE) != 0)
+	if(um6_rwc(_um6, UM6_EULER_PHI_THETA, 8, UM6_DATA_READ, um6_data, UM6_DATA_BUFFER_SIZE) != 0)
 	{
 		returnvar |= (1<<0);
 	}
 	else
 	{
-		um6.phi = (um6_data[0]*UM6_EULER_SCALE_FACTOR);
-		if(um6.phi > 180)
-			um6.phi -= 360;
+		_um6->phi = (um6_data[0]*UM6_EULER_SCALE_FACTOR);
+		if(_um6->phi > 180)
+			_um6->phi -= 360;
 
-		um6.theta = (um6_data[1]*UM6_EULER_SCALE_FACTOR);
-		if(um6.theta > 180)
-			um6.theta -= 360;
+		_um6->theta = (um6_data[1]*UM6_EULER_SCALE_FACTOR);
+		if(_um6->theta > 180)
+			_um6->theta -= 360;
 
-		um6.psi = (um6_data[2]*UM6_EULER_SCALE_FACTOR);
-		if(um6.psi > 180)
-			um6.psi -= 360;
+		_um6->psi = (um6_data[2]*UM6_EULER_SCALE_FACTOR);
+		if(_um6->psi > 180)
+			_um6->psi -= 360;
 	////////////
 
-		if((um6_phi_old - um6.phi) > UM6_T_ROTDIFF)
-			um6.phi_t += 360;
-		else if((um6_phi_old - um6.phi) < -(UM6_T_ROTDIFF))
-			um6.phi_t -= 360;
-		um6.phi_t += (um6.phi - um6_phi_old);
-		um6_phi_old = um6.phi;
+		if((_um6->phi_old - _um6->phi) > UM6_T_ROTDIFF)
+			_um6->phi_t += 360;
+		else if((_um6->phi_old - _um6->phi) < -(UM6_T_ROTDIFF))
+			_um6->phi_t -= 360;
+		_um6->phi_t += (_um6->phi - _um6->phi_old);
+		_um6->phi_old = _um6->phi;
 		
-		if((um6_theta_old - um6.theta) > UM6_T_ROTDIFF)
-			um6.theta_t += 360;
-		else if((um6_theta_old - um6.theta) < -(UM6_T_ROTDIFF))
-			um6.theta_t -= 360;
-		um6.theta_t += (um6.theta - um6_theta_old);
-		um6_theta_old = um6.theta;
+		if((_um6->theta_old - _um6->theta) > UM6_T_ROTDIFF)
+			_um6->theta_t += 360;
+		else if((_um6->theta_old - _um6->theta) < -(UM6_T_ROTDIFF))
+			_um6->theta_t -= 360;
+		_um6->theta_t += (_um6->theta - _um6->theta_old);
+		_um6->theta_old = _um6->theta;
 		
-		if((um6_psi_old - um6.psi) > UM6_T_ROTDIFF)
-			um6.psi_t += 360;
-		else if((um6_psi_old - um6.psi) < -(UM6_T_ROTDIFF))
-			um6.psi_t -= 360;
-		um6.psi_t += (um6.psi - um6_psi_old);
-		um6_psi_old = um6.psi;
+		if((_um6->psi_old - _um6->psi) > UM6_T_ROTDIFF)
+			_um6->psi_t += 360;
+		else if((_um6->psi_old - _um6->psi) < -(UM6_T_ROTDIFF))
+			_um6->psi_t -= 360;
+		_um6->psi_t += (_um6->psi - _um6->psi_old);
+		_um6->psi_old = _um6->psi;
+
+		if(_um6->theta_off == 0xffff)
+		{
+			_um6->theta_off = _um6->theta_t;
+		}
 	}
 ////////////////////////////////
 
-	if(um6_rwc(UM6_GYRO_PROC_XY, 8, UM6_DATA_READ, um6_data, UM6_DATA_BUFFER_SIZE) == 0)
+	if(um6_rwc(_um6, UM6_GYRO_PROC_XY, 8, UM6_DATA_READ, um6_data, UM6_DATA_BUFFER_SIZE) == 0)
 	{
-		um6.gyr.x = (um6_data[0]*UM6_GYRO_SCALE_FACTOR);
-		if(um6.gyr.x > 2000)
-			um6.gyr.x = -(4000 - um6.gyr.x);
+		_um6->gyr_x = (um6_data[0]*UM6_GYRO_SCALE_FACTOR);
+		if(_um6->gyr_x > 2000)
+			_um6->gyr_x = -(4000 - _um6->gyr_x);
 			
-		um6.gyr.y = (um6_data[1]*UM6_GYRO_SCALE_FACTOR);
-		if(um6.gyr.y > 2000)
-			um6.gyr.y = -(4000 - um6.gyr.y);
+		_um6->gyr_y = (um6_data[1]*UM6_GYRO_SCALE_FACTOR);
+		if(_um6->gyr_y > 2000)
+			_um6->gyr_y = -(4000 - _um6->gyr_y);
 			
-		um6.gyr.z = (um6_data[2]*UM6_GYRO_SCALE_FACTOR);
-		if(um6.gyr.z > 2000)
-			um6.gyr.z = -(4000 - um6.gyr.z);
+		_um6->gyr_z = (um6_data[2]*UM6_GYRO_SCALE_FACTOR);
+		if(_um6->gyr_z > 2000)
+			_um6->gyr_z = -(4000 - _um6->gyr_z);
 		
-		if(((um6.gyr.z < -UM6_GYR_MAXDRIFT) || (um6.gyr.z > UM6_GYR_MAXDRIFT)) &&
+		if(((_um6->gyr_z < -UM6_GYR_MAXDRIFT) || (_um6->gyr_z > UM6_GYR_MAXDRIFT)) &&
 				(mot.d[LEFT].speed.is == 0) && (mot.d[RIGHT].speed.is == 0)) //Gyrobewegung trotz Drift
 		{
-			if(um6_gyr_drift_cnt > UM6_GYR_DRIFT_CNT_TOP)
+			if(_um6->gyr_drift_cnt > UM6_GYR_DRIFT_CNT_TOP)
 				returnvar |= (1<<2);
 			else
-				um6_gyr_drift_cnt++;
+				_um6->gyr_drift_cnt++;
 		}
-		else	um6_gyr_drift_cnt = 0;
+		else	_um6->gyr_drift_cnt = 0;
 	}
 	else returnvar |= (1<<1);
 
@@ -269,9 +272,28 @@ uint8_t um6_getUM6(void)
 }
 
 #define UM6_CMD_DATA_BUFFER_SIZE 4
-uint8_t um6_gyroZeroRate(void)
+uint8_t um6_gyroZeroRate(UM6_t *_um6)
 {
 	uint16_t um6_cmd_data[UM6_CMD_DATA_BUFFER_SIZE];
 
-	return um6_rwc(UM6_ZERO_GYROS, 0, UM6_DATA_CMD, &um6_cmd_data[0], UM6_CMD_DATA_BUFFER_SIZE);
+	return um6_rwc(_um6, UM6_ZERO_GYROS, 0, UM6_DATA_CMD, &um6_cmd_data[0], UM6_CMD_DATA_BUFFER_SIZE);
+}
+
+void um6_checkRamp(UM6_t *um6)
+{
+	if(um6->theta_off != 0xffff)
+	{
+		if((um6->theta_t - um6->theta_off) % 360 > 12)
+		{
+			um6->isRamp = -1;
+		}
+		else if((um6->theta_t - um6->theta_off) % 360 < -12)
+		{
+			um6->isRamp = 1;
+		}
+		else
+		{
+			um6->isRamp = 0;
+		}
+	}
 }

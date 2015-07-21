@@ -14,65 +14,12 @@
 ///		- Opferanzeige
 ///		- Displayausgaben und Displayloop
 ////////////////////////////////////////////////////////////////////////////////
-///	To do:
-/// - checkpoints: Nur Wert inkrementieren, wenn auf zweiter Hälfte der Fliesen
-/// - Bug: motor off
-/// - beim drehen: Percent sollte zu Beginn auf jeden Fall bei 0 sein... Bug?
-///
-/// - bei geradeausfahrt abbruch und keine wand einzeichenn? Gefangen!
-/// - überpsringen von Fliesen testen (wegen encodervergleich nach drehen und so) testen!
-/// - in der oberen Etage starten funktioniert nicht...
-/// - Rampe generell?
-///
-/// - Kollisionserkennung: Korrektur auch noch über UM6
-///		- Außerdem Optimierungsidee: Erkennung über SRF, dann in Richtung Hindernis
-///		drehen um zu gucken, wo es steht (über Sharp IR) und dann weit genug in andere Richtugn drehen.
-///		Danch wieder gerade drehen!
-///	- Roboter hochheben bei RESTART (Timer dann zurücksetzen)
-///	- Rampe flexibel einzeichnen
-///		- maze_getRamp gibt Position falsch zurück
-///			- je nach Rampenrichtung eine Fliese weiter!
-///		- dynamisch?
-///		- muss Mindestdistanz gefahren sein bevor er in die nächste Etage spring
-///		- Fährt IMMER NACH Geradeausfahrt Rampe und nicht vorher
-///	- Checkpoint auf Rampe!!!
-///	- Opfererkennung automatisch (ohne Schwellwert)
-///	- Opfer in die Karte einzeichnen
-///		- Bug: Display stürzt ab!
-///		- Handhabung: Zwei Opfer auf einer Fliese?
-///	- Menü: m2tklib
-///		- Weitere Einstellungen für Schwellwerte (zweiter Schwellwert,
-///			Schwellwert Untergrundsensor)
-///	- Beim SLAM (Rotieren/Übertragen der Wände) werden NUR Wände berücksichtigt
-///		(-> Opfer)
-///	- Scheduler: Erkennen, ob Task zu viel Zeit braucht und ggf. killen
-///	- SLAM
-///		- Erkennung einer übersprungenen Fliese?
-///	- CMUCAM
-///		- Entfernungssensor?
-///		- Unterscheidung Wand/Hindernis
-///		- Wände: Bit „ausrichten erlaubt" Wenn Sharp IR pro Richtung alle Wand sehen
-///		- Sonst in Karte Hindernis einzeichnen
-///		- Hindernisumfahrung
-////////////////////////////////////////////////////////////////////////////////
-///	Testen:
-///		- Bug: dot_abort nachdem 16cm gefahren wurden funktioniert nicht???
-///			- wahrscheinlich nicht... Beobachten!
-///		- Hindernisse: Erkennung, wenn der Roboter nach Ende der Geradeausfahrt aufgrund
-///			von Korrekturen schräg steht (vergleich der Encoderwerte links/rechts) und
-///			ggf. gerade korrigieren
-///      - Kollisionserkennung: Wenn der Roboter an etwas an der Wand hängen bleibt
-///			(Winkel zur Wand groß, vordere Sensoren kleine Distanz) korrigieren
-////////////////////////////////////////////////////////////////////////////////
-/// Zeitplan:
-///		- 17. Januar: Untergrundsensor funktioniert wieder
-///     - danach: sonstige Tests
-////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
 #include "bluetooth.h"
 #include "display.h"
+#include "debug.h"
 #include "um6.h"
 #include "u8g.h"
 #include "i2cmaster.h"
@@ -83,12 +30,12 @@
 #include "maze.h"
 #include "mazefunctions.h"
 #include "drive.h"
-#include "tsl1401.h"
 #include "memcheck.h"
 #include "victim.h"
 #include "pixy.h"
 #include "menu.h"
 #include "adns3080.h"
+#include "irdist.h"
 
 ////////////////////////////////////////////////////////////////////
 //UART:
@@ -108,7 +55,6 @@ int8_t task_speedreg(int8_t state);
 int8_t task_sensors(int8_t state);
 int8_t task_anasens(int8_t state);
 int8_t task_timer(int8_t state);
-int8_t task_cam(int8_t state);	
 	
 uint8_t runningTasks[TASKS_NUM+1] = {255};	//Track running tasks, [0] always idleTask
 uint8_t idleTask = 255;						// 0 highest priority, 255 lowest
@@ -146,6 +92,7 @@ uint16_t batt_mV = 0;
 uint8_t u8g_stateMachine = 0;	//Display
 u8g_t u8g;						//u8g contructor
 
+UM6_t um6; //Globale Datenstruktur deklarieren für um6
 ///////////////////////////////Drehgeber/Encoder/Taster/////////////////////////
 #define INCR_PHASE_A     (PINC & (1<<PC1))
 #define INCR_PHASE_B     (PINC & (1<<PC2))
@@ -168,13 +115,12 @@ static int8_t enc_r_last = 0;
 //Encoderwert in Datenstruktur für Motoren
 
 //////////
-uint8_t hold_t1 = 0;
+uint8_t t1_state_off = 0; //On the beginning the robot should be off
+
 ////////////////////////////////////Sonstiges///////////////////////////////////
 
 uint8_t setup = 0; //Start the setup?
 
-uint8_t debug = 0; //Debugmodus, Read from EEPROM in init_sys()
-uint8_t debug_err_sendOneTime = 0;
 ///////////////////////////////Timer////////////////////////////////////////////
 
 int16_t timer_victim_led = -1;
@@ -182,7 +128,7 @@ int8_t timer_entpr_tast = 0;
 int8_t timer_incr_entpr = 0;
 int8_t timer_bt_is_busy = 0;
 int8_t timer_disp_msg = 0;
-int8_t timer_get_tast = 0;
+int8_t timer_motoff = 0;
 int16_t timer_rdy_restart = -1;
 int8_t timer_map_wall_r = 0;
 int16_t timer_lop = -1;
@@ -236,15 +182,15 @@ int main(void)
 	init_sys();
 	init_pwm();
 	init_timer();
-	dist_init();
-	uart1_init(UART_BAUD_SELECT(UART_UM6_BAUD_RATE,F_CPU)); //IMU
-	uart_init(UART_BAUD_SELECT(UART_MCU_BAUD_RATE,F_CPU)); //Bluetooth
+	uart1_init(UART_BAUD_SELECT(115200, F_CPU)); //IMU
+	um6_init(&um6, uart1_putc, uart1_getc);
+	bt_init();
 	init_display(1);
 	adns_init(); //Optical flow sensor (has to be called before u8g initialization!)
 	//init_m2(); //Menu lib
+	init_srf10();
 	init_adc();
 	init_i2c();
-    //init_srf10();
 	maze_init();
 	victim_init();
 
@@ -277,18 +223,6 @@ int main(void)
 	tasks[TASK_SENSORS_ID].running = 0;
 	tasks[TASK_SENSORS_ID].task_fct = &task_sensors;
 
-	tasks[TASK_ANASENS_ID].state = -1;
-	tasks[TASK_ANASENS_ID].period = TASK_PERIOD_ANASENS;
-	tasks[TASK_ANASENS_ID].elapsedTime = 0;
-	tasks[TASK_ANASENS_ID].running = 0;
-	tasks[TASK_ANASENS_ID].task_fct = &task_anasens;
-
-	tasks[TASK_CAM_ID].state = -1;
-	tasks[TASK_CAM_ID].period = 20;//TASK_PERIOD_CAM;
-	tasks[TASK_CAM_ID].elapsedTime = 0;
-	tasks[TASK_CAM_ID].running = 0;
-	tasks[TASK_CAM_ID].task_fct = &task_cam;
-	
 	if(get_incrOk())
 	{
 		motor_activate(0); //Shut down motor driver
@@ -299,31 +233,27 @@ int main(void)
 		motor_activate(1); //Activate motor driver
 		setup = 0;
 	}
-	
-	sei(); //Enable global interrupts. The Operating System and every task in it is running now and the cam already can regulate its initial aparture
+
+	sei(); //Enable global interrupts. The Operating System and every task in it is running now
 
 	//u8g_DrawStartUp();
-	
-	if(debug > 0)
-	{
-		bt_putStr_P(PSTR("\n\rRCJ 2014, V3.0\n\rteamohnename.de"));
-		bt_putStr_P(PSTR("\n\rDebugging grade: ")); bt_putLong(debug);
-		bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": System initialized, ")); bt_putLong(TASKS_NUM); bt_putStr_P(PSTR(" running tasks."));
-	}
-	
+
+	foutf(&str_debugOS, "RCJ 2014, V3.0\n\rteamohnename.de\n\r%i: System initialized.\n\r", timer);
+
+	str_pcui.active = 0;
+
 	if(check_res)
 	{
-		if(debug > 0){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr(PSTR(": WARNING: RECOVERED AFTER AN UNEXPECTED SHUTDOWN!!!"));}
+		foutf(&str_error, "%i: WARNING: RECOVERED AFTER AN UNEXPECTED SHUTDOWN!!!\n\r", timer);
 		_delay_ms(5000);
 	}
 
 	//wdt_enable(WDTO_8S); //activate watchdog
 
 	mot.off = 1;
-	timer_get_tast = 120;
 
-	displayvar[4] = 0;
-	displayvar[5] = 0;
+	t1_state_off = get_t1(); //Detection of change of state in switch (on the boot, robot is always off)
+
 	while(1)
     {
 		struct adnsData dat;
@@ -342,42 +272,19 @@ int main(void)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		if(timer_get_tast == 0)
-		{
-			timer_get_tast = -1;
-			mot.off = 0;
-		}
-
-		if(get_t1()) //Always reset...
+		if(get_t1() == t1_state_off)
 		{
 			mot.off = 1;
-			timer_get_tast = 120;
+			timer_motoff = -1;
 		}
-		/*if(get_t1())
+		else if(timer_motoff == -1)
 		{
-			if((timer_get_tast == 0) && (timer_entpr_tast == 0) && (!hold_t1))
-			{
-				timer_get_tast = TIMER_GET_TAST;
-				hold_t1 = 1;
-			}
-			else if((timer_get_tast == 0) && hold_t1)
-			{
-				maze_solve_drive_reset(); //Fahrfunktionen zurücksetzen
-				maze_clearDepthsearch();
-
-				maze_solve_state_path = DRIVE_READY;
-				routeRequest = RR_WAIT;
-
-				hold_t1 = 0;
-				mot.off ^= 1;
-				timer_entpr_tast = TIMER_ENTPR_TAST;
-			}
+			timer_motoff = 120;
 		}
-		else
+		else if(timer_motoff == 0)
 		{
-			timer_get_tast = 0;
-			hold_t1 = 0;
-		}*/
+			mot.off = 0;
+		}
 
 		////////////////////Sensorcoordination//////////////////////////////////////
 
@@ -396,36 +303,6 @@ int main(void)
 			led_top = LED_TOP_FAT_ERR;
 		else
 			led_top = LED_TOP_NORMAL;
-			
-		if(check_res)
-		{
-			if(!(debug_err_sendOneTime & (1<<0)))
-			{
-				if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR: RESET"));}
-				debug_err_sendOneTime |= (1<<0);
-			}
-		}
-		else	debug_err_sendOneTime &= ~(1<<0);
-		
-		if(check_mlx != 0)
-		{
-			if(!(debug_err_sendOneTime & (1<<1)))
-			{
-				if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR: Melexis MLX90614 Temperature sensors"));}
-				debug_err_sendOneTime |= (1<<1);
-			}
-		}
-		else	debug_err_sendOneTime &= ~(1<<1);
-		
-		if(check_um6 != 0)
-		{
-			if(!(debug_err_sendOneTime & (1<<2)))
-			{
-				if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR: CHRobotics UM6 IMU"));}
-				debug_err_sendOneTime |= (1<<2);
-			}
-		}
-		else	debug_err_sendOneTime &= ~(1<<2);
 		
 		//Batterie/Akku
 		if(batt_raw > 0)
@@ -459,6 +336,8 @@ int main(void)
 
 			maze_setWall(rampclearwall, maze_alignDir(rampclearwall_dir+2), -100);
 		}
+
+		pcui_sendMAP();
 
 		if(!u8g_stateMachine)
 		{
@@ -497,15 +376,15 @@ int main(void)
 			//          //Karte//       //
 			//////////////////////////////
 
-			if(timer_get_tast < 100 && timer_get_tast > 0)
+			if(timer_motoff < 100 && timer_motoff > 0)
 			{
 				u8g_SetFont(&u8g, u8g_font_fur30r);
 
-				if(timer_get_tast > 75)
+				if(timer_motoff > 75)
 					u8g_DrawStr(&u8g, 95, 50, "3");
-				else if(timer_get_tast > 50)
+				else if(timer_motoff > 50)
 					u8g_DrawStr(&u8g, 95, 50, "2");
-				else if(timer_get_tast > 25)
+				else if(timer_motoff > 25)
 					u8g_DrawStr(&u8g, 95, 50, "1");
 			}
 			else
@@ -522,8 +401,7 @@ int main(void)
 		{
 			u8g_stateMachine = 0;
 		}
-  }
-
+	}
 	return 0;
 }
 
@@ -534,14 +412,15 @@ int8_t testvar = 0;
 uint8_t groundvar = 0;
 
 D_DEPLOYKIT dep;
+int8_t chp = 0;
 
 int8_t task_maze(int8_t state)
 {	
 	if(setup == 0)
 	{
 		maze_solve();
-		//victim_check();
 	}
+
 
 	/*dep.amount_to = 1;
 	dep.config_dir = LEFT;
@@ -576,7 +455,7 @@ int8_t task_maze(int8_t state)
 int8_t task_speedreg(int8_t state)
 {
 	//Turn motor off?
-	if(	mot.off || mot.off_invisible)
+	if(mot.off || mot.off_invisible)
 	{
 		mot.d[LEFT].speed.to = 0;
 		mot.d[RIGHT].speed.to = 0;
@@ -598,25 +477,21 @@ int8_t task_sensors(int8_t state)
 	check_mlx = getIR();
 	victim_scan();
 
-	////Ultrasonic distance
-	//check_srf = getSRF();
+	//IR Dist
+	irDist_get();
 
 	//UM6
-	check_um6 = um6_getUM6();
-
+	check_um6 = um6_getUM6(&um6);
+	um6_checkRamp(&um6);
 	//pixy_get();
-	//displayvar[2] = pixy_number_of_blocks;
-	return 0;
-}
 
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////TASK SENSANA/////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+	getSRF();
 
-int8_t task_anasens(int8_t state)
-{
+	displayvar[0] = srf[0].dist;
+
 	//analog
-	get_analogSensors(); //Sharp infrared distance sensors, groundsensor
+	get_analogSensors(); //sharp dist down, battery, groundsensor
+
 	return 0;
 }
 
@@ -678,8 +553,8 @@ int8_t task_timer(int8_t state)
 			timer_bt_is_busy --;
 		if(timer_disp_msg > 0)
 			timer_disp_msg --;
-		if(timer_get_tast > 0)
-			timer_get_tast --;
+		if(timer_motoff > 0)
+			timer_motoff --;
 		if(timer_rdy_restart > 0)
 			timer_rdy_restart --;
 		if(timer_map_wall_r > 0)
@@ -693,15 +568,4 @@ int8_t task_timer(int8_t state)
 	}
 
 	return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////TASK CAM///////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-int8_t task_cam(int8_t state)
-{
-	//pixy_get();
-
-	return 0;//tsl1401(state);
 }

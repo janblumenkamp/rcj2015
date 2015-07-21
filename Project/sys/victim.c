@@ -40,7 +40,7 @@ void victim_init(void)
 
 void victim_scan(void)
 {
-	if(maze_solve_state_path != VIC_DEPL && mot.d[LEFT].speed.to != 0 && mot.d[RIGHT].speed.to != 0) //No kit deployment, robot driving
+	if((maze_solve_state_path != VIC_DEPL) && ((mot.d[LEFT].speed.to != 0 && mot.d[RIGHT].speed.to != 0) || (setup != 0))) //No kit deployment, robot driving
 	{
 		for(uint8_t dir = 0; dir < NUMBER_OF_MLX; dir++)
 		{
@@ -109,7 +109,8 @@ int16_t victim_BufGetMaxDiff(uint8_t dir)
 
 uint8_t victim_BufIsVic(uint8_t dir)
 {
-	if((victim_BufGetLastHighest(4, dir) - victimBuf[dir].lowest) > mlx90614[RIGHT].th)
+	//if((victim_BufGetLastHighest(4, dir) - victimBuf[dir].lowest) > mlx90614[RIGHT].th)
+	if(mlx90614[dir].is > mlx90614[RIGHT].th)
 		return TRUE;
 	else
 		return FALSE;

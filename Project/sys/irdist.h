@@ -7,6 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef IRDIST_H
+#define IRDIST_H
+
 #include <avr/io.h>
 #include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
@@ -15,43 +18,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-//I²C Adressen
-#define I2C_MLX90614_L 0x5A<<1
-#define I2C_MLX90614_R 0x5C<<1
+#define IRDIST_I2CDEV_NUM 10
 
-#define I2C_SRF10 0xE6
-//#define I2C_SRF10_L 0xF2
+#define IRDIST_MAX 500
+#define IRDIST_OFFSET 44 //Make the vorder of the robot 0mm
 
-//Commands für I²C
-#define I2C_REG_MLX90614 0x07
-#define I2C_REG_SRF10_MEASERUEMENT_S 0x51 //Laufzeit in µS
+//Not used: 0x40, 0x80, 0xD0, 0xF0
 
-struct _SRF {
-	int8_t state;
-	int16_t dist;
-};
-
-#define NUMBER_OF_SRF 1
-
-extern struct _SRF srf[NUMBER_OF_SRF];
-
-//IR (MLX90614)
-struct MLX_INFO {
-	int16_t is;
-	int16_t th;
-};
-
-
-//typedef struct TEMP_ROB TEMP_ROB_t;
-#define NUMBER_OF_MLX 2
-
-extern struct MLX_INFO mlx90614[NUMBER_OF_MLX];
+#define IRDIST_I2CADR_B_B 0x20
+#define IRDIST_I2CADR_L_B 0xC0
+#define IRDIST_I2CADR_B_L 0xB0
+#define IRDIST_I2CADR_F_L 0xA0
+#define IRDIST_I2CADR_L_F 0x90
+#define IRDIST_I2CADR_F_F 0x70
+#define IRDIST_I2CADR_R_F 0x50
+#define IRDIST_I2CADR_F_R 0x30
+#define IRDIST_I2CADR_B_R 0x60
+#define IRDIST_I2CADR_R_B 0x10
 
 /////////////////////////////////////////////////////
-extern void init_srf10(void);
+//Prototypes
 
-extern uint8_t srf_writeByte(uint8_t adr, uint8_t reg, uint8_t val);
+extern void irDist_setSensorStandby(uint8_t adr, uint8_t state);
 
-extern uint8_t getIR(void);
+extern uint8_t irDist_get(void);
 
-extern uint8_t getSRF(void);
+#endif // IRDIST_H

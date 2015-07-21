@@ -14,5 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "maze.h"
 
-void debug_sendMsg(int8_t debuggrade, const char *s);
+extern void pcui_sendMsg(char *id, uint16_t length, char *msg);
+
+extern void pcui_sendMPD(POS *rob);
+
+extern void pcui_sendMAP(void);

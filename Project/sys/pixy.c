@@ -134,7 +134,7 @@ uint8_t pixy_get(void)
 				}
 
 
-				if(sm_pixy == GET_BLOCKS && get_incrOk()) bt_putStr("Found Start!\n\n\n");
+				//if(sm_pixy == GET_BLOCKS && get_incrOk()) bt_putStr("Found Start!\n\n\n");
 			break;
 
 		case GET_BLOCKS:
@@ -145,13 +145,13 @@ uint8_t pixy_get(void)
 
 					if(pixy_word == PIXY_START_WORD) //Two times startword means the beginning of a new frame. Read out next time.
 					{
-						if(get_incrOk()) {bt_putStr("\nSucceed. "); bt_putLong(pixy_number_of_blocks); bt_putStr(" objects.\nNew Frame\n\n");}
+						//if(get_incrOk()) {bt_putStr("\nSucceed. "); bt_putLong(pixy_number_of_blocks); bt_putStr(" objects.\nNew Frame\n\n");}
 						break;
 					}
 					else if(pixy_word == 0) //checksum is 0 -> there are no data to get.
 					{
 						sm_pixy = GET_START_1;
-						if(get_incrOk()) bt_putStr("No Data.\n");
+						//if(get_incrOk()) bt_putStr("No Data.\n");
 						break;
 					}
 
@@ -171,7 +171,7 @@ uint8_t pixy_get(void)
 
 					if(pixy_word != 0) //Data were not ok...
 					{
-						if(get_incrOk()) {bt_putLong(pixy_word); bt_putStr(": Checksum error\n");}
+						//if(get_incrOk()) {bt_putLong(pixy_word); bt_putStr(": Checksum error\n");}
 						pixy_number_of_blocks = 0;
 						sm_pixy = GET_START_1; //Return to the start, find next block.
 						break;
@@ -181,12 +181,12 @@ uint8_t pixy_get(void)
 					if(pixy_getWord(PIXY_I2C_ADR) != PIXY_START_WORD) //Arrived at new block (otherwise something went wrong...)
 					{
 						//if(get_incrOk())
-							bt_putStr("End.\n");
+						//	bt_putStr("End.\n");
 						sm_pixy = GET_START_1; //Return to the start, find next block.
 						break;
 					}
-					else
-						if(get_incrOk()) bt_putStr("Next Object.\n");
+//					else
+//						if(get_incrOk()) bt_putStr("Next Object.\n");
 				}
 
 

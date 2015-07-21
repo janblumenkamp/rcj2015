@@ -12,35 +12,599 @@
 #include "bluetooth.h"
 #include "uart.h"
 #include "main.h"
+#include "system.h"
 
-void bt_putCh(const uint8_t ch)
+stream_t str_pcui;
+stream_t str_debug;
+stream_t str_debugOS;
+stream_t str_debugDrive;
+stream_t str_error;
+
+void bt_init(void)
+{
+	uart_init(UART_BAUD_SELECT(115200, F_CPU)); //Bluetooth
+
+	/*
+	 Foreground Colours
+	30	Black
+	31	Red
+	32	Green
+	33	Yellow
+	34	Blue
+	35	Magenta
+	36	Cyan
+	37	White
+
+		Background Colours
+	40	Black
+	41	Red
+	42	Green
+	43	Yellow
+	44	Blue
+	45	Magenta
+	46	Cyan
+	47	White
+	 */
+
+	str_pcui.active = 1;
+	str_pcui.bgcolor = 0;
+	str_pcui.textcolor = 0;
+	str_pcui.put_c = &bt_putCh;
+
+	str_debug.active = 1;
+	str_debug.bgcolor = 42; //green
+	str_debug.textcolor = 30; //black
+	str_debug.put_c = &bt_putCh;
+
+	str_debugOS.active = 1;
+	str_debugOS.bgcolor = 43; //Yellow
+	str_debugOS.textcolor = 30; //black
+	str_debugOS.put_c = &bt_putCh;
+
+	str_debugDrive.active = 1;
+	str_debugDrive.bgcolor = 43; //Yellow
+	str_debugDrive.textcolor = 30; //black
+	str_debugDrive.put_c = &bt_putCh;
+
+	str_error.active = 1;
+	str_error.bgcolor = 41; //red
+	str_error.textcolor = 30; //black
+	str_error.put_c = &bt_putCh;
+}
+
+void bt_outOnOff(stream_t *stream, uint8_t state)
+{
+	stream->active = state;
+}
+
+int8_t bt_putCh(unsigned char ch)
 {
 	timer_bt_is_busy = TIMER_BT_IS_BUSY;
 
 	uart_putc(ch);
+
+	return 1;
 }
 
-void bt_putStr(const char *s)
+////////////////////////////////////////////////////////////////////////////////7
+////////////////////////////////////////////////////////////////////////////////
+/// Start of Library
+
+/** Required for proper compilation. */
+//struct _reent r = {0, (FILE *) 0, (FILE *) 1, (FILE *) 0};
+//struct _reent *_impure_ptr = &r;
+
+/**
+ * @brief  Writes a character inside the given string. Returns 1.
+ *
+ * @param  pStr	Storage string.
+ * @param  c    Character to write.
+ */
+signed int PutChar(char *pStr, char c)
 {
-	timer_bt_is_busy = TIMER_BT_IS_BUSY;
-
-	while (*s) 
-      uart_putc(*s++);
+	*pStr = c;
+	return 1;
 }
 
-void bt_putStr_P(const char *progmem_s)
+
+/**
+ * @brief  Writes a string inside the given string.
+ *
+ * @param  pStr     Storage string.
+ * @param  pSource  Source string.
+ * @return  The size of the written
+ */
+signed int PutString(char *pStr, const char *pSource)
 {
-	timer_bt_is_busy = TIMER_BT_IS_BUSY;
+	signed int num = 0;
 
-	register char c;
-    
-  while ( (c = pgm_read_byte(progmem_s++)) ) 
-    uart_putc(c);
+	while (*pSource != 0) {
+
+		*pStr++ = *pSource++;
+		num++;
+	}
+
+	return num;
 }
 
-void bt_putLong(int32_t num)
+
+/**
+ * @brief  Writes an unsigned int inside the given string, using the provided fill &
+ *         width parameters.
+ *
+ * @param  pStr  Storage string.
+ * @param  fill  Fill character.
+ * @param  width  Minimum integer width.
+ * @param  value  Integer value.
+ */
+signed int PutUnsignedInt(
+	char *pStr,
+	char fill,
+	signed int width,
+	unsigned int value)
 {
-	char buffer[15];
-	ltoa( num , buffer, 10);
-	bt_putStr(buffer);
+	signed int num = 0;
+
+	/* Take current digit into account when calculating width */
+	width--;
+
+	/* Recursively write upper digits */
+	if ((value / 10) > 0) {
+
+		num = PutUnsignedInt(pStr, fill, width, value / 10);
+		pStr += num;
+	}
+
+	/* Write filler characters */
+	else {
+
+		while (width > 0) {
+
+			PutChar(pStr, fill);
+			pStr++;
+			num++;
+			width--;
+		}
+	}
+
+	/* Write lower digit */
+	num += PutChar(pStr, (value % 10) + '0');
+
+	return num;
 }
+
+
+/**
+ * @brief  Writes a signed int inside the given string, using the provided fill & width
+ *         parameters.
+ *
+ * @param pStr   Storage string.
+ * @param fill   Fill character.
+ * @param width  Minimum integer width.
+ * @param value  Signed integer value.
+ */
+signed int PutSignedInt(
+	char *pStr,
+	char fill,
+	signed int width,
+	signed int value)
+{
+	signed int num = 0;
+	unsigned int absolute;
+
+	/* Compute absolute value */
+	if (value < 0) {
+
+		absolute = -value;
+	}
+	else {
+
+		absolute = value;
+	}
+
+	/* Take current digit into account when calculating width */
+	width--;
+
+	/* Recursively write upper digits */
+	if ((absolute / 10) > 0) {
+
+		if (value < 0) {
+
+			num = PutSignedInt(pStr, fill, width, -(absolute / 10));
+		}
+		else {
+
+			num = PutSignedInt(pStr, fill, width, absolute / 10);
+		}
+		pStr += num;
+	}
+	else {
+
+		/* Reserve space for sign */
+		if (value < 0) {
+
+			width--;
+		}
+
+		/* Write filler characters */
+		while (width > 0) {
+
+			PutChar(pStr, fill);
+			pStr++;
+			num++;
+			width--;
+		}
+
+		/* Write sign */
+		if (value < 0) {
+
+			num += PutChar(pStr, '-');
+			pStr++;
+		}
+	}
+
+	/* Write lower digit */
+	num += PutChar(pStr, (absolute % 10) + '0');
+
+	return num;
+}
+
+
+/**
+ * @brief  Writes an hexadecimal value into a string, using the given fill, width &
+ *         capital parameters.
+ *
+ * @param pStr   Storage string.
+ * @param fill   Fill character.
+ * @param width  Minimum integer width.
+ * @param maj    Indicates if the letters must be printed in lower- or upper-case.
+ * @param value  Hexadecimal value.
+ *
+ * @return  The number of char written
+ */
+signed int PutHexa(
+	char *pStr,
+	char fill,
+	signed int width,
+	unsigned char maj,
+	unsigned int value)
+{
+	signed int num = 0;
+
+	/* Decrement width */
+	width--;
+
+	/* Recursively output upper digits */
+	if ((value >> 4) > 0) {
+
+		num += PutHexa(pStr, fill, width, maj, value >> 4);
+		pStr += num;
+	}
+	/* Write filler chars */
+	else {
+
+		while (width > 0) {
+
+			PutChar(pStr, fill);
+			pStr++;
+			num++;
+			width--;
+		}
+	}
+
+	/* Write current digit */
+	if ((value & 0xF) < 10) {
+
+		PutChar(pStr, (value & 0xF) + '0');
+	}
+	else if (maj) {
+
+		PutChar(pStr, (value & 0xF) - 10 + 'A');
+	}
+	else {
+
+		PutChar(pStr, (value & 0xF) - 10 + 'a');
+	}
+	num++;
+
+	return num;
+}
+
+
+
+/* Global Functions ----------------------------------------------------------- */
+
+
+/**
+ * @brief  Stores the result of a formatted string into another string. Format
+ *         arguments are given in a va_list instance.
+ *
+ * @param pStr    Destination string.
+ * @param length  Length of Destination string.
+ * @param pFormat Format string.
+ * @param ap      Argument list.
+ *
+ * @return  The number of characters written.
+ */
+signed int vsnoutf(char *pStr, size_t length, const char *pFormat, va_list ap)
+{
+	char          fill;
+	unsigned char width;
+	signed int    num = 0;
+	signed int    size = 0;
+
+	/* Clear the string */
+	if (pStr) {
+
+		*pStr = 0;
+	}
+
+	/* Phase string */
+	while (*pFormat != 0 && size < length) {
+
+		/* Normal character */
+		if (*pFormat != '%') {
+
+			*pStr++ = *pFormat++;
+			size++;
+		}
+		/* Escaped '%' */
+		else if (*(pFormat+1) == '%') {
+
+			*pStr++ = '%';
+			pFormat += 2;
+			size++;
+		}
+		/* Token delimiter */
+		else {
+
+			fill = ' ';
+			width = 0;
+			pFormat++;
+
+			/* Parse filler */
+			if (*pFormat == '0') {
+
+				fill = '0';
+				pFormat++;
+			}
+
+			/* Parse width */
+			while ((*pFormat >= '0') && (*pFormat <= '9')) {
+
+				width = (width*10) + *pFormat-'0';
+				pFormat++;
+			}
+
+			/* Check if there is enough space */
+			if (size + width > length) {
+
+				width = length - size;
+			}
+
+			/* Parse type */
+			switch (*pFormat) {
+			case 'd':
+			case 'i': num = PutSignedInt(pStr, fill, width, va_arg(ap, signed int)); break;
+			case 'u': fill = '0'; num = PutUnsignedInt(pStr, fill, width, va_arg(ap, unsigned int)); break;
+			case 'x': fill = '0'; num = PutHexa(pStr, fill, width, 0, va_arg(ap, unsigned int)); break;
+			case 'X': fill = '0'; num = PutHexa(pStr, fill, width, 1, va_arg(ap, unsigned int)); break;
+			case 's': num = PutString(pStr, va_arg(ap, char *)); break;
+			case 'c': num = PutChar(pStr, va_arg(ap, unsigned int)); break;
+			default:
+				return -1;
+			}
+
+			pFormat++;
+			pStr += num;
+			size += num;
+		}
+	}
+
+	/* NULL-terminated (final \0 is not counted) */
+	if (size < length) {
+
+		*pStr = 0;
+	}
+	else {
+
+		*(--pStr) = 0;
+		size--;
+	}
+
+	return size;
+}
+
+
+/**
+ * @brief  Stores the result of a formatted string into another string. Format
+ *         arguments are given in a va_list instance.
+ *
+ * @param pStr    Destination string.
+ * @param length  Length of Destination string.
+ * @param pFormat Format string.
+ * @param ...     Other arguments
+ *
+ * @return  The number of characters written.
+ */
+signed int snoutf(char *pString, size_t length, const char *pFormat, ...)
+{
+	va_list    ap;
+	signed int rc;
+
+	va_start(ap, pFormat);
+	rc = vsnoutf(pString, length, pFormat, ap);
+	va_end(ap);
+
+	return rc;
+}
+
+
+/**
+ * @brief  Stores the result of a formatted string into another string. Format
+ *         arguments are given in a va_list instance.
+ *
+ * @param pString  Destination string.
+ * @param length   Length of Destination string.
+ * @param pFormat  Format string.
+ * @param ap       Argument list.
+ *
+ * @return  The number of characters written.
+ */
+signed int vsoutf(char *pString, const char *pFormat, va_list ap)
+{
+   return vsnoutf(pString, MAX_STRING_SIZE, pFormat, ap);
+}
+
+/**
+ * @brief  Outputs a formatted string on the given stream. Format arguments are given
+ *         in a va_list instance.
+ *
+ * @param pStream  Output stream.
+ * @param pFormat  Format string
+ * @param ap       Argument list.
+ */
+signed int vfoutf(stream_t *pStream, const char *pFormat, va_list ap)
+{
+	char pStr[MAX_STRING_SIZE];
+	char pError[] = "stdio.c: increase MAX_STRING_SIZE\n";
+
+	/* Write formatted string in buffer */
+	if (vsoutf(pStr, pFormat, ap) >= MAX_STRING_SIZE) {
+
+		out_fputs(pError, NULL);
+		return -1;
+	}
+	else
+	{
+	/* Display string */
+		return out_fputs(pStr, pStream);
+	}
+}
+
+
+/**
+ * @brief  Outputs a formatted string on the given stream, using a variable
+ *         number of arguments.
+ *
+ * @param pStream  Output stream.
+ * @param pFormat  Format string.
+ */
+signed int foutf(stream_t *pStream, const char *pFormat, ...)
+{
+	va_list ap;
+	signed int result;
+
+	// Forward call to vfoutf
+	va_start(ap, pFormat);
+	result = vfoutf(pStream, pFormat, ap);
+	va_end(ap);
+
+	return result;
+}
+
+/**
+ * @brief  Writes a formatted string inside another string.
+ *
+ * @param pStr     torage string.
+ * @param pFormat  Format string.
+ */
+signed int soutf(char *pStr, const char *pFormat, ...)
+{
+	va_list ap;
+	signed int result;
+
+	// Forward call to vsoutf
+	va_start(ap, pFormat);
+	result = vsoutf(pStr, pFormat, ap);
+	va_end(ap);
+
+	return result;
+}
+
+
+/**
+ * @brief  Outputs a string with defined length on given stream.
+ *
+ * @param pStr  String to output.
+ * @param len	lenght of string
+ */
+
+void out_puts_l(stream_t *pStream, const char *pStr, uint16_t len)
+{
+	for(uint16_t i = 0; i < len; i++)
+	{
+		if(pStream->put_c != NULL && pStream->active)
+		{
+			pStream->put_c((char) pStr[i]);
+		}
+	}
+}
+
+/**
+ * @brief  Implementation of fputs using the DBGU as the standard output. Required
+ *         for outf().
+ *
+ * @param pStr     String to write.
+ * @param pStream  Output stream.
+ *
+ * @return  Number of characters written if successful, or -1 if the output
+ *          stream is not stdout or stderr.
+ */
+signed int out_fputs(const char *pStr, stream_t *pStream) {
+
+	signed int num = 0;
+
+	if(pStream->active)
+	{
+		char vt100[7] = "\e[30m"; //textcolor black
+
+		if(pStream->bgcolor != 0)
+		{
+			vt100[3] = pStream->bgcolor % 10 + 48; //10. 48: ASCII 0
+			vt100[2] = pStream->bgcolor / 10 + 48; //1
+			out_puts_l(pStream, vt100, 6);
+		}
+
+		if(pStream->textcolor != 0)
+		{
+			vt100[3] = pStream->textcolor % 10 + 48; //10. 48: ASCII 0
+			vt100[2] = pStream->textcolor / 10 + 48; //1
+			out_puts_l(pStream, vt100, 6);
+		}
+
+		while (*pStr != 0)
+		{
+			if(pStream->put_c != NULL)
+			{
+				if((pStream->put_c((char)*pStr) == -1))
+					return -1;
+			}
+			else
+				out_n_fputc('?');
+
+			num++;
+			pStr++;
+		}
+	}
+
+	return num;
+}
+
+
+
+/**
+ * @brief  Called if stream pointer is NULL
+ *
+ * @param c        Character to write.
+ * @param pStream  Output stream.
+ * @param The character written if successful, or -1 if the output stream is
+ *        not stdout or stderr.
+ */
+signed int out_n_fputc(signed int c)
+{
+
+	return c;
+}
+
+/* --------------------------------- End Of File ------------------------------ */

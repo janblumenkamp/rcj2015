@@ -22,10 +22,10 @@
 #include "um6.h"
 #include "bluetooth.h"
 #include "system.h"
-#include "tsl1401.h"
 #include "i2cdev.h"
 #include "pixy.h"
 #include "victim.h"
+#include "irdist.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -353,8 +353,8 @@ void u8g_DrawStartUp(void) //,,Verschönerung" zum Zeit ,,schinden" am Anfang f�
 										break;
 						case 6:	u8g_DrawXBMP(&u8g, 0, 0, 128, 29, logo);			//1000ms
 										break;
-						default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.01]:DEFAULT_CASE"));}
-											fatal_err = 1;
+						default: 	foutf(&str_error, "%i: ERR:sw[disp.01]:DEF\n\r", timer);
+									fatal_err = 1;
 					}
 					///////Text/////
 					u8g_SetFont(&u8g, u8g_font_6x10); //Schriftart
@@ -512,7 +512,7 @@ void u8g_DrawInfo(void) //Malen der Batterie, Anzeige in %
 		case INF_03: 		if(setup != 0)																	set_msg();		break;
 		case INF_04: 		if(timer_rdy_restart > -1)														set_msg();		break;
 		case INF_05:		if((maze_solve_state_path == LOP_INIT) || (maze_solve_state_path == LOP_WAIT))	set_msg();		break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.02]:DEFAULT_CASE"));}
+		default:			foutf(&str_error, "%i: ERR:sw[disp.02]:DEF\n\r", timer);
 							fatal_err = 1;
 	}
 	
@@ -555,13 +555,11 @@ void u8g_drawArrow(uint8_t size, uint8_t pos_x, uint8_t pos_y, uint8_t dir, int8
 
 //////////////////////////////
 
-#define SETUP_MODE_TOP 6 //Über der Zahl muss mode von vorne (bei 0) anfangen
-	//Temp l
-	//Temp r
+#define SETUP_MODE_TOP 4 //Über der Zahl muss mode von vorne (bei 0) anfangen
+	//Temp
 	//Victim
 	//View
 	//Cam
-	//Debug
 	//ok
 
 #define SETUP_STEP_TOP_MLX 2
@@ -572,19 +570,12 @@ void u8g_drawArrow(uint8_t size, uint8_t pos_x, uint8_t pos_y, uint8_t dir, int8
 #define SETUP_STEP_TOP_BIN 1
 	//1er
 
-#define SETUP_DEBUG_MODE_TOP 2 //Grad des Debugging Modus:
-	//0: Kein Debugging
-	//1: Info Labyrinth
-	//2: Info Labyrinth + Fehlermeldungen
-
-int8_t setup_mode = 0; //Temp l, r, tarry, view, cam oder Debug?
+int8_t setup_mode = 0; //Temp, view, ground?
 int8_t setup_step = 0;
 
 struct {
-	unsigned mlxL:1;
-	unsigned mlxR:1;
+	unsigned temp:1;
 	unsigned tarry:1;
-	unsigned debug:1;
 	unsigned cam:1;
 	unsigned cam_ground:1;
 	unsigned ground:1;
@@ -598,70 +589,54 @@ void setupStep_Fac(int16_t fac)
 {
 	switch(setup_mode)
 	{
-		case 0: 	/*mlx90614[LEFT].th += ((incremental-incremental_old_setup) * fac);
-							if(mlx90614[LEFT].th < 0)
-								mlx90614[LEFT].th = 0;
-							eepr_value_changed.mlxL = 1;*/
+		case 0: 	mlx90614[RIGHT].th += ((incremental - incremental_old_setup) * fac);
+					if(mlx90614[RIGHT].th < 0)
+						mlx90614[RIGHT].th = 4000;
+					eepr_value_changed.temp = 1;
+					break;
+		case 1: 	setup = 4;
 						break;
-		case 1: 	mlx90614[RIGHT].th += ((incremental-incremental_old_setup) * fac);
-							if(mlx90614[RIGHT].th < 0)
-								mlx90614[RIGHT].th = 0;
-							eepr_value_changed.mlxR = 1;
+		case 2: 	setup = 2; //Modus 2
 						break;
-		case 2: 	setup = 4;
+		case 3: 	setup = 3; //Modus 3
 						break;
-		case 3:		debug += (incremental-incremental_old_setup);
-							if(debug > SETUP_DEBUG_MODE_TOP)
-								debug = 0;
-							eepr_value_changed.debug = 1;
-						break;
-		case 4: 	setup = 2; //Modus 2
-						break;
-		case 5: 	setup = 3; //Modus 3
-						break;
-		case 6: 	if(eepr_value_changed.mlxL)
-							{
-								eeprom_update_word((uint16_t*)0, mlx90614[LEFT].th);
-								eepr_value_changed.mlxL = 0;
-							}
-							if(eepr_value_changed.mlxR)
-							{
-								eeprom_update_word((uint16_t*)2, mlx90614[RIGHT].th);
-								eepr_value_changed.mlxR = 0;
-							}
-							/*if(eepr_value_changed.tarry)
-							{
-								eeprom_update_byte((uint8_t*)4, use_tarry);
-								eepr_value_changed.tarry = 0;
-							}*/
-							if(eepr_value_changed.debug)
-							{
-								eeprom_update_byte((uint8_t*)5, debug);
-								eepr_value_changed.debug = 0;
-							}
-							if(eepr_value_changed.cam)
-							{
-								eeprom_update_word((uint16_t*)6, tsl_th);
-								eepr_value_changed.cam = 0;
-							}
-						/*	if(eepr_value_changed.ground)
-							{
-								//eeprom_update_word((uint16_t*)8, ground_th);
-								eepr_value_changed.ground = 0;
-							}
-							if(eepr_value_changed.cam_ground)
-							{
-								//eeprom_update_word((uint16_t*)10, tsl_th_ground);
-								//tsl_th_ground = tsl_th + 30;
-								eepr_value_changed.cam_ground = 0;
-							}*/
-							
-							setup = 0;
-							motor_activate(1); //Activate motor driver
-							mot.off = 0;
+		case 4: 	/*if(eepr_value_changed.temp)
+					{
+						eeprom_update_word((uint16_t*)0, mlx90614[LEFT].th);
+						eepr_value_changed.temp = 0;
+					}*/
+					if(eepr_value_changed.temp)
+					{
+						eeprom_update_word((uint16_t*)2, mlx90614[RIGHT].th);
+						eepr_value_changed.temp = 0;
+					}
+					/*if(eepr_value_changed.tarry)
+					{
+						eeprom_update_byte((uint8_t*)4, use_tarry);
+						eepr_value_changed.tarry = 0;
+					}*/
+					if(eepr_value_changed.cam)
+					{
+						eeprom_update_word((uint16_t*)6, tsl_th);
+						eepr_value_changed.cam = 0;
+					}
+				/*	if(eepr_value_changed.ground)
+					{
+						//eeprom_update_word((uint16_t*)8, ground_th);
+						eepr_value_changed.ground = 0;
+					}
+					if(eepr_value_changed.cam_ground)
+					{
+						//eeprom_update_word((uint16_t*)10, tsl_th_ground);
+						//tsl_th_ground = tsl_th + 30;
+						eepr_value_changed.cam_ground = 0;
+					}*/
+
+					setup = 0;
+					motor_activate(1); //Activate motor driver
 
 						break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.03]:DEFAULT_CASE"));}
+		default:			foutf(&str_error, "%i: ERR:sw[disp.03]:DEF\n\r", timer);
 							fatal_err = 1;
 	}
 }
@@ -669,30 +644,31 @@ void setupStep_Fac(int16_t fac)
 ///////
 
 
+uint8_t init_setup = 0;
 void u8g_DrawSetUp(void)
 {
 	u8g_SetFont(&u8g, u8g_font_4x6);
 
-	if(get_incrOk() && (timer_incr_entpr == 0) && mot.off)
+	if(!get_incrOk())
+		init_setup = 1;
+
+	if(get_incrOk() && (timer_incr_entpr == 0) && init_setup)
 	{
 		switch(setup_mode)
 		{
-			case 0: break;
 			case 1:		setup_step ++;
-								if(setup_step > SETUP_STEP_TOP_MLX)
-									setup_step = 0;
-							break;
+						if(setup_step > SETUP_STEP_TOP_MLX)
+							setup_step = 0;
+						break;
+			case 0:
 			case 2:
-			case 3: 	setup_step ++;
-								if(setup_step > SETUP_STEP_TOP_BIN)
-									setup_step = 0;
-							break;
-			case 4:
-			case 5:
-			case 6: 	setup_step ++;
-							break;
-			default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.04]:DEFAULT_CASE"));}
-								fatal_err = 1;
+			case 3:
+			case 4: 	setup_step ++;
+						if(setup_step > SETUP_STEP_TOP_BIN)
+							setup_step = 0;
+						break;
+			default: 	foutf(&str_error, "%i: ERR:sw[disp.04]:DEF\n\r", timer);
+						fatal_err = 1;
 		}
 
 		timer_incr_entpr = TIMER_ENTPR_INCR;
@@ -700,13 +676,13 @@ void u8g_DrawSetUp(void)
 
 	switch(setup_step)
 	{
-		case 0:		setup_mode += (incremental-incremental_old_setup);
-							if(setup_mode > SETUP_MODE_TOP)
-								setup_mode = 0;
-							else if(setup_mode < 0)
-								setup_mode = SETUP_MODE_TOP;
+		case 0:		setup_mode += (incremental - incremental_old_setup);
+					if(setup_mode > SETUP_MODE_TOP)
+						setup_mode = 0;
+					else if(setup_mode < 0)
+						setup_mode = SETUP_MODE_TOP;
 						break;
-		case 1:		setupStep_Fac(1000);
+		case 1:		setupStep_Fac(100);
 						break;
 		case 2:		setupStep_Fac(100);
 						break;
@@ -714,36 +690,33 @@ void u8g_DrawSetUp(void)
 						break;
 		case 4:		setupStep_Fac(1);
 						break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.05]:DEFAULT_CASE"));}
-							fatal_err = 1;
+		default: 	foutf(&str_error, "%i: ERR:sw[disp.05]:DEF\n\r", timer);
+					fatal_err = 1;
 	}
 	incremental_old_setup = incremental;
 
 	switch(setup_mode)
 	{
 		case 0:
-		case 1: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), NORTH, 0);
-						break;
-		case 2:		u8g_drawArrow(5, 60, 10+(setup_mode*7), SOUTH, 0);
-				break;
+		case 1:
+		case 2:
 		case 3:
-		case 6: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), NORTH, 0);
+		case 4: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), NORTH, 0);
 						break;
-		case 4:
-		case 5: 	u8g_drawArrow(5, 60, 10+(setup_mode*7), SOUTH, 0);
-						break;
-		default: 	if(debug > 1){bt_putStr_P(PSTR("\n\r")); bt_putLong(timer); bt_putStr_P(PSTR(": ERROR::FATAL:WENT_INTO:switch[disp.06]:DEFAULT_CASE"));}
-							fatal_err = 1;
+		default: 	foutf(&str_error, "%i: ERR:sw[disp.06]:DEF\n\r", timer);
+					fatal_err = 1;
 	}
 
-	//u8g_DrawStr(&u8g,		0, 	13, "IR left:");	u8g_DrawLong(35,	13, mlx90614[LEFT].is);	u8g_DrawLong(65,	13, mlx90614[LEFT].th);
-	u8g_DrawStr(&u8g, 	0, 20, "IR:"); u8g_DrawLong(35, 20,victim_BufGetMaxDiff(RIGHT));		u8g_DrawLong(65, 20, mlx90614[RIGHT].th);
-	u8g_DrawStr(&u8g, 0, 	27, "Victim");
-	u8g_DrawStr(&u8g, 0, 	34, "Debug:"); u8g_DrawLong(65,	34, debug);
-	u8g_DrawStr(&u8g, 0, 	41, "View");
-	u8g_DrawStr(&u8g, 0, 	48, "Ground");
+	u8g_DrawStr(&u8g, 0, 13, "IR:"); /*u8g_DrawLong(35, 20,victim_BufGetMaxDiff(RIGHT));*/		u8g_DrawLong(65, 13, mlx90614[RIGHT].th);
+	u8g_DrawStr(&u8g, 0, 20, "Victim");
+	u8g_DrawStr(&u8g, 0, 27, "View");
+	u8g_DrawStr(&u8g, 0, 34, "Ground");
 
-	u8g_DrawStr(&u8g, 65, 	55, "ok");
+	u8g_DrawStr(&u8g, 65,41, "ok");
+
+	u8g_DrawStr(&u8g, 0, 48, "IR l:"); u8g_DrawLong(65, 48, mlx90614[LEFT].is);
+	u8g_DrawStr(&u8g, 0, 55, "IR r:"); u8g_DrawLong(65, 55, mlx90614[RIGHT].is);
+
 }
 
 /////////////////////////////
@@ -771,28 +744,28 @@ void u8g_DrawView(void)
 	else
 		u8g_drawArrow(7, 64, 32, EAST, 0);
 
-	sensorvar = dist[LIN][RIGHT][FRONT] / 18;
+	sensorvar = dist[LIN][RIGHT][FRONT] / 30;
 	u8g_DrawHLine(&u8g, 71, 28, sensorvar);
-	sensorvar = dist[LIN][RIGHT][BACK] / 18;
+	sensorvar = dist[LIN][RIGHT][BACK] / 30;
 	u8g_DrawHLine(&u8g, 71, 36, sensorvar);
 
-	sensorvar = (dist[LIN][BACK][RIGHT]/18);
+	sensorvar = (dist[LIN][BACK][RIGHT]/30);
 	u8g_DrawVLine(&u8g, 68, 39, sensorvar);
 	sensorvar = (dist[LIN][BACK][BACK]/30);
 	u8g_DrawVLine(&u8g, 64, 39, sensorvar);
-	sensorvar = (dist[LIN][BACK][LEFT]/18);
+	sensorvar = (dist[LIN][BACK][LEFT]/30);
 	u8g_DrawVLine(&u8g, 60, 39, sensorvar);
 
-	sensorvar = 57 - (dist[LIN][LEFT][FRONT] / 18);
+	sensorvar = 57 - (dist[LIN][LEFT][FRONT] / 30);
 	u8g_DrawLine(&u8g, 57, 28, sensorvar, 28);
-	sensorvar = 57 - (dist[LIN][LEFT][BACK] / 18);
+	sensorvar = 57 - (dist[LIN][LEFT][BACK] / 30);
 	u8g_DrawLine(&u8g, 57, 36, sensorvar, 36);
 
-	sensorvar = 25 - (dist[LIN][FRONT][LEFT] / 18);
+	sensorvar = 25 - (dist[LIN][FRONT][LEFT] / 30);
 	u8g_DrawLine(&u8g, 60, 25, 60, sensorvar);
 	sensorvar = 25 - (dist[LIN][FRONT][FRONT] / 30);
 	u8g_DrawLine(&u8g, 64, 25, 64, sensorvar);
-	sensorvar = 25 - (dist[LIN][FRONT][RIGHT] / 18);
+	sensorvar = 25 - (dist[LIN][FRONT][RIGHT] / 30);
 	u8g_DrawLine(&u8g, 68, 25, 68, sensorvar);
 
 
@@ -884,7 +857,7 @@ void u8g_DrawCamRaw(void)
 		tsl_th += (incremental-incremental_old_cam)*10;
 		if(tsl_th < 0)
 			tsl_th = 0;
-		tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;
+		//tsl_th_ground = tsl_th + TSL_GROUNDSENS_DIFF;
 		if((int8_t)(incremental-incremental_old_cam) != 0) //etwas wurde geändert
 			eepr_value_changed.cam = 1;
 	}
@@ -892,33 +865,11 @@ void u8g_DrawCamRaw(void)
 	
 	u8g_SetFont(&u8g, u8g_font_4x6);
 
-	for(uint8_t i = 0; i < ((128/TSL_RESOLUTION)*2); i+=2)
-	{
-		if(viewCam_sorted)
-		{
-			if(i < ((128/TSL_RESOLUTION)-TSL_CNT_OFFSET_ROB)*2)
-			{
-				u8g_DrawVLine(&u8g, i, 64-(tslData_med[i/2])/20, (tslData_med[i/2])/20);
-				u8g_DrawVLine(&u8g, i+1, 64-(tslData_med[i/2])/20, (tslData_med[i/2])/20);
-			}
-		}
-		else
-		{
-			u8g_DrawVLine(&u8g, i, 64-(tslData[i/2])/20, (tslData[i/2])/20);
-			if(i > 18) u8g_DrawVLine(&u8g, i+1, 64-(tslData[i/2])/20, (tslData[i/2])/20);
-		}
-	}
+	u8g_DrawStr(&u8g,		65, 	34, "Ground l:"); u8g_DrawLong(110,	34, groundsens_l);
+	u8g_DrawStr(&u8g,		65, 	41, "Ground r:"); u8g_DrawLong(110,	41, groundsens_r);
 
-	u8g_DrawStr(&u8g,		65, 	13, "Exposure:"); 	u8g_DrawLong(110,	13, tsl_exposure);
-	u8g_DrawStr(&u8g,		65, 	20, "Brightness:"); u8g_DrawLong(110,	20, tsl_led_brightness);
-	u8g_DrawStr(&u8g,		65, 	27, "Result Cam:"); u8g_DrawLong(110,	27, tsl_res);
-	u8g_DrawStr(&u8g,		65, 	34, "Groundsens:"); u8g_DrawLong(110,	34, groundsens_r);
-	
-	u8g_DrawStr(&u8g,		65, 	41, "TH Cam_Al:"); 		u8g_DrawLong(110,	41, tsl_th);
-	u8g_DrawStr(&u8g,		65, 	48, "TH Cam_Gr:"); 		u8g_DrawLong(110,	48, tsl_th_ground);
 	u8g_DrawStr(&u8g,		65, 	55, "TH Ground:"); 	u8g_DrawLong(110,	55, ground_th);
-	u8g_DrawStr(&u8g,		65, 	62, "View:"); 			if(viewCam_sorted)	u8g_DrawStr(&u8g,	110, 	62, "srt");
-																								else								u8g_DrawStr(&u8g,	110, 	62, "raw");
+	//u8g_DrawStr(&u8g,		65, 	62, "View:"); 			if(viewCam_sorted)	u8g_DrawStr(&u8g,	110, 	62, "srt");																						else								u8g_DrawStr(&u8g,	110, 	62, "raw");
 	
 	incremental_old_cam = incremental;
 }
@@ -977,7 +928,7 @@ void u8g_DrawFrontScan(void)
 
 		int16_t y = 63 - ((data_scanFront[i]+incremental*10)/12) * sin(alpha_abs * (M_PI/180));
 
-		if(data_scanFront[i] < DIST_MAX_SRP_NEW)
+		if(data_scanFront[i] < IRDIST_MAX)
 			//u8g_DrawLine(&u8g, 40, 63, x, y);
 			u8g_DrawPixel(&u8g, x, y);
 		//u8g_DrawVLine(&u8g,i,64-(data_scanFront[i]/10),(data_scanFront[i]/10));

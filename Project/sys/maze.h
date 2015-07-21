@@ -7,6 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef MAZE_H
+#define MAZE_H
+
 #include <avr/io.h>
 #include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
@@ -94,7 +97,7 @@ struct _matchingWalls {
 #define SIDE_TH 		170 //Schwellwert zur Seite
 #define BACK_BACK_TH	170
 
-#define DIST_VICTIM_MIN 140
+#define DIST_VICTIM_MIN 200
 
 #define DRIVE_BUMPED_WIDTH 2
 
@@ -108,24 +111,26 @@ struct _matchingWalls {
 #define MAZE_GROUNDVALUE_MAX 63 ////++ ~ Overflow
 #define MAZE_GROUNDVALUE_MIN -63 ////-- ~ Overflow
 
+#define MAZE_OBSTACLEVALUE_MAX 126 ////++ ~ Overflow
+#define MAZE_OBSTACLEVALUE_MIN -127 ////-- ~ Overflow
+
 #define MAZE_VICTIMVALUE_MAX 7
 #define MAZE_VICTIMVALUE_MIN -7
 
-#define RAMP_DIFF_TH 14 //Rampe
 
-#define TSL_GROUNDSENS_DIFF 50
-
-#define GROUNDSENS_R_TH_BLACKTILE 800 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_BLACKTILE 800 //Above this Threshold there is a black tile
-#define GROUNDSENS_L_TH_CHECKPOINT 500 //Below this Threshold there is a checkpoint
+#define GROUNDSENS_R_TH_BLACKTILE 860 //Above this Threshold there is a black tile
+#define GROUNDSENS_L_TH_BLACKTILE 860 //Above this Threshold there is a black tile
+#define GROUNDSENS_L_TH_CHECKPOINT 630 //Below this Threshold there is a checkpoint
 #define GROUNDDIST_TH_LOP		50 //Below this Threshold of the sharp IR looking down there is a LOP
 #define GROUNDDIST_TH_NORMAL		200 //Above this Threshold of the sharp IR looking down there is no more LOP
-#define GROUNDSENS_CNT_TH_CHECKPOINT 10 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
+#define GROUNDSENS_CNT_TH_CHECKPOINT 20 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
+#define GROUNDSENS_CNT_TH_BLACKTILE 8 //More than n times below the Threshold of a black tile
+#define RAMP_CNT_ISRAMP 7 //More than n times above the Threshold of ramp (up and down)
 
 #define MAZE_ERR_DEL_RADIUS_L 2 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Large Radius)
 #define MAZE_ERR_DEL_RADIUS_S 1 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Small Radius)
 
-#define TILE_LENGTH_MIN_DRIVE	18.5	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
+#define TILE_LENGTH_MIN_DRIVE	16	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
 
 extern TILE maze[MAZE_SIZE_X][MAZE_SIZE_Y][MAZE_SIZE_Z];
 extern OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset
@@ -161,6 +166,8 @@ enum MAZE_RR {RR_WAIT, RR_CALCNEARESTTILE, RR_CALCROUTE,
 					
 enum MAZE_LR {LR_WAIT, LR_MATCH, LR_SUCCESS, LR_FAILURE}; //LR = LocalizationRequest;
 		
+enum DRIVE_ACTION {DA_DOT, DA_TURN_L, DA_TURN_R, DA_DEPLKIT, DA_RAMP_UP, DA_RAMP_DOWN}; // DA = DriveAction; Last driving action
+
 extern uint8_t maze_solve_state_path;
 
 extern int16_t tsl_th;
@@ -187,3 +194,5 @@ extern void maze_localize(void);
 extern void maze_updateGround(int8_t updateFac_ground, int8_t isGround);
 
 extern void u8g_DrawMaze(void);
+
+#endif
