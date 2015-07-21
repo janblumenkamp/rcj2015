@@ -79,7 +79,7 @@ extern int32_t incremental;
 #define TIMER_MAP_WALL_R	50/25		//Wait this time until the wallvalues will be refreshed again (let the distance sensros time to refresh)
 #define TIMER_LOP_SENSOR	1000/25 //The groundsens has to be above it’s threshold for this time
 #define TIMER_LOP_RESET		5000/25 //After an LOP was detected (the robot was lifted) and set down again, the robot waits this time until it proceeds
-#define TIMER_VIC_RAMP		500/25 //After detecting a victim on the ramp wait this time
+#define TIMER_VIC_RAMP		1000/25 //After detecting a victim on the ramp wait this time
 
 extern uint32_t timer;
 extern int16_t timer_victim_led;

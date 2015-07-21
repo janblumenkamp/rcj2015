@@ -368,7 +368,6 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 								maze_solve_drive_reset(); //Reset Drive Functions...
 								maze_clearDepthsearch();
 								maze_clearGround();
-								maze_clearRamp();
 
 								robot.pos = *maze_getCheckpoint(&robot.pos);
 

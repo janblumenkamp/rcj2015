@@ -806,7 +806,7 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 /// \return
 ///		1 if driving, 0 if arrived on the top of the ramp
 
-#define DIST_SOLL_RAMP 80 //distance to the wall
+#define DIST_SOLL_RAMP 60 //distance to the wall
 
 #define KP_RAMP_DIR 0.9
 #define KP_RAMP_DIST KP_RAMP_DIR * 0.5
