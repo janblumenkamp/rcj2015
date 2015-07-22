@@ -403,6 +403,7 @@ int8_t chp = 0;
 
 int8_t task_maze(int8_t state)
 {	
+	displayvar[6] = (abs(incremental) % 6) + 1;
 
 	if(setup == 0)
 	{

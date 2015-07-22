@@ -65,12 +65,12 @@ uint8_t lastDriveAction = 0;
 ///////////Superteam////////
 uint8_t sm_superteam = 0;
 
-char *instr[2][6] = {	{	"lflffrb", //Door 1 from ramp
-							"lflfrb", //Door 2
-							"lfb", //Door 3
-							"lfrflb", //Door 4
-							"lfrfflb", //Door 5
-							"lfrffflb"	}, //Door 6
+char *instr[2][6] = {	{	"lffrb", //Door 1 from ramp
+							"lfrb", //Door 2
+							"b", //Door 3
+							"rflb", //Door 4
+							"rfflb", //Door 5
+							"rffflb"	}, //Door 6
 						{	"rffrf", //Door 1 to ramp
 							"rfrf", //Door 2
 							"llf", //Door 3
@@ -78,7 +78,9 @@ char *instr[2][6] = {	{	"lflffrb", //Door 1 from ramp
 							"lfflf", //Door 5
 							"lffflf"	}	}; //Door 6
 
-uint8_t instr_sizes[2][6] = {	{7, 6, 3, 6, 7, 8}, //from ramp
+char *instr_afterRamp = "lf";
+
+uint8_t instr_sizes[2][6] = {	{5, 4, 1, 4, 5, 6}, //from ramp
 								{5, 4, 3, 4, 5, 6}	}; //to ramp
 
 uint8_t which_door = 1; //index of door
@@ -194,20 +196,20 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 						
 			case FOLLOW_RIGHTWALL:
 							
-									if(maze_tileIsVisitable(&robot.pos, robot.dir+1) &&
-									   !maze_getBeenthere(&robot.pos, robot.dir+1))
+									if(maze_tileIsVisitable(&robot.pos, robot.dir+3) &&
+									   !maze_getBeenthere(&robot.pos, robot.dir+3))
 									{
-										maze_solve_state_path = TURN_RIGHT;
+										maze_solve_state_path = TURN_LEFT;
 									}
 									else if(maze_tileIsVisitable(&robot.pos, robot.dir) &&
 											!maze_getBeenthere(&robot.pos, robot.dir))
 									{
 										maze_solve_state_path = DRIVE_DOT;
 									}
-									else if(maze_tileIsVisitable(&robot.pos, robot.dir+3) &&
-											!maze_getBeenthere(&robot.pos, robot.dir+3))
+									else if(maze_tileIsVisitable(&robot.pos, robot.dir+1) &&
+											!maze_getBeenthere(&robot.pos, robot.dir+1))
 									{
-										maze_solve_state_path = TURN_LEFT;
+										maze_solve_state_path = TURN_RIGHT;
 									}
 									else if(maze_tileIsVisitable(&robot.pos, robot.dir+2) &&
 											!maze_getBeenthere(&robot.pos, robot.dir+2))
@@ -759,8 +761,15 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							switch (sm_superteam) {
 								case 0: //Waiting for bluetooth signal for door
 
+									if(!drive_instructions(instr_afterRamp, 2))
+									{
+										sm_superteam ++;
+									}
+									break;
+
+								case 1:
 									btVar = uart_getc();
-									//btVar = (abs(incremental) % 6) + 1;
+
 									if(btVar != UART_NO_DATA) //bluetooth received
 									{
 										displayvar[1] = btVar;
@@ -780,7 +789,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									}
 									break;
 
-								case 1: //Drive to the door and bump
+								case 2: //Drive to the door and bump
 
 									if(!drive_instructions(instr[0][which_door - 1], instr_sizes[0][which_door - 1]))
 									{
@@ -788,34 +797,17 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									}
 									break;
 
-								case 2: //Send bluetooth signal during driving back to the ramp and after that change orientation
+								case 3: //drive back to the ramp and after that change orientation
 
 									ui_setLED(-1, 0);
 
 									if(!drive_instructions(instr[1][which_door - 1], instr_sizes[1][which_door - 1]))
 									{
 										ui_setLED(1, 0);
-										sm_superteam ++;
-										robot.dir ++;
+										robot.dir ++; //Change orientation
+										drive_back = 1; //start sending bluetooth signal (in maze loop)
+										maze_solve_state_path = DRIVE_READY; //Just continue with the maze (as there are three walls it has to drive up)
 									}
-									break;
-
-								case 3: //Calc route and drive back
-
-									drive_back = 1; //start sending bluetooth
-
-									/*if(routeRequest == RR_WAIT)
-									{
-										rr_result = *maze_getStartPos(); //Request start position, save it in the vars for the route calculation
-										routeRequest = RR_CALCROUTE;
-									}
-									else if(routeRequest == RR_RTDONE)
-									{
-										routeRequest = RR_WAIT;
-										maze_solve_state_path = FOLLOW_DFS;
-										sm_superteam = 0;
-									}*/
-
 									break;
 								default:
 									break;
