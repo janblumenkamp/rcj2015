@@ -799,13 +799,14 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 								case 3: //drive back to the ramp and after that change orientation
 
+									drive_back = 1; //start sending bluetooth signal (in maze loop)
+
 									ui_setLED(-1, 0);
 
 									if(!drive_instructions(instr[1][which_door - 1], instr_sizes[1][which_door - 1]))
 									{
 										ui_setLED(1, 0);
 										robot.dir ++; //Change orientation
-										drive_back = 1; //start sending bluetooth signal (in maze loop)
 										maze_solve_state_path = DRIVE_READY; //Just continue with the maze (as there are three walls it has to drive up)
 									}
 									break;

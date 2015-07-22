@@ -122,7 +122,7 @@ int8_t timer_entpr_tast = 0;
 int8_t timer_incr_entpr = 0;
 int8_t timer_bt_is_busy = 0;
 int8_t timer_disp_msg = 0;
-int8_t timer_motoff = 0;
+int16_t timer_motoff = 0;
 int16_t timer_rdy_restart = -1;
 int8_t timer_map_wall_r = 0;
 int16_t timer_lop = -1;
@@ -244,6 +244,7 @@ int main(void)
 	//wdt_enable(WDTO_8S); //activate watchdog
 
 	mot.off = 1;
+	timer_motoff = 120;
 
 	t1_state_off = get_t1(); //Detection of change of state in switch (on the boot, robot is always off)
 
@@ -259,7 +260,7 @@ int main(void)
 
 		////////////////////////////////////////////////////////////////////////////
 
-		if(get_t1() == t1_state_off)
+		/*if(get_t1() == t1_state_off)
 		{
 			mot.off = 1;
 			timer_motoff = -1;
@@ -268,7 +269,8 @@ int main(void)
 		{
 			timer_motoff = 120;
 		}
-		else if(timer_motoff == 0)
+		else */
+		if(timer_motoff == 0)
 		{
 			mot.off = 0;
 		}
