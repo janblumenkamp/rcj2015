@@ -774,16 +774,54 @@ void drive_turn(D_TURN *t)
 
 uint8_t drive_instr_sm = 0;
 
+DOT instr_dot;
+D_TURN instr_turn;
+
 uint8_t drive_instructions(char *instructions, uint8_t amount)
 {
 	if(drive_instr_sm < amount)
 	{
 		switch (instructions[drive_instr_sm]) {
-//		case 'f':	if(!drive_oneTile(0))	drive_instr_sm ++; break;
-//		case 'l':	if(!drive_turn(-90,1))	drive_instr_sm ++; break;
-//		case 'r':	if(!drive_turn(90, 1))	drive_instr_sm ++; break;
-//		case 'd':	if(!drive_getBall())	drive_instr_sm ++;	break;
-//		case 'u':	if(!drive_releaseBall())	drive_instr_sm ++;	break;
+		case 'f':
+
+			drive_oneTile(&instr_dot);
+			if(instr_dot.state == DOT_FINISHED)
+			{
+				instr_dot.state = DOT_INIT;
+				drive_instr_sm ++;
+			}
+
+			break;
+
+		case 'l':
+
+			instr_turn.r.angle = -90;
+
+			drive_turn(&instr_turn);
+
+			if(instr_turn.state == TURN_FINISHED)
+			{
+				instr_turn.state = TURN_INIT;
+				drive_instr_sm ++;
+			}
+
+			break;
+
+		case 'r':
+
+			instr_turn.r.angle = 90;
+
+			drive_turn(&instr_turn);
+
+			if(instr_turn.state == TURN_FINISHED)
+			{
+				instr_turn.state = TURN_INIT;
+				drive_instr_sm ++;
+			}
+
+			break;
+
+		case 'b':	if(!drive_bumpWall()) drive_instr_sm ++;	break;
 		default:	drive_instr_sm ++; break;
 		}
 		return 1;
@@ -793,6 +831,62 @@ uint8_t drive_instructions(char *instructions, uint8_t amount)
 		drive_instr_sm = 0;
 		return 0;
 	}
+}
+
+uint8_t sm_dBump = 0;
+uint32_t timer_dBump;
+uint8_t dist_drive_cm = 5;
+
+uint8_t drive_bumpWall(void)
+{
+	switch (sm_dBump) {
+		case 0:
+			if(!drive_dist(0, 50, dist_drive_cm))
+			{
+				timer_dBump = timer;
+				sm_dBump ++;
+			}
+			break;
+
+		case 1:
+			if(!drive_dist(0, 50, -dist_drive_cm))
+			{
+				sm_dBump ++;
+			}
+			break;
+
+		case 2:
+			if((dist[LIN][FRONT][FRONT] < 200) && ((timer - timer_dBump) > 1000))
+			{
+				if(dist_drive_cm < 15)
+				{
+					dist_drive_cm += 5;
+					sm_dBump = 0;
+				}
+				else
+				{
+					sm_dBump ++;
+				}
+			}
+			else if(dist[LIN][FRONT][FRONT] > 200)
+			{
+				sm_dBump ++;
+			}
+			else if((timer - timer_dBump) > 10000)
+			{
+				sm_dBump ++;
+			}
+			break;
+		case 3:
+			sm_dBump = 0;
+			dist_drive_cm = 5;
+			return 0;
+			break;
+		default:
+			break;
+	}
+
+	return 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1143,6 +1237,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							}
 							else
 							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = 0;
 								sm_ddist = 2;
 							}
 						}
@@ -1156,6 +1252,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							}
 							else
 							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = 0;
 								sm_ddist = 2;
 							}
 						}
@@ -1168,6 +1266,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							}
 							else
 							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = 0;
 								sm_ddist = 2;
 							}
 						}
@@ -1183,6 +1283,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							}
 							else
 							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = 0;
 								sm_ddist = 2;
 							}
 						}
@@ -1196,6 +1298,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							}
 							else
 							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = 0;
 								sm_ddist = 2;
 							}
 						}
@@ -1208,6 +1312,8 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 							}
 							else
 							{
+								mot.d[LEFT].speed.to = 0;
+								mot.d[RIGHT].speed.to = 0;
 								sm_ddist = 2;
 							}
 						}
@@ -1222,11 +1328,9 @@ uint8_t drive_dist(int8_t motor, int8_t speed, int8_t dist_cm) //which @motor to
 		case 2:
 					sm_ddist = 0;
 
+					returnvar = 0;
 					mot.d[LEFT].speed.to = 0;
 					mot.d[RIGHT].speed.to = 0;
-
-					returnvar = 0;
-
 					foutf(&str_debugDrive, "%i: drDst:end\n\r", timer);
 					break;
 		default:	foutf(&str_error, "%i: ERR:sw[drv.06]:DEF\n\r", timer);

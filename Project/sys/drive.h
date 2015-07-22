@@ -195,6 +195,8 @@ extern void drive_turn(D_TURN *t);
 
 extern uint8_t drive_instructions(char *instructions, uint8_t amount);
 
+extern uint8_t drive_bumpWall(void);
+
 extern uint8_t drive_neutralPos(void);
 
 extern void drive_deployResKit(D_DEPLOYKIT *dk);

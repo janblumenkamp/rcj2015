@@ -62,6 +62,28 @@ uint8_t driveDot_state = 0;
 int8_t checkpoint_ramp = 0;
 uint8_t lastDriveAction = 0;
 
+///////////Superteam////////
+uint8_t sm_superteam = 0;
+
+char *instr[2][6] = {	{	"lflffrb", //Door 1 from ramp
+							"lflfrb", //Door 2
+							"lfb", //Door 3
+							"lfrflb", //Door 4
+							"lfrfflb", //Door 5
+							"lfrffflb"	}, //Door 6
+						{	"rffrf", //Door 1 to ramp
+							"rfrf", //Door 2
+							"llf", //Door 3
+							"lflf", //Door 4
+							"lfflf", //Door 5
+							"lffflf"	}	}; //Door 6
+
+uint8_t instr_sizes[2][6] = {	{7, 6, 3, 6, 7, 8}, //from ramp
+								{5, 4, 3, 4, 5, 6}	}; //to ramp
+
+uint8_t which_door = 1; //index of door
+uint16_t btVar = 0; //bluetooth receive
+uint8_t drive_back = 0;
 ////////////////////////////////////////////////////////////////////////////////
 // Main solving function, responsible for the decision of what will happen next,
 // where the robot is going to drive, if he calculates a path etc...
@@ -82,22 +104,10 @@ void maze_solve_drive_reset(void)
 
 uint8_t maze_solve(void) //called from RIOS periodical task
 {
-	uint16_t btVar = uart_getc();
-	if(btVar == UART_NO_DATA)
+	if((btVar != UART_NO_DATA) && drive_back)
 	{
-		ui_setLED(-1, 0);
-		ui_setLED(1, 0);
+		uart_putc((unsigned char)btVar);
 	}
-	else
-	{
-		ui_setLED(-1, 255);
-		ui_setLED(1, 255);
-		uart_putc((unsigned char) btVar);
-	}
-
-
-
-
 
 	uint8_t returnvar = 1;
 
@@ -427,7 +437,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 									{
 										ramp_enc = mot.enc;
 
-										if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) //Silver tile? Positive val
+										/*if(groundsens_l < GROUNDSENS_L_TH_CHECKPOINT) //Silver tile? Positive val
 											groundsens_cnt ++;
 
 										if((groundsens_r > GROUNDSENS_R_TH_BLACKTILE) && //Black: negative
@@ -461,7 +471,7 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 													}
 												}
 											}
-										}
+										}*/
 
 										if(um6.isRamp > 0) //ramp up
 											ramp_cnt ++;
@@ -735,9 +745,9 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 
 									lastDriveAction = DA_RAMP_DOWN;
 
-									maze_setWall(&robot.pos, robot.dir, 100); //Set three walls as from now we stay here and pre-map to the right door
-									maze_setWall(&robot.pos, robot.dir+1, 100);
-									maze_setWall(&robot.pos, robot.dir+3, 100);
+									maze_setWall(&robot.pos, robot.dir, 120); //Set three walls as from now we stay here and pre-map to the right door
+									maze_setWall(&robot.pos, robot.dir+1, 120);
+									maze_setWall(&robot.pos, robot.dir+3, 120);
 									maze_setBeenthere(&robot.pos, NONE, 1);
 
 									maze_solve_state_path = ST_PREMAP;
@@ -746,15 +756,69 @@ uint8_t maze_solve(void) //called from RIOS periodical task
 							break;
 
 		case ST_PREMAP:
-							if(routeRequest == RR_WAIT)
-							{
-								rr_result = *maze_getStartPos(); //Request start position, save it in the vars for the route calculation
-								routeRequest = RR_CALCROUTE;
-							}
-							else if(routeRequest == RR_RTDONE)
-							{
-								routeRequest = RR_WAIT;
-								maze_solve_state_path = FOLLOW_DFS;
+							switch (sm_superteam) {
+								case 0: //Waiting for bluetooth signal for door
+
+									btVar = uart_getc();
+									//btVar = (abs(incremental) % 6) + 1;
+									if(btVar != UART_NO_DATA) //bluetooth received
+									{
+										displayvar[1] = btVar;
+
+										if(btVar > 6)
+											btVar = 6;
+										else if(btVar < 1)
+											btVar = 1;
+
+										displayvar[2] = btVar;
+
+										which_door = btVar; //Door
+										ui_setLED(-1, 255);
+										ui_setLED(1, 255);
+
+										sm_superteam ++;
+									}
+									break;
+
+								case 1: //Drive to the door and bump
+
+									if(!drive_instructions(instr[0][which_door - 1], instr_sizes[0][which_door - 1]))
+									{
+										sm_superteam ++;
+									}
+									break;
+
+								case 2: //Send bluetooth signal during driving back to the ramp and after that change orientation
+
+									ui_setLED(-1, 0);
+
+									if(!drive_instructions(instr[1][which_door - 1], instr_sizes[1][which_door - 1]))
+									{
+										ui_setLED(1, 0);
+										sm_superteam ++;
+										robot.dir ++;
+									}
+									break;
+
+								case 3: //Calc route and drive back
+
+									drive_back = 1; //start sending bluetooth
+
+									/*if(routeRequest == RR_WAIT)
+									{
+										rr_result = *maze_getStartPos(); //Request start position, save it in the vars for the route calculation
+										routeRequest = RR_CALCROUTE;
+									}
+									else if(routeRequest == RR_RTDONE)
+									{
+										routeRequest = RR_WAIT;
+										maze_solve_state_path = FOLLOW_DFS;
+										sm_superteam = 0;
+									}*/
+
+									break;
+								default:
+									break;
 							}
 
 							break;

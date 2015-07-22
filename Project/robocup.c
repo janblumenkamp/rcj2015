@@ -403,25 +403,17 @@ int8_t chp = 0;
 
 int8_t task_maze(int8_t state)
 {	
+
 	if(setup == 0)
 	{
 		maze_solve();
 	}
 
-
-	/*dep.amount_to = 1;
-	dep.config_dir = LEFT;
-	dep.config_turnA = incremental%2; //Turn towards victim
-	dep.config_turnB = incremental%2; //And turn back
-	displayvar[1] = dep.config_turnA;
-
-	if(testvar == 1)
+	/*if(testvar == 1)
 	{
-		drive_deployResKit(&dep);
-		if(dep.state == DK_FINISHED)
+		if(!drive_bumpWall())//!drive_instructions(instr[to_from][which_door-1], instr_sizes[to_from][which_door-1]))
 		{
 			testvar = 2;
-			dep.state = DK_INIT;
 		}
 	}
 	else
