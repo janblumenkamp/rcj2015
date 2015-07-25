@@ -1,0 +1,26 @@
+# README #
+
+Hello fellow robotics-programmers! You are on the github site of teamohnename.de's RoboCup Junior Rescue B/Maze Software. Before you start exploring our software, please read this readme!
+
+### What is this repository for? ###
+
+We now participated since four years more or less successfully at RoboCup Junior and put much afford in our robot. Now, we don't need it anymore and it would be a shame if the software just stays at our Laptops. So, we want to make the first steps into creating a more complex robot for RoboCup Junior Rescue a bit easier by publishing our software. We also put much work into our documentation and our blog and, by the way, think that more teams should do this (especially as this competition is a research competition where it doesn't matter who wins or not but how much is the progress and how much can the teams learn from each other.
+There are more arguments for putting the software into the internet than against doing it. One big argument is the learning progress. One may say that the teams don't learn anything by putting the nice working code for re-use in the internet. But *before* one may use the code, one has to understand it (especially if one wants to be able to debug it diring the competition). In our opinion, if one understands the approximately 10000 lines of self written code (not counting ready to use librarys) and is able to implement it on one's own robot, we don't have any problems with that.
+Still, we think that it makes more sense to only use selected parts of the software. There is much low-level stuff and much parts that are really not well designed (what works works). We usually only put much efford in parts that *has* to work reliable and *has* to be efficient. Some parts of the software are also really old, please don't judge the programming style of some parts :D
+
+We started using git only one year ago and initialized this repository in January 2015. We started with the superteam version of Brazil 2014 as we lost the original version, what's the reaason of some pre-mapping functions (during superteam, this was allowed, so don't wonder about that :D).
+
+We especially want you to have a look on the mapmatching branch. We think that there is a big potential - the thought behind this is a really basic SLAM without the need of Lasers. For more information, see the wiki.
+
+### How do I get set up? ###
+
+This repository is not really thought for setting up on your robot. There aresome well capsuled part of codes that may be really easy to re-use and some parts that are highly integrated and only work with *our* robot. So please think about what you use ;)
+
+### Contribution guidelines ###
+
+Please let us know if you make any progresses (especially with the kind of SLAM thing). We really would like to see that! :D Maybe for this an own repository would be good...
+We publish this software under the MIT License.
+
+### Who do I talk to? ###
+
+If you have any questions, feel free to contact us!
