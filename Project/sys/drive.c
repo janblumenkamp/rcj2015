@@ -130,21 +130,15 @@ void drive_oneTile(DOT *d)
 
 							if(abs(robot_angleToLeftWall) < abs(robot_angleToRightWall))
 							{
-								if(dist[LIN][LEFT][FRONT] < dist[LIN][LEFT][BACK])
-									d->steer = (((int16_t)(dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT])) * -KP_DOT_DIR);
-								else
-									d->steer = (((int16_t)(dist[LIN][LEFT][FRONT] - dist[LIN][LEFT][BACK])) * KP_DOT_DIR);
+								d->steer = 0 - (dist[LIN][LEFT][BACK] - dist[LIN][LEFT][FRONT]) * KP_DOT_DIR;
 
-								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST);
+								d->steer += (DIST_SOLL - dist[LIN][LEFT][FRONT]) * -KP_DOT_DIST;
 							}
 							else if(abs(robot_angleToLeftWall) > abs(robot_angleToRightWall))
 							{
-								if(dist[LIN][RIGHT][FRONT] < dist[LIN][RIGHT][BACK])
-									d->steer = (((int16_t)(dist[LIN][RIGHT][BACK] - dist[LIN][RIGHT][FRONT])) * KP_DOT_DIR);
-								else
-									d->steer = (((int16_t)(dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK])) * -KP_DOT_DIR);
+								d->steer = 0 - (dist[LIN][RIGHT][FRONT] - dist[LIN][RIGHT][BACK]) * KP_DOT_DIR;
 
-								d->steer += ((int16_t)(DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST);
+								d->steer += (DIST_SOLL - dist[LIN][RIGHT][FRONT]) * KP_DOT_DIST;
 							}
 							else
 							{
