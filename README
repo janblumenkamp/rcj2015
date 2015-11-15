@@ -14,7 +14,38 @@ We especially want you to have a look on the mapmatching branch. We think that t
 
 ### How do I get set up? ###
 
-This repository is not really thought for setting up on your robot. There aresome well capsuled part of codes that may be really easy to re-use and some parts that are highly integrated and only work with *our* robot. So please think about what you use ;)
+This repository is not really thought for setting up on your robot. There are some well capsuled part of codes that may be really easy to re-use and some parts that are highly integrated and only work with *our* robot. So please think about what you use ;)
+
+### Repository structure ###
+
+Project ** The actual source code files
+  sys ** folder containing some self written and other librarys and all other files
+    bluetooth
+    debug
+    display
+    drive
+    funktionen
+    i2cdev
+    i2cmaster/twimaster
+    irdist
+    main.h
+    maze
+    mazefunctions
+    memcheck
+    menu
+    pixy
+    system
+    uart
+    um6
+    victim
+  u8g ** folder containing the u8g display library files
+    ...
+  LICENSE
+  Makefile
+  robocup.c ** Main file of our project containing the int main
+documentation ** documentation, mainly containing some images for the wiki "Facharbeit" explaining the SLAM stuff
+pcb
+README
 
 ### Contribution guidelines ###
 
@@ -24,3 +55,7 @@ We publish this software under the MIT License.
 ### Who do I talk to? ###
 
 If you have any questions, feel free to contact us!
+
+### What else we want to say ###
+
+This software was developed within like 4 years. Unfortunately, we only started using git in the last year. (Maybe we add our old software in an archive folder, that are some things one can really laugh about...). Many parts were rewritten after some time. It is really difficult to keep 10000 lines of code up to date. As we often had time pressure, we made things just to work! Today, we surely would make a few things different, but this repository also shows our learning process over time. Furthermore we should have used spaces instead of tabs (github makes one tab 8 spaces). Maybe we just replace them some time with spaces (thanks to the tabs that should work without problems). Simply append ?ts=4 to the raw file viewer in github if you want to change tab width.
