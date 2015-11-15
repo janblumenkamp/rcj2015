@@ -20,24 +20,24 @@ This repository is not really thought for setting up on your robot. There are so
 
 Project ** The actual source code files
   sys ** folder containing some self written and other librarys and all other files
-    bluetooth
-    debug
-    display
-    drive
-    funktionen
-    i2cdev
-    i2cmaster/twimaster
-    irdist
-    main.h
-    maze
-    mazefunctions
-    memcheck
-    menu
-    pixy
-    system
-    uart
-    um6
-    victim
+    bluetooth ** bluetooth abstraction layer. Actually only interfacing the uart
+    debug ** Protocol layer for sending debug messages and the map to a base station. Implemented but not tested.
+    display ** Display Menu/UI. This is one of the things with the biggest optimization potential, but also one of the least important things, why we did not bother.
+    drive ** All driving related functions (drive one tile straight, turn 90°, ...)
+    funktionen ** several functions for everything or experimental that did not match in other files
+    i2cdev ** all i2c sensor interface functions (MLX90614 temperature and SRF10 ultrasonic)
+    i2cmaster/twimaster ** I2C Library by Peter Fleury
+    irdist ** contains state machine to interface the ir distance sensors. There may only be one sensor per site active, totherwise they interfere!
+    main.h ** should actually be robocup.h. Contains prototypes etc. for important global variables
+    maze ** most important part - the main state machine deciding how to drive and controlling mainly everything regarding solving the maze
+    mazefunctions ** abstraction functions for interfacing the map. Also contains some experimental SLAM stuff
+    memcheck ** RAM memory check - at boot, the ram is written with a pattern (like 0xaa 0xbb 0xaa ...) for detecting the maximum ram usage during runtime.
+    menu ** planned to make the mess in display files clean by using the u8g/mt2k menu librarys. Never had time for that.
+    pixy ** Interface for the Pixy Cam /CMUCam 5 (UART). We planed to use it for black tile detection, but it can only detect colors...
+    system ** some really low level systems initialization stuff
+    uart ** Uart Library by Peter Fleury
+    um6 ** UM6 IMU Interfacing Library (UART based)
+    victim ** some victim identification stuff. Only experimental, we always used a simpel threshold stored in EEPROM configurable via display files menu.
   u8g ** folder containing the u8g display library files
     ...
   LICENSE
