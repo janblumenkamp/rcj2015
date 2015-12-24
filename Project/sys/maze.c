@@ -667,144 +667,143 @@ uint8_t maze_solve(void) //called from RIOS periodical task
             break;
 
         case RAMP_UP:
-                                if(drive_ramp(RAMP_UP_SPEED, &checkpoint_ramp) == 0)
-                                {
-                                    if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
-                                    {
-                                        foutf(&str_debug, "IS RAMP!\n\r");
+            if(drive_ramp(RAMP_UP_SPEED, &checkpoint_ramp) == 0)
+            {
+                if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
+                {
+                    foutf(&str_debug, "IS RAMP!\n\r");
 
-                                        maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
+                    maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
 
-                                        if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
-                                        {
-                                            maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
-                                            checkpoint_ramp = 0;
-                                        }
+                    if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
+                    {
+                        maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
+                        checkpoint_ramp = 0;
+                    }
 
-                                        robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
+                    robot.pos.z ++; //normalerweise muss z jetzt 1 sein, da er die Rampe hochgefahren ist und somit unten gestartet sein muss.
 
-                                        if(maze_getRampDir(robot.pos.z) == NONE) //Rampe oben noch nicht gesetzt
-                                        {
-                                            robot.pos.x = ROB_POS_X_MIN;
-                                            robot.pos.y = ROB_POS_Y_MIN;
+                    if(maze_getRampDir(robot.pos.z) == NONE) //Rampe oben noch nicht gesetzt
+                    {
+                        robot.pos.x = ROB_POS_X_MIN;
+                        robot.pos.y = ROB_POS_Y_MIN;
 
-                                            maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
-                                            maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
-                                        }
-                                        else
-                                        {
-                                            robot.pos = *maze_getRamp(robot.pos.z);
+                        maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
+                        maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
+                    }
+                    else
+                    {
+                        robot.pos = *maze_getRamp(robot.pos.z);
 
-                                            switch(maze_getRampDir(robot.pos.z))
-                                            {
-                                                case NORTH:    robot.pos.y--;    break;
-                                                case EAST:    robot.pos.x--;    break;
-                                                case SOUTH:    robot.pos.y++;    break;
-                                                case WEST:    robot.pos.x++;    break;
-                                                default:     foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
-                                                            fatal_err = 1;
-                                            }
-                                        }
+                        switch(maze_getRampDir(robot.pos.z))
+                        {
+                            case NORTH:    robot.pos.y--;    break;
+                            case EAST:    robot.pos.x--;    break;
+                            case SOUTH:    robot.pos.y++;    break;
+                            case WEST:    robot.pos.x++;    break;
+                            default:     foutf(&str_error, "%i: ERR:sw[maze.02]:DEF\n\r", timer);
+                                        fatal_err = 1;
+                        }
+                    }
 
-                                        /*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
-                                        {
-                                            maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
-                                            checkpoint_ramp = 0;
-                                        }*/
-                                    }
+                    /*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
+                    {
+                        maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
+                        checkpoint_ramp = 0;
+                    }*/
+                }
 
-                                    lastDriveAction = DA_RAMP_UP;
+                lastDriveAction = DA_RAMP_UP;
 
-                                    maze_solve_state_path = DRIVE_READY;
-                                }
+                maze_solve_state_path = DRIVE_READY;
+            }
 
-                            break;
+            break;
 
         case RAMP_DOWN:
-                                if(drive_ramp(RAMP_DOWN_SPEED, &checkpoint_ramp) == 0) //Drive ramp down
-                                {
-                                    if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
-                                    {
-                                        foutf(&str_debug, "IS RAMP!\n\r");
+            if(drive_ramp(RAMP_DOWN_SPEED, &checkpoint_ramp) == 0) //Drive ramp down
+            {
+                if((mot.enc - ramp_enc_start) > (50 * ENC_FAC_CM_LR)) //Driven at least 50cm
+                {
+                    foutf(&str_debug, "IS RAMP!\n\r");
 
-                                        maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
+                    maze_setRamp(&robot.pos, robot.dir, NONE, TRUE); //Set ramp on button position
 
-                                        if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
-                                        {
-                                            maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
-                                            checkpoint_ramp = 0;
-                                        }
+                    if(checkpoint_ramp == 1) //Checkpoint somewhere on the ramp
+                    {
+                        maze_setCheckpoint(&robot.pos, NONE); //Robot is still on the first tile of the ramp because we haven't switched position, yet
+                        checkpoint_ramp = 0;
+                    }
 
-                                        robot.pos.z --; //Moved into lower stage
+                    robot.pos.z --; //Moved into lower stage
 
-                                        if(robot.pos.z < 0) //Change offset in z axis
-                                        {
-                                            maze_chgOffset(Z, NONE, -1);
-                                            robot.pos.z = 0;
-                                        }
+                    if(robot.pos.z < 0) //Change offset in z axis
+                    {
+                        maze_chgOffset(Z, NONE, -1);
+                        robot.pos.z = 0;
+                    }
 
-                                        if(maze_getRampDir(robot.pos.z) == NONE) //ramp in stage not yet set!
-                                        {
-                                            robot.pos.x = ROB_POS_X_MIN;
-                                            robot.pos.y = ROB_POS_Y_MIN;
+                    if(maze_getRampDir(robot.pos.z) == NONE) //ramp in stage not yet set!
+                    {
+                        robot.pos.x = ROB_POS_X_MIN;
+                        robot.pos.y = ROB_POS_Y_MIN;
 
-                                            maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
-                                            maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
-                                        }
-                                        else
-                                        {
-                                            robot.pos = *maze_getRamp(robot.pos.z); //Set robot position to ramp position in stage
+                        maze_setBeenthere(&robot.pos,maze_alignDir(robot.dir + 2),TRUE);
+                        maze_setRamp(&robot.pos, maze_alignDir(robot.dir + 2), maze_alignDir(robot.dir + 2), TRUE);
+                    }
+                    else
+                    {
+                        robot.pos = *maze_getRamp(robot.pos.z); //Set robot position to ramp position in stage
 
-                                            switch(maze_getRampDir(robot.pos.z))
-                                            {
-                                                case NORTH:    robot.pos.y--;    break;
-                                                case EAST:    robot.pos.x--;    break;
-                                                case SOUTH:    robot.pos.y++;    break;
-                                                case WEST:    robot.pos.x++;    break;
-                                                default:     foutf(&str_error, "%i: ERR:sw[maze.01]:DEF\n\r", timer);
-                                                            fatal_err = 1;
-                                            }
-                                        }
+                        switch(maze_getRampDir(robot.pos.z))
+                        {
+                            case NORTH:    robot.pos.y--;    break;
+                            case EAST:    robot.pos.x--;    break;
+                            case SOUTH:    robot.pos.y++;    break;
+                            case WEST:    robot.pos.x++;    break;
+                            default:     foutf(&str_error, "%i: ERR:sw[maze.01]:DEF\n\r", timer);
+                                        fatal_err = 1;
+                        }
+                    }
 
-                                        /*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
-                                        {
-                                            maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
-                                            checkpoint_ramp = 0;
-                                        }*/
-                                    }
+                    /*if(checkpoint_ramp == 2) //now, we check if the checkpoint was after the end tile of the ramp
+                    {
+                        maze_setCheckpoint(&robot.pos, NONE); //Set checkpoint to new, current tile
+                        checkpoint_ramp = 0;
+                    }*/
+                }
 
-                                    lastDriveAction = DA_RAMP_DOWN;
+                lastDriveAction = DA_RAMP_DOWN;
 
-                                    maze_solve_state_path = DRIVE_READY;
-                                }
+                maze_solve_state_path = DRIVE_READY;
+            }
 
-                            break;
+            break;
 
         case VIC_DEPL:
-                                drive_deployResKit(&deployKits);
+            drive_deployResKit(&deployKits);
 
-                                if(deployKits.state == DK_FINISHED)
-                                {
-                                    deployKits.state = DK_INIT;
+            if(deployKits.state == DK_FINISHED)
+            {
+                deployKits.state = DK_INIT;
 
-                                    lastDriveAction = DA_DEPLKIT;
+                lastDriveAction = DA_DEPLKIT;
 
-                                    timer_victim_led = -1;
+                timer_victim_led = -1;
 
-                                    maze_solve_state_path = maze_solve_state_path_deplKitSave;
-                                }
+                maze_solve_state_path = maze_solve_state_path_deplKitSave;
+            }
 
-                                break;
+            break;
 
         case CHECK_BLACKTILE:
 
-                                maze_solve_state_path = DRIVE_DOT;
+            maze_solve_state_path = DRIVE_DOT;
+            break;
 
-                                break;
-
-            default:
-                                foutf(&str_error, "%i: ERR:sw[maze.03]:DEF\n\r", timer);
-                                fatal_err = 1;
+        default:
+            foutf(&str_error, "%i: ERR:sw[maze.03]:DEF\n\r", timer);
+            fatal_err = 1;
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -974,46 +973,47 @@ void maze_solveRoutes(void) //called from main-loop (time-intensive route calcul
 
     switch(routeRequest)
     {
-        case RR_WAIT:                    break; //Has to be checked in maze_solve().
+        case RR_WAIT:
+            break; //Has to be checked in maze_solve().
 
         case RR_CALCNEARESTTILE:
 
-                        foutf(&str_debug, "%i: CalcNearTile\n\r", timer);
+            foutf(&str_debug, "%i: CalcNearTile\n\r", timer);
 
-                        tileRes = maze_findNearestTile(&robot.pos, &rr_result);
+            tileRes = maze_findNearestTile(&robot.pos, &rr_result);
 
-                        if(tileRes == -1)            routeRequest = RR_NEARNOPOSS; //Driven over every visitable tile -> Drive back to start
-                        else if(tileRes < 4000)        routeRequest = RR_CALCROUTE;
-                        else                        routeRequest = RR_NEARTIMEOUT;
+            if(tileRes == -1)            routeRequest = RR_NEARNOPOSS; //Driven over every visitable tile -> Drive back to start
+            else if(tileRes < 4000)        routeRequest = RR_CALCROUTE;
+            else                        routeRequest = RR_NEARTIMEOUT;
 
-                    break;
+            break;
 
         case RR_CALCROUTE:
 
-                        foutf(&str_debug, "%i: CalcRoute\n\r", timer);
+            foutf(&str_debug, "%i: CalcRoute\n\r", timer);
 
-                        maze_clearDepthsearch();
+            maze_clearDepthsearch();
 
-                        tileRes = maze_findPath(&robot.pos, &rr_result);
+            tileRes = maze_findPath(&robot.pos, &rr_result);
 
-                        if(tileRes == -1)            routeRequest = RR_RTNOPOSS; //No possible route
-                        else if(tileRes < 4000)        routeRequest = RR_RTDONE;
-                        else                        routeRequest = RR_RTTIMEOUT;
+            if(tileRes == -1)            routeRequest = RR_RTNOPOSS; //No possible route
+            else if(tileRes < 4000)        routeRequest = RR_RTDONE;
+            else                        routeRequest = RR_RTTIMEOUT;
 
-                    break;
+            break;
 
-        case RR_NEARDONE:        break; //Has to be checked in maze_solve().
-        case RR_NEARNOPOSS:        break; //"
+        case RR_NEARDONE:       break; //Has to be checked in maze_solve().
+        case RR_NEARNOPOSS:     break; //"
         case RR_NEARTIMEOUT:    break; //"
 
-        case RR_RTDONE:            break; //"
-        case RR_RTNOPOSS:        break; //"
-        case RR_RTTIMEOUT:        break; //"
+        case RR_RTDONE:         break; //"
+        case RR_RTNOPOSS:       break; //"
+        case RR_RTTIMEOUT:      break; //"
 
         default:
-                        foutf(&str_error, "%i: ERR:sw[maze.06]:DEF\n\r", timer);
-                        fatal_err = 1;
-                        routeRequest = RR_WAIT;
+            foutf(&str_error, "%i: ERR:sw[maze.06]:DEF\n\r", timer);
+            fatal_err = 1;
+            routeRequest = RR_WAIT;
     }
 }
 
@@ -1157,37 +1157,38 @@ void maze_updateGround(int8_t updateFac_ground, int8_t isGround)
     {
         case NORTH:
         case EAST:
-                            if(maze_getWall(&robot.pos, robot.dir) < MAZE_ISWALL) //Nur, wenn da keine Wand ist
-                                maze_corrGround(&robot.pos, robot.dir, updateFac_ground);
+            if(maze_getWall(&robot.pos, robot.dir) < MAZE_ISWALL) //Nur, wenn da keine Wand ist
+                maze_corrGround(&robot.pos, robot.dir, updateFac_ground);
 
-                        break;
+            break;
 
         case SOUTH:
-                            if(((robot.pos.y-1) < 0) && (robot.pos.y != updateGround_lastPosY) && (updateFac_ground > 0))
-                            {
-                                maze_chgOffset(Y, robot.pos.z, -1);
-                                robot.pos.y ++;
-                                updateGround_lastPosY = robot.pos.y;
-                            }
-                            if(maze_getWall(&robot.pos, robot.dir) < MAZE_ISWALL) //Nur, wenn da keine Wand ist
-                                maze_corrGround(&robot.pos, robot.dir, updateFac_ground);
+            if(((robot.pos.y-1) < 0) && (robot.pos.y != updateGround_lastPosY) && (updateFac_ground > 0))
+            {
+                maze_chgOffset(Y, robot.pos.z, -1);
+                robot.pos.y ++;
+                updateGround_lastPosY = robot.pos.y;
+            }
+            if(maze_getWall(&robot.pos, robot.dir) < MAZE_ISWALL) //Nur, wenn da keine Wand ist
+                maze_corrGround(&robot.pos, robot.dir, updateFac_ground);
 
-                break;
+            break;
 
         case WEST:
-                            if(((robot.pos.x-1) < 0) && (robot.pos.x != updateGround_lastPosX) && (updateFac_ground > 0))
-                            {
-                                maze_chgOffset(X, robot.pos.z, -1);
-                                robot.pos.x ++;
-                                updateGround_lastPosX = robot.pos.x;
-                            }
-                            if(maze_getWall(&robot.pos, robot.dir) < MAZE_ISWALL) //Nur, wenn da keine Wand ist
-                                maze_corrGround(&robot.pos, robot.dir, updateFac_ground);
+            if(((robot.pos.x-1) < 0) && (robot.pos.x != updateGround_lastPosX) && (updateFac_ground > 0))
+            {
+                maze_chgOffset(X, robot.pos.z, -1);
+                robot.pos.x ++;
+                updateGround_lastPosX = robot.pos.x;
+            }
+            if(maze_getWall(&robot.pos, robot.dir) < MAZE_ISWALL) //Nur, wenn da keine Wand ist
+                maze_corrGround(&robot.pos, robot.dir, updateFac_ground);
 
-                break;
+            break;
 
-        default:     foutf(&str_error, "%i: ERR:sw[maze.07]:DEF\n\r", timer);
-                    fatal_err = 1;
+        default:
+            foutf(&str_error, "%i: ERR:sw[maze.07]:DEF\n\r", timer);
+            fatal_err = 1;
     }
 
     foutf(&str_debug, "%i: updGrnd", timer);
@@ -1467,10 +1468,10 @@ void u8g_DrawMaze(void)
     {
         switch(incr_ok_mode)
         {
-            case 0:        cursor_robot_pos_x += (incremental-incremental_old_mz)*2;        break;
-            case 1:        cursor_robot_pos_y += (incremental-incremental_old_mz)*2;        break;
-            case 2:        cursor_robot_dir -= (incremental-incremental_old_mz)*2;            break;
-            case 3:        wall_size_part += (incremental-incremental_old_mz)*2;
+            case 0:     cursor_robot_pos_x += (incremental-incremental_old_mz)*2;        break;
+            case 1:     cursor_robot_pos_y += (incremental-incremental_old_mz)*2;        break;
+            case 2:     cursor_robot_dir -= (incremental-incremental_old_mz)*2;            break;
+            case 3:     wall_size_part += (incremental-incremental_old_mz)*2;
 
                         if(wall_size_part < WALL_SIZE_MIN)
                             wall_size_part = WALL_SIZE_MAX;
