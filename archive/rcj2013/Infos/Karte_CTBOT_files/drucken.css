@@ -1,0 +1,108 @@
+body,
+#breadcrumb,
+#container,
+#container_content,
+#links,
+#mitte,
+#mitte #mitte_links,
+#mitte_news,
+#mitte_text,
+#mitte_suche,
+#mitte_microsite,
+#mitte_messehighlight
+.forum_content {
+float:none;
+margin:0;
+overflow:visible;
+padding:0;
+position:static;
+width:100%;
+}
+body,
+#breadcrumb,
+#container,
+#container_content,
+#links,
+#mitte,
+#mitte #mitte_links {
+width:100%;
+}
+#mitte_news,
+#mitte_text,
+#mitte_suche,
+#mitte_microsite,
+#mitte_messehighlight,
+.forum_content {
+width:auto;
+}
+body,
+#container,
+#container_content,
+#mitte,
+#mitte #mitte_links	{
+background:#fff;
+border:none;
+color:#000;
+font-size:12pt;
+}
+#breadcrumb {
+margin-bottom:1em;
+padding-left:1.5em;
+}
+a,
+a:link {
+color:#000!important;
+font-weight:700;
+text-decoration:none!important;
+}
+#logo_bereich #logo {
+float:none!important;
+}
+.skyscraper,
+.leaderboard,
+.heiseadvert,
+.sponsor,
+.cadv,
+.badv,
+.bcadv,
+.adbottom,
+.weitere,
+.druck,
+.news_navi,
+.news_foren,
+.news_option,
+.news_logo,
+.readspeaker,
+#mitte #mitte_rechts,
+#navi_top,
+#login_suche,
+#navi_bottom .left,
+#navigation,
+#sitemap {
+display:none;
+}
+#mitte #mitte_links p a:link:after,
+#mitte #mitte_links p a:visited:after {
+content:" [" attr(href) "] ";
+font-size:90%;
+font-weight:400;
+}
+#mitte #mitte_links p a[href^="/"]:link:after,
+#mitte #mitte_links p a[href^="/"]:visited:after {
+content:" [http://www.heise.de" attr(href)"] ";
+}
+#navi_bottom {
+margin:1em 0 0;
+padding:0;
+}
+#navi_bottom,
+#navi_bottom a {
+background:#fff;
+}
+.news_logo {
+margin-left:1em;
+text-align:left;
+}
+img {
+page-break-inside: avoid;
+}

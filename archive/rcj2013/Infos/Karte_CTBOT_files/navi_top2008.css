@@ -1,0 +1,174 @@
+#adblockerwarnung {
+position: absolute;
+top: 75px;
+left: 20%;
+padding: 1em;
+text-align: center;
+border: 1px solid #333;
+background: #fff;
+display: none;
+z-index: 50;
+}
+#adblockerwarnung a {
+font-weight: bold;
+color: #039;
+}
+#container,
+.clear {
+clear: both;
+}
+.navi_top_container {
+background: #fdfdfc;
+border-bottom: 1px solid #EBE9EA;
+width: 100%;
+margin: 0;
+float: left;
+height: 45px;
+}
+.navi_top_content {
+font-family:Arial, Helvetica, Verdana, sans-serif;
+font-size:16px;
+width: 64em;
+min-width: 730px;
+margin: 0 auto;
+}
+.navi_top_content .navi_top_logo,
+.navi_top_content .navi_top_text {
+width: 22%;
+min-width: 210px;
+line-height: normal;
+margin: 0;
+padding: 0;
+float: left;
+}
+.navi_top_content .navi_top_logo img {
+margin-top: 1px;
+}
+.navi_top_content .navi_top_text {
+width: 76%;
+}
+.navi_top_content ul {
+font-size:12px;
+padding: 0;
+margin: 0;
+list-style: none;
+}
+.navi_top_content ul li {
+display: inline;
+padding: 0 0 0 11px;
+background:url("//www.heise.de/icons/ho/midot.gif") no-repeat 0 center;
+}
+.navi_top_content ul li.first {
+background:none;
+}
+.navi_top_content .erste_zeile {
+padding-top: 7px;
+}
+.navi_top_content .zweite_zeile {
+padding-top:4px;
+}
+.navi_top_content ul a {
+color:#039;
+text-decoration: none;
+padding: 1px 4px;
+}
+.navi_top_content ul a:hover,
+.navi_top_content li.weitere_angebote b a:hover,
+.navi_top_content .navi_top_sub li a:hover {
+color:#fff;
+background: #333;
+}
+.navi_top_content li.weitere_angebote {
+position: relative;
+z-index: 9999;
+}
+.navi_top_content li.weitere_angebote b {
+font-weight: normal;
+background:url("//www.heise.de/icons/ho/navi_top_pfeil.gif") no-repeat right center;
+padding-right: 16px;
+}
+.navi_top_content li.weitere_angebote b a {
+margin-left: 0;
+color:#252525;
+}
+.navi_top_content li.weitere_angebote .navi_top_sub {
+position: absolute;
+top: -300px;
+left: 8px;
+z-index: 9999;
+opacity: 0;
+-moz-transition: opacity 0.5s ease-in-out;
+-ms-transition: opacity 0.5s ease-in-out;
+-o-transition: opacity 0.5s ease-in-out;
+-webkit-transition: opacity 0.5s ease-in-out;
+transition: opacity 0.5s ease-in-out;
+}
+.navi_top_content li.weitere_angebote:hover .navi_top_sub {
+top:15px;
+opacity: 1;
+border: 1px solid #ccc;
+border-top-color: #fdfdfc;
+background: #fdfdfc;
+}
+.navi_top_content .navi_top_sub li {
+display: block;
+background-image: none;
+padding: 0;
+white-space: nowrap;
+}
+.navi_top_content .navi_top_sub li a {
+margin-left: 0;
+display: block;
+padding: 4px 20px;
+color:#039;
+}
+/* IE 7 Korrektur fuer das Dropdown */
+* +html .navi_top_content li.weitere_angebote:hover .navi_top_sub {
+top: 20px;
+}
+/* IE 6 Loesung fuer das Dropdown */
+* html .navi_top_content li.weitere_angebote b {
+display: none;
+}
+* html .navi_top_content li.weitere_angebote .navi_top_sub {
+position: relative;
+top: auto;
+left: auto;
+padding: 4px 0 0 0;
+border: none;
+}
+* html .navi_top_content li.weitere_angebote .navi_top_sub li {
+display: inline;
+padding-left: 11px;
+background:url("//www.heise.de/icons/ho/midot.gif") no-repeat 0 center;
+}
+* html .navi_top_content li.weitere_angebote .navi_top_sub li.first {
+background: none;
+}
+* html .navi_top_content .navi_top_sub li a {
+display: inline;
+padding: 1px 4px;
+}
+/* CSS fuer iPhone/iPad */
+@media screen and (max-device-width: 1024px) {
+    .navi_top_container {
+    height: 50px;
+    padding-right: 15%;
+    }
+    .navi_top_content .navi_top_logo {
+    width: 20%;
+    min-width: 200px;
+    }
+    .navi_top_content .navi_top_logo img {
+    margin-top: 3px;
+    }
+    .navi_top_content .navi_top_text {
+    width: 78%;
+    }
+    .navi_top_content ul {
+    font-size: 14px;
+    }
+    .navi_top_content ul a {
+    padding: 1px 2px;
+    }
+}

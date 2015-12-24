@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html -->
+<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    
+
+    <title>Karten bauen (nicht nur) mit dem c't-Bot | c't</title>
+    
+
+    
+
+
+
+
+
+<meta charset="utf-8">
+<meta name="publisher" content="Heise Zeitschriften Verlag">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">    <link rel="canonical" href="./Karte_CTBOT_files/Karte_CTBOT.html"><link rel="home" type="text/html" title="Startseite" href="http://www.heise.de/ct/">
+<link rel="copyright" title="Copyright" href="http://www.heise.de/ct/c-t-Impressum-4780.html">     <meta name="date" content="2006-09-04T00:00:00">
+    
+    <meta name="author" content="Andreas Birk">        <meta name="fulltitle" content="An der nächsten Ecke links ...">
+        <meta name="topic" content="Know-how">
+        <meta name="feature" content="true">
+        <meta name="DC.title" content="An der nächsten Ecke links ...">
+        <meta name="DC.description" content="Autonome Roboter können sich nicht nur selbstständig durch unbekannte Räume bewegen. Bringt man ihnen geeignete Kartierungstechniken bei, merken sie sich auch, wie ihre Umgebung aussieht.">
+        <meta name="DC.identifier" content="http://heise.de/-290662" scheme="DCTERMS.URI">
+        
+        
+        <meta name="description" content="Autonome Roboter können sich nicht nur selbstständig durch unbekannte Räume bewegen. Bringt man ihnen geeignete Kartierungstechniken bei, merken sie sich auch, wie ihre Umgebung aussieht.">    <!--googleoff: all-->
+    <meta property="og:title" content="Karten bauen (nicht nur) mit dem c&#39;t-Bot">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:url" content="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html">
+    <meta property="og:site_name" content="c&#39;t">
+    <meta property="og:image" content="http://www.heise.de/ct/icons/ct_logo2009.png">
+
+    <!--googleon: all--><!--googleoff: all-->
+<meta name="generator" content="InterRed V13.0, http://www.interred.de/, InterRed GmbH">
+<!--googleon: all-->
+
+    
+
+
+
+<script type="text/javascript" src="./Karte_CTBOT_files/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="./Karte_CTBOT_files/jquery-ui-1.8.18_cycle.custom.min.js"></script>
+<script type="text/javascript" src="./Karte_CTBOT_files/jquery.equalheights.min.js"></script>
+<script type="text/javascript" src="./Karte_CTBOT_files/social_bookmarks.js"></script>
+<script type="text/javascript" src="./Karte_CTBOT_files/external.js"></script>
+<script type="text/javascript" src="./Karte_CTBOT_files/teaser_linking.js"></script><style type="text/css"></style>
+
+<script type="text/javascript" src="./Karte_CTBOT_files/bilderstrecke.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function($){
+    
+    if($('.bilderstrecke_vorschau').length > 0 && (!$.browser.msie || ($.browser.msie && $.browser.version > 8))) {
+        $('.bilderstrecke_vorschau').bilderstrecke();
+    }
+    
+    
+
+
+});
+</script>
+<!-- view_relaunch:  -->
+
+    
+
+
+
+<link href="./Karte_CTBOT_files/standard2008.css" rel="stylesheet" type="text/css">
+<link href="./Karte_CTBOT_files/navi_top2008.css" rel="stylesheet" type="text/css">
+<link href="./Karte_CTBOT_files/drucken.css" rel="stylesheet" type="text/css" media="print">
+
+
+    <!--googleoff: all-->
+    <link href="http://www.heise.de/favicon_ct.ico" rel="shortcut icon">
+    <link rel="author" title="Kontakt" href="mailto:www%40ct.heise.de">
+    <link rel="search" title="Suche" href="http://www.heise.de/ct/suche/">
+    <link rel="alternate" type="application/atom+xml" title="c&#39;t Artikel" href="http://www.heise.de/ct/rss/artikel-atom.xml">
+    <link rel="apple-touch-icon-precomposed" href="http://www.heise.de/ct/icons/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://www.heise.de/ct/icons/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://www.heise.de/ct/icons/apple-touch-icon-72x72-precomposed.png">
+    <meta name="application-name" content="Magazin für Computertechnik">
+    <meta name="msapplication-tooltip" content="c&#39;t Magazin für Computertechnik">
+    <meta name="msapplication-starturl" content="/ct/">
+    <meta name="msapplication-TileImage" content="/ct/icons/windows-icon-144.png">
+    <meta name="msapplication-TileColor" content="#3560a4">
+    <meta name="DC.creator" content="c&#39;t">
+    <link href="./Karte_CTBOT_files/ct2012.css" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript" src="./Karte_CTBOT_files/webcode.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./Karte_CTBOT_files/socialshareprivacy.css"></head>
+
+<body>
+
+
+
+
+
+
+
+<div class="heisetopnavi heisetopnavi_relaunch">
+    <div class="heisetopnavi_header">
+        <header role="banner">
+            <div class="heisetopnavi_login">
+                <script type="text/javascript" src="./Karte_CTBOT_files/login.min.js"></script>
+                <div id="navi_login">
+                    <p><a href="https://www.heise.de/login/?rm=show_login&dirid=1&forward=http%3A%2F%2Fwww.heise.de%2Fct%2Fartikel%2FAn-der-naechsten-Ecke-links-290662.html">Einloggen</a> | <a href="https://www.heise.de/register?rm=show_registration&dirid=1&forward=http%3A%2F%2Fwww.heise.de%2Fct%2Fartikel%2FAn-der-naechsten-Ecke-links-290662.html">Registrieren</a></p>
+                </div>
+            </div>
+            <nav role="navigation">
+                <div class="heisetopnavi_hover_legacy">
+                    <a href="http://www.heise.de/index.html/from/navi_oben_ho" class="heisetopnavi_logo" title="heise online">
+                        <img src="./Karte_CTBOT_files/heise_online_logo_top.gif" width="200" height="44" alt="heise online">
+                    </a>
+                    <a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#heisetopnavi_sub_container" class="heisetopnavi_button" aria-haspopup="true">Menü auf-/zuklappen</a>
+                    <div id="heisetopnavi_sub_container">
+                        <ul id="heisetopnavi_sub">
+                            <li>
+                                <ul>
+                                    <li class="heisetopnavi_ho"><a href="http://www.heise.de/index.html/from/navi_oben_ho" title="heise online – IT-News">News</a></li>
+                                    <li class="heisetopnavi_ct"><a href="http://www.heise.de/ct/from/navi_oben_ct" title="c&#39;t – Magazin für Computertechnik">c't</a></li>
+                                    <li class="heisetopnavi_ix"><a href="http://www.heise.de/ix/from/navi_oben_ix" title="iX – Magazin für professionelle Informationstechnik">iX</a></li>
+                                    <li class="heisetopnavi_tr"><a href="http://www.heise.de/tr/from/navi_oben_tr" title="Technology Review – Das M.I.T.-Magazin für Innovation">Technology Review</a></li>
+                                    <li class="heisetopnavi_mac"><a href="http://www.heise.de/mac-and-i/from/navi_oben_mac" title="Mac &amp; i – Nachrichten, Tests, Tipps und Meinungen rund um Apple">Mac &amp; i</a></li>
+                                    <li class="heisetopnavi_tp"><a href="http://www.heise.de/tp/from/navi_oben_tp" title="Telepolis">Telepolis</a></li>
+                                    <li class="heisetopnavi_hh"><a href="http://www.heise.de/hardware-hacks/from/navi_oben_hh" title="Hardware Hacks – Kreativ mit Technik">Hardware Hacks</a></li>
+                                    <li class="heisetopnavi_df"><a href="http://www.heise.de/foto/special/from/navi_oben_df" title="Digitale Fotografie">Digitale Fotografie</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <ul>
+                                    <li class="heisetopnavi_aut"><a href="http://www.heise.de/autos/from/navi_oben_aut" title="heise Autos – News, Tests, Technik, Service rund ums Auto">heise Autos</a></li>
+                                    <li class="heisetopnavi_dev"><a href="http://www.heise.de/developer/from/navi_oben_dev" title="heise Developer – Informationen für Entwickler">heise Developer</a></li>
+                                    <li class="heisetopnavi_foto"><a href="http://www.heise.de/foto/from/navi_oben_foto" title="heise Foto – Das Online-Magazin rund ums digitale Bild">heise Foto</a></li>
+                                    <li class="heisetopnavi_mob"><a href="http://www.heise.de/mobil/from/navi_oben_mob" title="heise mobil – Tipps &amp; Tricks sowie Produktvorstellungen rund um das mobile Internet">heise mobil</a></li>
+                                    <li class="heisetopnavi_net"><a href="http://www.heise.de/netze/from/navi_oben_net" title="heise Netze – Alles über Netzwerk-Technik">heise Netze</a></li>
+                                    <li class="heisetopnavi_op"><a href="http://www.heise.de/open/from/navi_oben_op" title="heise open – Open Source im Unternehmen">heise Open Source</a></li>
+                                    <li class="heisetopnavi_res"><a href="http://www.heise.de/resale/from/navi_oben_res" title="heise resale – Fakten, Trends und Standpunkte für das ITK-Geschäft">heise resale</a></li>
+                                    <li class="heisetopnavi_sec"><a href="http://www.heise.de/security/from/navi_oben_sec" title="heise Security – News, Dienste und Foren zum Thema Computer-Sicherheit">heise Security</a></li>
+                                    <li class="heisetopnavi_video"><a href="http://www.heise.de/video/from/navi_oben_video" title="heise Video – Clips zu Nachrichten und Artikeln">heise Video</a></li>
+                                </ul>
+                            </li>
+                            <li class="heisetopnavi_third">
+                                <ul>
+                                    <li class="heisetopnavi_swv"><a href="http://www.heise.de/download/from/navi_oben_swv" title="Software-Verzeichnis – Software zum Download fuer Windows, Mac, Linux, iPhone, Symbian, Android">Download</a></li>
+                                    <li class="heisetopnavi_pvg"><a href="http://www.heise.de/preisvergleich/from/navi_oben_pvg" title="Preisvergleich">Preisvergleich</a></li>
+                                    <li class="heisetopnavi_job"><a href="http://www.heise.de/jobs/from/navi_oben_job" title="heise jobs – Jobbörse für qualifizierte Fach- und Führungskräfte aus der IT-Branche">Stellenmarkt</a></li>
+                                    <li class="heisetopnavi_eve"><a href="http://www.heise.de/events/from/navi_oben_eve" title="heise Events – Konferenzen, Seminare, Workshops">Veranstaltungen</a></li>
+                                    <li class="heisetopnavi_mkt"><a href="http://www.heise.de/redirect-to/marktplatz/from/navi_oben_mkt" title="heise-marktplatz – Kostenlose Kleinanzeigen">heise-marktplatz</a></li>
+                                    <li class="heisetopnavi_itm"><a href="http://www.heise.de/itmarkt/from/navi_oben_itm" title="IT-Markt – Branchenverzeichnis der IT-Fachhändler">IT-Markt</a></li>
+                                    <li class="heisetopnavi_whi"><a href="http://www.heise.de/whitepapers/from/navi_oben_whi" title="heise Whitepapers – Kostenloser Download aktueller Praxisbeispiele, Firmeninfos, Case Studies und Webcasts zu neuen Produkten, Strategien und Lösungen namhafter IT-Hersteller">Whitepapers</a></li>
+                                    <li class="heisetopnavi_webcasts"><a href="http://www.heise.de/redirect-to/webcasts/from/navi_oben_webcasts" title="heise Webcasts – Kompakte Firmeninformationen zu komplexen IT-Sachverhalten">Webcasts</a></li>
+                                    <li class="heisetopnavi_tarifr"><a href="http://www.heise.de/redirect-to/tarifrechner/from/navi_oben_tarifr" title="Tarifrechner – DSL, Mobiles Internet, Handy, Telefon, Strom, Gas">Tarifrechner</a></li>
+                                </ul>
+                            </li>
+                            <li class="heisetopnavi_fourth">
+                                <ul>
+                                    <li class="heisetopnavi_shop"><a href="http://www.heise.de/redirect-to/shop/from/navi_oben_shop" title="heise-shop – IT Fachzeitschriften, Bücher, CD/DVD/Blu-ray">heise-shop</a></li>
+                                    <li class="heisetopnavi_kio"><a href="http://www.heise.de/artikel-archiv/from/navi_oben_kio" title="Artikel-Archiv – c&#39;t, iX, Technology Review, Digitale Fotografie, Mac &amp; i, Sonderhefte">Artikel-Archiv</a></li>
+                                    <li class="heisetopnavi_abo"><a href="http://www.heise.de/redirect-to/abo/from/navi_oben_abo" title="Abo – c&#39;t, iX, Technology Review, Digitale Fotografie, Mac &amp; i">Zeitschriften-Abo</a></li>
+                                    <li class="heisetopnavi_hmg"><a href="http://www.heise.de/redirect-to/hmg/from/navi_oben_hmg" title="Jobs bei Heise – Aktuelle Stellenangebote der Heise Medien Gruppe">Jobs bei Heise</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        
+            
+            
+                
+                    
+                    
+            
+        
+            <form accept-charset="utf-8" method="get" action="http://www.heise.de/ct/suche/" id="heisetopnavi_search" role="search">
+                <fieldset>
+                    <input type="text" class="search_text" value="" name="q" placeholder="in c&#39;t suchen"><input type="image" src="./Karte_CTBOT_files/heise_online_lupe.gif" alt="Los" class="search_submit" name="search_submit">
+                    <input type="hidden" class="search_hidden" value="search" name="rm">
+                </fieldset>
+            </form>
+        </header>
+    </div>
+    <div class="clear"></div>
+</div>
+
+<script type="text/javascript">
+if (typeof jQuery !== "undefined") {
+    jQuery(document).ready(function($) {
+        // Support Touch-Devices
+        if ('ontouchstart' in document) {
+            $('.heisetopnavi_relaunch').removeClass('no-touch');
+        }
+        $('.heisetopnavi_button').bind('touchstart', function(e) {
+            e.preventDefault();
+            if ($(e.target).is('a.heisetopnavi_button')) {
+                $(this).toggleClass('active');
+                $('.heisetopnavi header > nav').toggleClass('hover');
+            }
+        });
+
+        $('.heisetopnavi_relaunch .heisetopnavi_button').click(function(e) {
+            e.preventDefault();
+        });
+
+        // Support Keyboard
+        $('.heisetopnavi_relaunch .heisetopnavi_button').keyup(function(e) {
+            if (e.which == 13 && $(e.target).is('a.heisetopnavi_button')) {
+                $('.heisetopnavi_relaunch .heisetopnavi_button').toggleClass('active');
+                $('.heisetopnavi_relaunch header > nav').toggleClass('hover');
+            }
+        });
+
+        /*
+         * Open/Close Menu with JavaScript for more Usability
+         */
+
+        $('.heisetopnavi_relaunch').removeClass('no-touch');
+
+        // Logo + Icon
+        $('.heisetopnavi_relaunch .heisetopnavi_hover_legacy').mouseenter(function() {
+            var timeout_id = window.setTimeout(function() { 
+                $('.heisetopnavi_relaunch .heisetopnavi_button').addClass('active');
+                $('.heisetopnavi_relaunch nav').addClass('hover');
+                $('body').addClass('refreshDOM');
+                $('body').removeClass('refreshDOM');
+            }, 300);
+            $(this).data('timeout_id', timeout_id);
+        });
+        $('.heisetopnavi_relaunch .heisetopnavi_hover_legacy').mouseleave(function() {
+            var timeout_id = $(this).data('timeout_id');
+            window.clearTimeout(timeout_id);
+            timeout_id = window.setTimeout(function() { 
+                $('.heisetopnavi_relaunch .heisetopnavi_button').removeClass('active');
+                $('.heisetopnavi_relaunch nav').removeClass('hover');
+                $('body').addClass('refreshDOM');
+                $('body').removeClass('refreshDOM');
+            }, 0);
+            $(this).data('timeout_id', timeout_id);
+        });
+    });
+
+    if (typeof heiseLogin != "undefined") {
+        heiseLogin.login_fill_navigation({});
+    }
+}
+</script>
+
+
+<div id="container">
+    <div id="container_content">
+        <div id="header">
+            <div class="logo">
+                <a href="http://www.heise.de/ct/" title="c&#39;t Magazin"><img src="./Karte_CTBOT_files/ct_logo2012.png" alt="c&#39;t Magazin"></a>
+            </div>
+            <ul id="navigation">
+                    <li><a href="http://www.heise.de/ct/" title="Startseite c&#39;t Magazin">Startseite</a></li>
+                    <li class="aktiv"><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_1648.html" title="Artikel c&#39;t Magazin">Artikel</a></li>
+                    <li><a href="http://www.heise.de/ct/projekte/" title="c&#39;t Projekte c&#39;t Magazin">c't Projekte</a></li>
+                    <li><a href="http://www.heise.de/ct/hotline/" title="Hotline &amp; FAQ c&#39;t Magazin">Hotline &amp; FAQ</a></li>
+                    <li><a href="http://www.heise.de/ct/treiber/" title="Treiber &amp; mehr c&#39;t Magazin">Treiber &amp; mehr</a></li>
+                    <li><a href="http://www.heise.de/ct/editorial/" title="Kolumnen c&#39;t Magazin">Kolumnen</a></li>
+            </ul><ul id="subnavi" class="zweite_ebene_artikel"> 
+                <li><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_1648.html" title="Magazin c&#39;t Magazin">Magazin</a></li>  
+                <li><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_1225707.html" title="Internet c&#39;t Magazin">Internet</a></li>  
+                <li><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_5701.html" title="Software c&#39;t Magazin">Software</a></li>  
+                <li><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_808508.html" title="Hardware c&#39;t Magazin">Hardware</a></li>  
+                <li class="aktiv"><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_5697.html" title="Know-how c&#39;t Magazin">Know-how</a></li>  
+                <li><a href="http://www.heise.de/ct/ct_artikel_rubrikindex_5699.html" title="Praxis c&#39;t Magazin">Praxis</a></li>  
+                <li><a href="http://www.heise.de/ct/foren/" title="Artikel-Foren c&#39;t Magazin">Artikel-Foren</a></li></ul> 
+            <ul id="navigation_news">
+                <li><a href="http://www.heise.de/newsletter/manage/ct-magazin" title="c&#39;t Newsletter">Newsletter</a></li>
+                <li><a href="http://m.heise.de/ct/" title="c&#39;t mobil">News mobil</a></li>
+                <li class="rss"><a href="http://www.heise.de/ct/rss/artikel-atom.xml" title="c&#39;t RSS-Feed"><img src="./Karte_CTBOT_files/navi_icon_rss.png" alt="c&#39;t RSS-Feed"></a></li>
+            </ul>
+        </div>
+        <div id="mitte"><a id="anfang" name="anfang"></a>
+            
+	<h4 id="breadcrumb">
+	
+		<a href="http://www.heise.de/ct/" title="c&#39;t">c't</a>
+		<span class="bread_gt">&gt;</span>
+	
+		<a href="http://www.heise.de/ct/ct_artikel_rubrikindex_5697.html" title="Know-how">Know-how</a>
+		
+	
+	</h4>
+
+
+            
+                <div id="mitte_links">
+            
+            <!--googleon: all-->
+            
+
+
+
+<div id="mitte_artikel">
+        
+    <p class="artikel_datum"><a href="http://www.heise.de/ct/inhalt/2006/19/">c't 19/06</a></p>
+    
+    
+        <h4 class="author">Andreas Birk</h4>
+    
+    <h2>An der nächsten Ecke links ...</h2>
+    
+        <h1 class="subtitle">Karten bauen (nicht nur) mit dem c't-Bot</h1>
+    
+	
+
+    <!--googleoff: index-->
+    
+    
+    <!--googleon: index-->
+    <div class="output_text">
+        
+            <p class="vorlauftext">Autonome Roboter können sich nicht nur selbstständig durch unbekannte Räume bewegen. Bringt man ihnen geeignete Kartierungstechniken bei, merken sie sich auch, wie ihre Umgebung aussieht.</p>
+        
+        <p>	<!-- RSPEAK_STOP -->
+<span class="bild_rechts" style="width:134px;">
+		<img src="./Karte_CTBOT_files/35315a512147e255.jpg" width="134" height="150" alt="Aufmacher">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+Anfangs konzentrierte sich die künstliche Intelligenz fast ausschließlich auf „körperlose“ Software in Form von logikbasierten Systemen. Rodney Brooks illustrierte dagegen Mitte der Achtzigerjahre eindrucksvoll, dass eine physikalische Interaktion mit der Welt und teilweise recht einfach gestrickten Verhaltensmustern ein ernst zu nehmender alternativer Ansatz zum Erforschen von Intelligenz ist. Diesem Ansatz folgte bisher auch der c't-Bot [1, 2]. </p>
+<p>In den letzten Jahren ist die Robotikforschung dazu übergegangen, beide Ansätze zu kombinieren. Heutige intelligente Roboter sind eigentlich immer Mischwesen, die eine gute Portion an schnellen, einfachen Verhaltensmodulen mit Weltmodellen und zielgerichtetem Handeln paaren. </p>
+<h3 class="subheading">Kartentypen </h3>
+<p>Die wichtigste Form von Umgebungsmodellen in der Robotik sind Karten. Diese erlauben dem Roboter, gezielt an bestimmte Orte zu kommen, Hindernisse zu umfahren oder einem Nutzer wertvolle Informationen über den Einsatzort des Roboters zu übermitteln. Es gibt zwei unterschiedliche Grundtypen von Roboterkarten: topologische und metrische Karten. </p>
+<p>In einer topologischen Karte bilden die Orte die Knoten und die Verbindungen die Kanten eines Graphen. Eine Umsetzung für die vom Simulator c't-Sim produzierten Labyrinthe [1], in denen der c't-Bot den Weg zum Ausgang suchen soll, könnte die Kreuzungen und Ecken als Knoten und die Gänge als Kanten in einem Graph abbilden. Teilt man die Abzweigungen anhand der Anzahl der abgehenden Gänge ein, erhält man markante Stellen mit Zusatzinformationen: Ein „L“ steht für eine Biegung um 90 Grad, bei einem „T“ trifft ein Gang senkrecht auf einen zweiten und beim „X“ kreuzen sich zwei Gänge. „SG“ kennzeichnet das Ende von Sackgassen als markanten Punkt. </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_links" style="width:250px;">
+		<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=2"><img src="./Karte_CTBOT_files/65de951ecac3bb51.jpeg" width="250" height="136" alt=""></a>
+	
+		<br>
+		<span class="bildunterschrift">
+			Topologische Karten repräsentieren markante Orte und die Verbindungen zwischen ihnen in Form eines Graphen.
+		
+			<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=2"><img src="./Karte_CTBOT_files/lupe.png" title="Vergrößern" alt="Vergrößern" width="16" height="16"></a>
+		
+		</span>
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+Die Bewegungen des Roboters durch die Gänge lassen sich anhand der vier Himmelsrichtungen klassifizieren. Mit Hilfe der Bezeichnungen „N“, „S“, „W“, „O“ können die Kanten speichern, wie man von einem Ort zu einem benachbarten kommt. Legt man zusätzlich Informationen über die Länge des Weges von einer Abzweigung zur nächsten in den Kanten ab, lässt sich der kürzeste Weg zu einem bestimmten Ort ermitteln. </p>
+<p>Die größte Herausforderung für eine Implementierung einer topologischen Karte auf dem c't-Bot wäre die zuverlässige Erkennung der verschiedenen Abzweigungen, da der Roboter für die Wegsuche nur zwei nach vorne schauende Abstandssensoren besitzt. Er müsste daher regelmäßig größere Drehungen durchführen, um zu testen, ob von seiner Position Gänge abzweigen. </p>
+<p>Für den c't-Bot in seiner derzeitigen Ausstattung eignen sich metrische Karten besser. Während eine topologische Karte Orte nur durch ihre Eigenschaften beschreibt, gibt eine metrische Karte deren exakte Koordinaten im Raum an. </p>
+<p>Theoretisch gibt es zwei Alternativen: Raster- und Vektorkarten. Auf den ersten Blick erscheinen die bei GIS-Anwendungen gern genutzten Vektorkarten durchaus interessant. Diese Variante der metrischen Karten speichert ähnlich kompakt wie die topologischen Karten nur das, was tatsächlich wichtig ist, inklusive beliebiger Metainformationen und braucht daher relativ wenig Speicherplatz. Allerdings ist sowohl ihre direkte Herstellung als auch ihre Umwandlung aus einer Rasterkarte recht aufwendig. </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_rechts" style="width:250px;">
+		<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=3"><img src="./Karte_CTBOT_files/9dab6ead91c1a1b7.jpeg" width="250" height="188" alt=""></a>
+	
+		<br>
+		<span class="bildunterschrift">
+			Zwei Rettungsroboter der International University Bremen (IUB) proben einen Einsatz in unbekannter Umgebung.
+		
+			<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=3"><img src="./Karte_CTBOT_files/lupe.png" title="Vergrößern" alt="Vergrößern" width="16" height="16"></a>
+		
+		</span>
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ Typischerweise bilden daher auch professionelle Roboter die Informationen in Rasterform ab: Jedes Element eines zwei- oder dreidimensionalen Arrays entspricht einer räumlichen Zelle mit festgelegten Ausdehnungen, was sich einfach in einer Bitmap ablegen lässt. </p>
+<p>Ein mobiler Roboter braucht vor allen Dingen Informationen über Hindernisse in seiner Umgebung. Gerasterte Hinderniskarten speichern deshalb in jeder Zelle, ob der Weg für den Roboter frei oder blockiert ist. </p>
+<h3 class="subheading">Evidence Grids </h3>
+<p>Die als Oberbegriff für diese Hinderniskarten häufig benutzte Bezeichnung Occupancy Grid (Belegungsraster) ist etwas irreführend, da diese je nach Anwendung beliebige Umweltinformationen, beispielsweise die Lichtverhältnisse, aufnehmen können. Der häufig synonym verwendete, sprachlich zutreffendere Begriff Evidence Grids (Beweisraster) bezeichnet streng genommen aber nur eine Untergruppe der Occupancy Grids. </p>
+<p>Die von dem Robotikpionier Hans Moravec in den achtziger Jahren entwickelten Evidence Grids sind eine klassische Methode, Hinderniskarten zu erstellen. Mit dem in der Rasterkarte gesammelten Beweismaterial (Evidence) kann der Roboter den wahren Zustand der Welt an den untersuchten Stellen mathematisch korrekt erschließen. </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_links" style="width:130px;">
+		<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=4"><img src="./Karte_CTBOT_files/5086456a00002902.jpeg" width="130" height="200" alt=""></a>
+	
+		<br>
+		<span class="bildunterschrift">
+			Diese beiden Karten hat ein IUB-Rettungsroboter gleichzeitig in einer U-förmigen Umgebung aufgenommen. Die obere Auswertung lieferte ein Evidence-Grid-Algorithmus, die untere Karte zeigt die Ergebnisse eines speziellen SLAM-Algorithmus [6]. 
+		
+			<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=4"><img src="./Karte_CTBOT_files/lupe.png" title="Vergrößern" alt="Vergrößern" width="16" height="16"></a>
+		
+		</span>
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+Auch ein Evidence Grid liefert für jede Zelle Informationen darüber, ob der zugehörige Ort belegt ist. Die Entscheidung darüber ist für einen Roboter aber gar nicht so einfach, wie es zunächst scheinen mag: Reale Sensordaten enthalten immer eine gehörige Portion Rauschen, was sich bei der Auswertung nicht nur in den häufigen kleineren Abweichungen vom Idealwert äußert, sondern gelegentlich auch zu schwerwiegenden Fehlern führt. Für deren sehr unsystematisches Auftreten sorgen zumeist verschiedenste Umweltbedingungen, die sich schwer oder gar nicht gezielt bestimmen lassen. Daher werden in den Zellen eines Evidence Grid auch keine absoluten booleschen Werte „frei“ oder „belegt“ gespeichert, sondern Wahrscheinlichkeiten oder zumindest Werte, die eine gewisse Zuversicht in die Informationen wiedergeben. </p>
+<p> Zum Bestimmen der Zellenwerte wird der Satz von Bayes genutzt, der für probabilistisches Lernen im Allgemeinen sehr beliebt ist. Er erlaubt, durch Wahrscheinlichkeiten ausgedrückte Überzeugungen beim Bekanntwerden neuer Hinweise zu aktualisieren. Im Satz von Bayes</p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:178px;">
+		<img src="./Karte_CTBOT_files/qpic01.jpg-930041c8b76f54b6.jpeg" width="178" height="27" alt="">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ </p>
+<p>steht p(X) für die Wahrscheinlichkeit des Eintretens von Ereignis X. p(X|Y) bezeichnet die bedingte Wahrscheinlichkeit von Ereignis X unter der Bedingung, dass Ereignis Y vorher eingetreten ist. Durch Bayes’ Theorem lässt sich also die Wahrscheinlichkeit, dass A eintritt, wenn man vorher B gesehen hat, auf die Wahrscheinlichkeiten von A, von B und von B unter der Bedingung A zurückführen. </p>
+<p>Die Nützlichkeit dieser Formel wird am Beispiel „Karten lernen“ schnell klar: Die zentrale Frage ist, ob ein erhaltener Sensorwert tatsächlich auch bedeutet, dass ein Hindernis vor dem Bot steht. Man will also grundsätzlich für jede Zelle Z(x,y) die bedingte Wahrscheinlichkeit p(Zelle belegt | Sensorwert) berechnen. </p>
+<p>Beim Evidence Grid wird diese bedingte Wahrscheinlichkeit nun nicht direkt verwendet, sondern stattdessen die Chance gespeichert, dass die Zelle belegt ist:</p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:176px;">
+		<img src="./Karte_CTBOT_files/qpic02.jpg-ce6dab250ff2dd59.jpeg" width="176" height="54" alt="">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ </p>
+<p>Die Anwendung des Satzes von Bayes auf diese Formel hat zwei interessante Auswirkungen: Zum einen lässt sich dadurch auch Information über das Verhalten des Sensors, wenn die Zelle nicht belegt ist, mit einbeziehen. Zum anderen erhält man eine Formel, die ein bekanntes Modell des Sensors p(Sensorwert | Zelle belegt) nutzt: </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:400px;">
+		<img src="./Karte_CTBOT_files/qpic03.jpg-a3d2a590b2fbc130.jpeg" width="400" height="86" alt="">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ </p>
+<p>Dies lässt sich noch vereinfachen: </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:322px;">
+		<img src="./Karte_CTBOT_files/qpic04.jpg-d5e88b6b95c34895.jpeg" width="322" height="54" alt="">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ </p>
+<p>Die Wahrscheinlichkeit, dass eine Zelle belegt oder nicht belegt ist, wird zu Beginn einfach mit 0,5 angenommen und dann fortlaufend mittels der aktuellen Sensorwerte und dem Sensormodell aktualisiert. </p>
+<p>Dabei nimmt man übrigens an, dass alle Messungen unabhängig voneinander sind. Daher kann ein Zellenwert, der durch Sensorwert_alt berechnet wurde, in die Aktualisierung bei Eintreffen des Sensorwert_neu mit einfließen: </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:315px;">
+		<img src="./Karte_CTBOT_files/qpic05.jpg-5399a372369b28a5.jpeg" width="315" height="108" alt="">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ </p>
+<p>Das Gleiche muss natürlich auch für eine nicht belegte Zelle gelten. </p>
+<h3 class="subheading">Vereinfachung </h3>
+<p>Moravec hat aus dieser grundlegenden Idee innerhalb mehrerer Jahre eine einfacher implementierbare Variante entwickelt. Die Berechnungen vereinfachen sich erheblich, wenn man auf beiden Seiten der obigen Formeln den Logarithmus anwendet: </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:250px;">
+		<img src="./Karte_CTBOT_files/qpic06.jpg-5213509551a1bcbb.jpeg" width="250" height="105" alt="Quadratur-Encoder">
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+</p>
+<p>Dadurch verwandeln sich alle Multiplikationen in Additionen. Durch Skalieren kann man die so erhaltenen Werte auf einen geeigneten Integerbereich abbilden. Beim c't-Bot stellt schon ein Byte pro Zelle recht gut den aus den Sensordaten extrahierten Level der Zuversicht dar. Wandelt man die erhaltenen Werte für die Darstellung der Zellenbelegungen in Werte mit Vorzeichen um, lässt sich mit den 8 Bit der Bereich von -128 bis 127 nutzen. </p>
+<p>Der Wert null bedeutet, dass keine gesicherte Information über den Zustand der Zelle vorliegt. Negative Werte entsprechen einem Hindernis in der Zelle, positive Werte einem freien Weg. Der Betrag des Zellenwerts zeigt den Grad der Zuversicht über die Qualität der Informationen an. Je höher der Betrag, desto höher ist die Sicherheit, dass sich die Zelle im angenommenen Zustand befindet. Der Wert -128 steht also dafür, dass eine Zelle sicher blockiert ist. Umgekehrt bedeutet 127 einen sicher freien Weg. Zellen, die trotz vieler Messungen Werte mit kleinerem Betrag aufweisen, können beispielsweise auf problematische Bereiche mit schlechten Sensorwerten hinweisen. </p>
+<p>Bei der Implementation werden wir nicht mehr ganz der exakten mathematischen Theorie folgen. Dafür schlägt sich dieser leicht vereinfachte Algorithmus in der Praxis insbesondere auf einfachen Systemen wie dem Mikrocontroller des c't-Bot genauso gut. Einen dafür geeigneten Code skizzieren wir im Kasten auf Seite 200. </p>
+<h3 class="subheading">Implementierung </h3>
+<p>Auf der Basis der oben erläuterten Zellenwerte ist es recht einfach, eine Hinderniskarte zu erstellen: Zu Beginn wird die Karte mit Nullen initialisiert - es liegen keine Informationen vor. Jedes Mal, wenn der Roboter nun über seine Sensoren Daten für eine bestimmte Zelle erfasst, aktualisiert er deren Inhalt: Misst er an der zugehörigen Stelle ein Hindernis, wird der Wert in der Zelle um 1 verringert, misst er keins, wird der Wert um 1 erhöht. Dabei darf kein Unter- oder Überlauf auftreten. </p>
+<p>Diese Addition entspricht einer Multiplikation der Wahrscheinlichkeiten in der nicht logarithmisierten Version der obigen Formeln. Je nach Vertrauen in die Sensordaten kann die Stufenbreite natürlich auch höher ausfallen. Bei einer Stufenbreite von 1 muss der Roboter mindestens 127-mal einen Sensorwert für eine bestimmte Zelle erfassen, um eine maximale Zuversicht zu diesem Ort zu haben. Dies geschieht recht schnell, da in einem Schritt mehrere Zellen gleichzeitig aktualisiert werden. </p>
+<p>Mit der Umsetzung dieses Algorithmus ist natürlich noch nicht alles getan: Vor dem Start der Kartierung braucht man eine Abschätzung des Areals, das der Roboter abdecken soll, und eine sinnvolle Auflösung. Solange der Speicher mitspielt, sind beliebige Kombinationen aus Kartenabmessungen und Auflösungen möglich. Beides hängt natürlich stark von der konkreten Anwendung ab. Die entsprechenden Konstanten lassen sich im Code über defines einfach ändern. </p>
+<p>Damit der Code tatsächlich konkrete Daten verarbeiten kann, muss der Roboter zunächst aber zwei grundlegende Fähigkeiten haben. Er muss erstens wissen, wo er sich befindet. Zweitens muss er die Informationen zu freien Wegen und Hindernissen aus den Sensordaten extrahieren. </p>
+<h3 class="subheading">Lokalisierung </h3>
+<p>Um sich zu lokalisieren, muss ein Roboter seine Position und Orientierung bestimmen. Wie man das beim c't-Bot über Rad-Encoder und Maussensor machen kann, haben wir bereits in einem früheren Artikel beschrieben [3]. Die so erhaltene Kombination aus x- und y-Koordinaten mit einem die Orientierung beschreibenden Winkel heißt in der Robotik auch Pose. Die Pose wird als Vektor (x, y, o) angegeben und ist immer relativ zum Weltkoordinatensystem, das in der Robotik auch als Weltframe bezeichnet wird. </p>
+<p>Die Lage des Ursprungs in diesem Koordinatensystem - beispielsweise in der Mitte oder links unten - und des Startpunkts des Roboters in der realen Welt sind zwar prinzipiell beliebig, müssen aber aufeinander abgestimmt sein, damit die erhaltenen Sensorwerte den Zellen sinnvoll zugeordnet werden. Der physikalische Punkt in der realen Welt, auf dem der Roboter die Kartierung startet, entspricht der Pose, mit der er initialisiert wird. Dies kann der Einfachheit halber der mit einer Pose von (0, 0, 0) zu initialisierende Ursprung des Weltframes sein, muss es aber nicht. Wichtig ist in jedem Fall, dass nicht nur die Position, sondern auch die Orientierung stimmt. Sollen die Karten von verschiedenen Läufen unmittelbar vergleichbar sein, muss die Pose bei jedem Start auch zu den vorherigen Läufen passen. </p>
+<p>Man sollte im Hinterkopf behalten, dass sich die Fehler der Positionsbestimmung durch Encoder und Maussensor über die Zeit addieren. Insbesondere Winkelfehler können nach einer Weile zu einer erheblichen Abweichung zwischen der berechneten Pose des Roboters und seiner wahren Position und Orientierung in der Welt führen. Sammelt der Roboter dann weiter Informationen, kann die daraus folgende Aktualisierung falscher Zellen des Grid eine bereits recht gute Karte wieder zerstören. Dies ist übrigens ein Aspekt, den Moravec bei der Entwicklung der Evidence Grids komplett vernachlässigt hat. </p>
+<h3 class="subheading">Hindernissensoren </h3>
+<p>Der einfachste Hindernissensor des c't-Bot ist nicht unbedingt offensichtlich: der Roboter selbst. Die Pose repräsentiert zwar nur einen Punkt im Weltframe, aber natürlich muss die gesamte Grundfläche des Roboters frei von Hindernissen sein. Sobald sich die Pose ändert, kann man daher bei allen vom Roboter bedeckten Zellen den Wert um 1 erhöhen. </p>
+<p>Zur direkten Bestimmung von Hindernissen besitzt der c't-Bot zwei nach vorne gerichtete Abstandssensoren und zwei nach unten gerichtete Lichtschranken, die einen Abgrund melden. Über die Pose des Roboters lassen sich mit deren Werten die jeweils ermittelten zwei Zellen als mit Hindernissen belegt markieren. Da die Infrarotstrahlen der Sensoren freien Raum passieren müssen, bevor das Hindernis sie reflektiert, können bei jeder Messung die zugehörigen Zellen als „frei“ aktualisiert werden - sofern dort kein Abgrund ist. Ein dafür geeignetes Verfahren ist im Kasten für einen Abstandssensor beispielhaft näher erläutert. </p>
+<p>Je nach Auflösung des Grid und Entfernung des Hindernisses überwiegt die Anzahl der in jedem Schritt als frei erkannten Zellen mehr oder weniger stark die der Zellen mit neuen Hindernisinformationen, denn die beiden Sensoren erfassen vom Roboter bis zu den potenziellen Hindernissen alle nicht als Abgrund erkannten Zellen als „frei“. Da Hindernisinformationen sehr wichtig sind, lohnt es sich, diese höher zu gewichten, um eine seltenere Aktualisierung der zugehörigen Zellen im Schnitt wieder wettzumachen: Dazu kann man bei einem Hindernis den Zellenwert statt mit -1 beispielsweise mit -10 aktualisieren. </p>
+<p>Im Prinzip hat man damit alle Zutaten beisammen, um Karten auf dem c't-Bot zu erstellen, die als Grundlage für verschiedenste „intelligente“ Verhaltensweisen auf dem Roboter dienen können. </p>
+<h3 class="subheading">Ganz professionell </h3>
+<p>Bei der Entwicklung einer Kartierung für professionelle Roboter, beispielsweise zur Erkundung eines unübersichtlichen Geländes bei Katastrophen, geht man prinzipiell ähnlich vor. Allerdings sind die Voraussetzungen etwas üppiger: So setzt man auf großzügig mit Rechenleistung ausgestattete Computer und komfortable Programmierumgebungen, die vielfältige Standardbibliotheken unter anderem für fortgeschrittene mathematische Funktionen enthalten. Trotzdem versucht man natürlich zunächst, die Sensorausstattung der Roboter zu optimieren. So lokalisieren diese sich zwar wie der c't-Bot mit Hilfe von Rad-Encodern. Die verwendeten Quadratur-Encoder haben aber eine erheblich höhere Auflösung mit mehreren hundert Pulsen pro Umdrehung und zwei Kanälen, deren Rechtecksignale um 90 Grad phasenverschoben sind. Damit lässt sich über die Abfolge der paarweisen High- oder Low-Werte auch die Drehrichtung der Räder zuverlässig bestimmen, und die Anzahl der Pulse pro Umdrehung verdoppelt sich. </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_links" style="width:250px;">
+		<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=12"><img src="./Karte_CTBOT_files/b178a48dd8833245.jpeg" width="250" height="172" alt=""></a>
+	
+		<br>
+		<span class="bildunterschrift">
+			Bei einem Quadratur-Encoder sind zwei Sensoren so montiert, dass ihre Rechtecksignale um 90 Grad phasenverschoben sind.
+		
+			<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=12"><img src="./Karte_CTBOT_files/lupe.png" title="Vergrößern" alt="Vergrößern" width="16" height="16"></a>
+		
+		</span>
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ Auch bei einer höheren Auflösung leiden Encoder immer noch unter dem prinzipiellen Problem, dass sich ihre Fehler kumulieren. Daher verwendet man zumindest für die Bestimmung der Orientierung des Roboters zusätzliche Sensoren. So kann ein digitaler Kompass die absolute Ausrichtung des Roboters messen. Zusätzliche Gyroskope verbessern die Genauigkeit bei der Bestimmung der Orientierung erheblich. </p>
+<p>Bei den Hindernissensoren liefern Laserscanner die zentralen Daten. Vereinfacht wirken diese Sensoren wie eine ganze Armada von Infrarotsensoren, die fächerförmig ihre Strahlen aussenden. Während letztere aber die Intensität der reflektierten Strahlen bestimmen, beruht das Grundprinzip der Laserscanner wie bei Ultraschallsensoren auf einer Wegstreckenmessung über die Laufzeit: Es wird die Zeit gemessen, die ein ausgesendeter Laserpuls benötigt, um über eine Reflexion an einem Hindernis zurück zum Sensor zu gelangen. </p>
+<h3 class="subheading">Auch mit Grips </h3>
+<p>Grundsätzlich gilt die Strategie „Je mehr Sensoren mit unterschiedlichen Schwächen, desto besser“. Trotzdem ist modernes Kartenbauen nicht nur eine reine Materialschlacht. Auch die Algorithmen sind seit der Erfindung der Evidence Grids nicht stehen geblieben. Die jüngste Entwicklung sind SLAM-Algorithmen (Simultaneous Localization and Mapping), die das gleichzeitige Lokalisieren und Kartenbauen optimieren sollen [4, 5]. SLAM-Algorithmen versuchen das Henne-Ei-Problem zu lösen, dass man eine Karte am besten dann aufbauen kann, wenn man bereits eine Karte hat: Es wäre hilfreich, wenn der Roboter beim Start bereits wüsste, wo er sich befindet, und wegen der schlechten Lokalisierungssensoren könnte er auch während der Messungen eine Karte gut gebrauchen, um festzustellen, wo er sich wirklich hinbewegt hat. </p>
+<p>Prinzipiell folgen alle SLAM-Algorithmen dem gleichen Muster. Ausgangspunkt ist eine mit Hilfe der vorhandenen Lokalisierungs- und Hindernissensoren erstellte Basiskarte. Sollten keine Lokalisierungssensoren vorhanden sein, reicht auch der Input an die Motoren zum Abschätzen der Roboterbewegungen. Die dadurch entstehende Karte ist zwar zunächst recht ungenau, kann aber helfen, die Lokalisierung zu verbessern. Durch einen ständigen Abgleich der neuen mit den bereits vorhandenen Informationen kann man gleichzeitig auch noch die Parameter der zugrunde liegenden Algorithmen adaptieren. </p>
+<p>Für den c't-Bot kann man dieses Szenario wie folgt illustrieren: Aufgrund der bisher gelernten Karte hat der Roboter eine gewisse Erwartungshaltung, was er als Nächstes „sehen“ wird. Er könnte daher versuchen, anhand der momentanen Motoraktivierungen und der bestehenden Karte vorherzusagen, welche Werte die Hindernissensoren im nächsten Schritt liefern werden. Den Vergleich der Erwartung mit den tatsächlichen Sensorwerten könnte er nutzen, um das zugrunde liegende Modell, das heißt, sowohl die Karte als auch die Vorhersage der Roboterbewegungen aufgrund von Motoraktivierungen zu verbessern. </p>
+<h3 class="subheading">Eigene Experimente </h3>
+<p>Für den Einstieg muss man aber noch gar nicht so tief in die Trickkiste greifen. Schließlich waren die Evidence Grids noch bis vor wenigen Jahren auch in der professionell betriebenen Robotik der Standard in Sachen Karten. Bereits in der vorgestellten Weise kann man auf dem c't-Bot ein durchaus brauchbares, vielfältig erweiterbares Kartenprogramm implementieren. </p>
+<p>Es empfiehlt sich, mit den ersten Experimenten zunächst im Simulator c't-Sim zu beginnen. Zum einen ist dort die zu erfassende Umgebung stark vereinfacht, und die Sensorwerte sind trotz der Anpassung an die realen Sensoren durch möglichst realistische Kennlinien noch etwas zuverlässiger: Im Sim sorgen weder Teppichwellen noch auf dem Boden liegende Kabel für einen Versatz des Bots, und es gibt auch keine Sensorfehler beispielsweise durch zu stark spiegelnde Oberflächen. </p>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_rechts" style="width:250px;">
+		<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=13"><img src="./Karte_CTBOT_files/19dfa06251bd3deb.jpeg" width="250" height="86" alt=""></a>
+	
+		<br>
+		<span class="bildunterschrift">
+			Um Sensorfehler besser zu berücksichtigen, aktualisiert man auch die Nachbarn der direkt gefundenen Hinderniszellen.
+		
+			<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=13"><img src="./Karte_CTBOT_files/lupe.png" title="Vergrößern" alt="Vergrößern" width="16" height="16"></a>
+		
+		</span>
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ Zum anderen muss man sich im Simulator über den verwendeten Speicherplatz zunächst keine Gedanken machen. Der Parcours-Generator im c't-Sim für das Training zum aktuell laufenden Programmierwettbewerb [7] baut derzeit Labyrinthe, deren Breite und Höhe zwischen 12 und 30 Feldern mit einer Kantenlänge von 24 cm liegen. Die Labyrinthe haben damit Seitenlängen zwischen 2,88 m und 7,20 m. Bei einer Auflösung von 1 cm bräuchte man für eine Karte des größtmöglichen Labyrinths einen Speicherplatz von gut 500 KByte, was im Simulator auf dem PC natürlich überhaupt kein Problem ist. </p>
+<p>Beim realen c't-Bot muss man dagegen mit den 2 KByte SRAM, die dort insgesamt für Variablen zur Verfügung stehen, auskommen. Selbst wenn man davon beispielsweise 1600 Byte für das Speichern der Karte einplant, kommt man um ein Austarieren von Kartengröße und Auflösung nicht herum: Bei einer Zellengröße von 1 cm Kantenlänge kann der Bot in der beschriebenen Weise beispielsweise eine 40 cm x 40 cm große Karte aufnehmen. Bei 2 m x 2 m steigt die Auflösung mit 5 cm auf knapp den halben Botdurchmesser. Damit wird die Kartierung natürlich ungenauer. Für den Einstieg sollte man wie im Sim zunächst mit einer vereinfachten Umgebung arbeiten und ausprobieren, welche Genauigkeit sich mit welcher Auflösung tatsächlich erreichen lässt - was unter anderem auch von den für die Kartierung verwendeten Strategien abhängt. </p>
+<p>Auch wenn die Hardwareausstattung des c't-Bots natürlich deutlich bescheidener ausfällt als die von High-End-Robotern, die leicht das Hundertfache und mehr kosten können, gibt es genügend Raum für kreative Verbesserungen. Zu den für Optimierungen interessanten Bereichen gehören die Bewegungen des Roboters, um seine Umgebung zu scannen, die Nutzung von Vorwissen über diese Umgebung und die Auswertung der gefundenen Messwerte. </p>
+<p>So decken die Abstandssensoren nach vorne mit einem Sehwinkel von etwa 3 Grad und einer Reichweite zwischen 10 und 80 cm mit einer Messung maximal wenige cm Breite ab. Sie erkennen so nur die Hindernisse, auf die der Roboter direkt zufährt. Bei einer typischen Geradeausfahrt merkt er sich daher immer wieder die selben Punkte als „belegt“ und findet kleine Hindernisse nur dann, wenn sie sich zufällig genau vor den Sensoren befinden. Leichte Schlangenlinien könnten den Scan der Umgebung in einem Labyrinth schon deutlich verbessern. Der Roboter tastet dann auch die seitlichen Wände ab und erhält dadurch schneller detaillierte Karten. </p>
+<p>Um den Aufbau der so gewonnenen Karte zu verbessern, könnte man bei einer vereinfachten Umgebung wie einem rechtwinkligen Labyrinth die gefundenen Wände am Raster ausgerichtet eintragen und so versuchen, eine durch Lokalisierungsfehler verursachte Drift auszugleichen. Bei fester Rastergröße und Gangbreite könnte man auch ausprobieren, ob sich lückenhafte Zellenbelegungen ohne Messung ergänzen lassen, oder versuchen, die äußere Begrenzung zu erkennen. </p>
+<p>Um die Qualität der Informationen zu Hindernissen noch weiter zu verbessern, kann man auch mit einfachen Annahmen die Fehler der Sensoren noch besser berücksichtigen. Sensorfehler sind unter anderem stark von Umgebungsbedingungen wie Lichtverhältnissen und Bodenbelag abhängig, die bei verschiedenen Einsätzen des c't-Bots jedes Mal stark variieren können. Eine allen Eventualitäten entsprechende Modellierung der Sensorfehler wäre daher sehr aufwendig. Idealisiert lassen sich die Wahrscheinlichkeitsverteilungen der Fehler der Hindernissensoren aber über eine Gaußverteilung modellieren. Um dieses Modell ganz einfach umzusetzen, aktualisiert man auch die Nachbarzellen der gefundenen Hinderniszellen mit etwas weniger erhöhten Werten. </p>
+<p>Damit sind die Möglichkeiten mit Sicherheit noch nicht ausgeschöpft. Interessante Lösungen zur Kartierung mit dem Bot veröffentlichen wir ebenso wie alle anderen gelungenen Ergänzungen zum Bot- oder Sim-Code gern auf der Projektwebseite. (<a href="mailto:anm@ctmagazin.de">anm</a>) </p>
+<h5>Literatur</h5>
+<p>[1] <a href="http://www.heise.de/ct/projekte/machmit/ctbot/wiki">Webseite zum c't-Bot-Projekt</a></p>
+<p>[2] <a href="http://www.heise.de/ct/artikel/Hohe-Schule-290392.html">Christoph Grimmer, Hohe Schule, c't-Bots bewältigen komplexe Aufgaben</a></p>
+<p>[3] <a href="http://www.heise.de/ct/artikel/Wo-bin-ich-290526.html">Torsten Evers, Wo bin ich?, Positionsbestimmung für den c't-Bot</a></p>
+<p>[4] <a href="http://www.acfr.usyd.edu.au/publications/theses/97-csorba/MichaelCsorbaThesis.pdf" rel="external">Michael Csorba, Simultaneous Localization and Map Building, PhD thesis</a></p>
+<p>[5] Sebastian Thrun, Robotic Mapping: A Survey: http://robots.stanford.edu/papers/thrun.mappingtr.html </p>
+<p>[6] <a href="http://www.informatik.uni-freiburg.de/~burgard/abstracts/grisetti-icra05.html" rel="external">G. Grisetti, C. Stachniss, W. Burgard, Improving Grid-based SLAM with Rao-Blackwellized Particle Filters by Adaptive Proposals and Selective Resampling</a></p>
+<p>[7] Webseite zum c't-Sim-Wettbewerb (Anmeldeschluss 8. September 2006)</p>
+<h3 class="subheading"><hr>Hinderniskarten auf dem c't-Bot </h3>
+<p>Diese auf den c't-Bot zugeschnittenen Codebeispiele helfen bei der Entwicklung einer in einem Array abgelegten Hinderniskarte nach dem vorgestellten Prinzip. GGR ist dabei die Breite des Grid in Zellen, RES die Zellenbreite in mm. Legt man den Ursprung des Weltkoordinatensystems beispielsweise mittig auf die x-Achse, kann man eine Roboterposition (x_pos, y_pos) mit Koordinaten in mm wie folgt auf eine Zelle grid[XROB][YROB] beziehen: </p>
+<pre>XROB = x_pos/RES + GGR/2;<br>YROB = y_pos/RES;</pre>
+<p>Diese beiden Funktionen aktualisieren eine Zelle: </p>
+<pre>void update_frei (int X, int Y) {<br>     if(grid[X][Y] &lt; 127) grid[X][Y]++;<br>}<br>void update_belegt (int X, int Y) {<br>     if(grid[X][Y] &gt; -128) grid[X][Y]--;<br>}</pre>
+<p>Diese Zeilen aktualisieren die vom Bot belegte Fläche: </p>
+<pre>for(X = -60/RES; X &lt;= 60/RES; X++) {<br>     for(Y = -60/RES; Y &lt;= 60/RES; Y++) {<br>           if(X*X + Y*Y &lt;= 60*60/(RES*RES)) update_frei (XROB + X, YROB + Y);<br>     }<br>}</pre>
+<p>Die Berechnung der Zellen, die durch die beiden Hindernissensoren aktualisiert werden, ist etwas aufwendiger, aber mit ein wenig Geometrie ebenfalls sehr einfach zu lösen. Die Zellen, die durch den rechten Sensor aktualisiert werden können, liegen auf der Linie zwischen den Punkten Pr und PHr, wobei PHr den Punkt bezeichnet, bei dem der rechte Sensor das Hindernis wahrnimmt (linker Sensor analog). Der Punkt Pr liegt 32 mm rechts vom Zentrum des Roboters, hier mit Prob bezeichnet. Wenn die Variable head die Orientierung des Roboters im Bogenmaß enthält, können die Koordinaten Pr_x und Pr_y (in mm) des Punkts Pr wie folgt berechnet und in Zellenkoordinaten Pr_X und Pr_Y konvertiert werden: </p>
+<pre>Pr_x = x_pos + (int) (32.0 * sin(head));<br>Pr_y = y_pos - (int) (32.0 * cos(head));<br>Pr_X = Pr_x/RES + GGR/2;<br>Pr_Y = Pr_y/RES;  </pre>
+<p>Ähnlich lassen sich die Zellen-Koordinaten PHr_X und PHr_Y für den Hindernispunkt PHr berechnen. Dabei ist zu beachten, dass der Sensor in vertikaler Richtung etwa 35 mm vom Zentrum des Roboters entfernt liegt. Diesen Wert muss man daher zu der Variablen dr, die die Distanz in mm enthält, addieren:</p>
+<pre>PHr_x = Pr_x + (int) ((35.0 + dr) * cos(head));<br>PHr_y = Pr_y + (int) ((35.0 + dr) * sin(head));<br>PHr_X = PHr_x/RES + GGR/2; PHr_Y = PHr_y/RES;</pre>
+<p>	<!-- RSPEAK_STOP -->
+<span class="bild_zentriert" style="width:400px;">
+		<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=14"><img src="./Karte_CTBOT_files/1878ce66185300ac.jpeg" width="400" height="375" alt=""></a>
+	
+		<br>
+		<span class="bildunterschrift">
+			
+		
+			<a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=zoom;zoom=14"><img src="./Karte_CTBOT_files/lupe.png" title="Vergrößern" alt="Vergrößern" width="16" height="16"></a>
+		
+		</span>
+	
+    
+	 
+</span>
+	<!-- RSPEAK_START -->
+ </p>
+<p>Nun kann man auf einer Linie von Pr nach PHr alle Zellen als frei markieren. Der Endpunkt PHr wird danach mit dem Wert für „belegt“ aktualisiert: </p>
+<pre>x = Pr_X; sX = (PHr_X &lt; Pr_X ? -1 : 1); dX=abs(PHr_X - Pr_X);<br>y = Pr_Y; sY = (PHr_Y &lt; Pr_Y ? -1 : 1); dY=abs(PHr_Y - Pr_Y);<br>if (dX &gt;= dY) {<br>  h = dX/2;<br>  for (int i=0; i&lt;dX; ++i) {<br>    update_frei (x+i*sX, y);<br>    h += dY;<br>    if (h &gt;= dX) {<br>      h -= dX;<br>      y += sY;<br>    }<br>  }<br>}<br>else {<br>  h = dY / 2;<br>  for (int i=0; i&lt;dY; ++i) {<br>    update_frei (x, y+i*sY);<br>    h += dX;<br>    if (h &gt;= dY) {<br>      h -= dY;<br>      x += sX;<br>    }<br>  }<br>}<br>update_belegt (PHr_X, PHr_Y);</pre>
+		 
+		 
+	</div>
+    <!--googleoff: index-->
+    
+
+	
+	
+	
+    <p class="artikel_option">
+        <a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=print" rel="nofollow">Version zum Drucken</a>
+        | <a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html?view=mail" rel="nofollow">Per E-Mail versenden</a>
+		 
+		| <a href="http://www.heise-shop.de/Produkte/Zeitschriften/ct/Einzelhefte" title="Heft bestellen">Heft bestellen</a>
+    </p>
+        
+		<p class="permalink">Permalink: <a href="http://heise.de/-290662">http://heise.de/-290662</a></p>
+	
+    
+        <p class="artikel_foren">
+        
+            <a href="http://www.heise.de/ct/foren/S-An-der-naechsten-Ecke-links/forum-105525/list/"><b>Kommentieren</b></a>
+        
+        </p>
+    
+	
+        <p class="leserbrief">
+            <b><a href="mailto:leserbrief@ctmagazin.de?subject=c't%2019%2F06%20-%20An%20der%20naechsten%20Ecke%20links%20...&body=Anonyme%20Zuschriften%20koennen%20wir%20nicht%20veroeffentlichen.%20Bitte%20nennen%20Sie%20deshalb%20Ihren%20vollstaendigen%20Namen.%20Vielen%20Dank!">Leserbrief schreiben</a></b>
+        </p>
+	
+    
+    
+    <div id="social_bookmarks"><ul class="social_share_privacy_area"><li class="facebook help_info"><span class="info">2 Klicks für mehr Datenschutz: Erst wenn Sie hier klicken, wird der Button aktiv und Sie können Ihre Empfehlung an Facebook senden. Schon beim Aktivieren werden Daten an Dritte übertragen – siehe <em>i</em>.</span><span class="switch off">nicht mit Facebook verbunden</span><div class="fb_like dummy_btn"><img src="./Karte_CTBOT_files/dummy_facebook.png" alt="Facebook &quot;Like&quot;-Dummy" class="fb_like_privacy_dummy"></div></li><li class="twitter help_info"><span class="info">2 Klicks für mehr Datenschutz: Erst wenn Sie hier klicken, wird der Button aktiv und Sie können Ihre Empfehlung an Twitter senden. Schon beim Aktivieren werden Daten an Dritte übertragen – siehe <em>i</em>.</span><span class="switch off">nicht mit Twitter verbunden</span><div class="tweet dummy_btn"><img src="./Karte_CTBOT_files/dummy_twitter.png" alt="&quot;Tweet this&quot;-Dummy" class="tweet_this_dummy"></div></li><li class="gplus help_info"><span class="info">2 Klicks für mehr Datenschutz: Erst wenn Sie hier klicken, wird der Button aktiv und Sie können Ihre Empfehlung an Google+ senden. Schon beim Aktivieren werden Daten an Dritte übertragen – siehe <em>i</em>.</span><span class="switch off">nicht mit Google+ verbunden</span><div class="gplusone dummy_btn"><img src="./Karte_CTBOT_files/dummy_gplus.png" alt="&quot;Google+1&quot;-Dummy" class="gplus_one_dummy"></div></li><li class="settings_info"><div class="settings_info_menu off"><a href="http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html"><span class="help_info icon"><span class="info">Wenn Sie diese Felder durch einen Klick aktivieren, werden Informationen an Facebook, Twitter oder Google in die USA übertragen und unter Umständen auch dort gespeichert. Näheres erfahren Sie durch einen Klick auf das <em>i</em>.</span></span></a><span class="settings" style="cursor: pointer;">Einstellungen</span><form><fieldset><legend>Dauerhaft aktivieren und Datenüber­tragung zustimmen:</legend><input type="checkbox" name="perma_status_facebook" id="perma_status_facebook"><label for="perma_status_facebook">Facebook</label><input type="checkbox" name="perma_status_twitter" id="perma_status_twitter"><label for="perma_status_twitter">Twitter</label><input type="checkbox" name="perma_status_gplus" id="perma_status_gplus"><label for="perma_status_gplus">Google+</label></fieldset></form></div></li></ul></div>
+    <p class="artikel_kiosk">Das aktuelle Heft ist jetzt im Handel erhältlich.<br>
+    Ältere Artikel können Sie über unser <a href="http://www.heise.de/kiosk/archiv/ct/">Zeitschriften-Archiv</a> bestellen.</p>
+    
+
+
+
+
+    
+
+
+
+</div>
+
+
+            <!--googleoff: all-->
+            <div class="adbottom"><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var dfp_ord; if (!dfp_ord) { dfp_ord = Math.floor(Math.random()*1000000000)+1000000000; }
+document.write('<script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=500x500;tile=1;ord=_ORD_?" type="text/javascript"><\/script>'.replace('_ORD_', dfp_ord));
+//--><!]]>
+</script><script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=500x500;tile=1;ord=1308251664?" type="text/javascript"></script>
+<noscript>&lt;div&gt;&lt;a href="http://ad-emea.doubleclick.net/N6514/jump/ct/ct-inhalt;sz=500x500;tile=1;ord=6017317434?" target="_blank"&gt;&lt;img alt="" src="http://ad-emea.doubleclick.net/N6514/ad/ct/ct-inhalt;sz=500x500;tile=1;ord=6017317434?" /&gt;&lt;/a&gt;&lt;/div&gt;</noscript>
+</div>
+            
+                </div>
+                <div id="mitte_rechts">
+                
+                    <div id="rechts_teaser">
+                    
+                        <!--googleoff: index-->
+<!-- RSPEAK_STOP -->
+<div class="bcadv ISI_IGNORE"><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var dfp_ord; if (!dfp_ord) { dfp_ord = Math.floor(Math.random()*1000000000)+1000000000; }
+document.write('<script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=300x250,336x280;tile=2;ord=_ORD_?" type="text/javascript"><\/script>'.replace('_ORD_', dfp_ord));
+if (typeof jQuery != 'undefined') {
+    jQuery( function() {
+        jQuery('.bcadv div[id^=google_ads_div_]').parent().prepend('<span style="font-family: Arial, Helvetica, sans-serif; color: Black; font-size:7pt; font-weight: normal; text-align: left;">Anzeige</span><br/>');
+    });
+}
+
+//--><!]]>
+</script><script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=300x250,336x280;tile=2;ord=1308251664?" type="text/javascript"></script>
+<noscript>&lt;div&gt;&lt;a href="http://ad-emea.doubleclick.net/N6514/jump/ct/ct-inhalt;sz=300x250,336x280;tile=2;ord=6017317434?" target="_blank"&gt;&lt;img alt="" src="http://ad-emea.doubleclick.net/N6514/ad/ct/ct-inhalt;sz=300x250,336x280;tile=2;ord=6017317434?" /&gt;&lt;/a&gt;&lt;/div&gt;</noscript>
+</div>
+<!-- RSPEAK_START -->
+<!--googleon: index--><!-- RSPEAK_STOP -->
+                    
+                    
+                    <!--googleoff: all-->
+                    
+                        
+                        
+
+
+
+    <form action="http://www.heise.de/bin/softlink" method="get" class="webcode">
+        <div>
+            <input type="submit" value="www.ct.de/" class="submit">
+            <input type="text" name="ctid" size="9" value="" class="textfield" id="webcode_input">
+        </div>
+    </form>
+
+
+
+                        
+
+
+
+    <div class="abokasten">
+        <h4>c't 02/2013 ab 31.12.2012 im Handel</h4>
+	
+            <div><a href="http://www.heise.de/ct/inhalt/"><img src="./Karte_CTBOT_files/ct0213_ausschnitt-5ae7d6e47ebe7f35.jpg" alt=""></a></div>
+	
+	
+            <ul>
+                <li><a href="http://www.heise.de/ct/inhalt/">Inhaltsverzeichnis</a> </li>
+<li><a href="http://www.heise.de/ct/editorial/">Editorial</a> </li>
+<li><a href="http://www.heise.de/ct/urls/">URLs zum Heft</a> </li>
+<li><a href="http://www.heise.de/ct/websites/">Websites aktuell</a> </li>
+            </ul>
+	
+	
+            <ul class="zwei">
+                <li><a href="http://www.heise.de/ct/vorschau/">Vorschau</a> </li>
+<li><a href="http://www.heise.de/ct/Software-zur-aktuellen-Ausgabe-5460.html">Software zu Artikeln</a> </li>
+<li><a href="http://www.heise-shop.de/Produkte/Zeitschriften/ct/Sonderhefte">c't special</a> </li>
+<li><a href="http://www.heise.de/artikel-archiv/ct/">Heftarchiv</a> </li>
+            </ul>
+	
+    </div>
+
+
+
+                        
+
+
+
+
+    <script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready( function() {
+        $('div#cycleteaser1')
+        .cycle({
+            fx: 'none',
+            pager: '#cycleteaser1nav',
+            pagerAnchorBuilder: function(idx, slide) {
+                return '<span class="nummer"><a href="#">' + (idx + 1) + '</a></span>';
+            },
+            pagerEvent: 'mouseover',
+            timeout: 8000,
+            pause: 1,
+            pauseOnPagerHover: 1
+        })
+    });
+    //--><!]]>
+    </script>
+
+    <div class="teaser_fiver">
+    <h4><a href="http://www.heise.de/ct/videos">c't-Videos</a></h4>
+    <div id="cycleteaser1nav"><span class="nummer"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#">1</a></span><span class="nummer"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#">2</a></span><span class="nummer"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#">3</a></span><span class="nummer"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#">4</a></span><span class="nummer activeSlide"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#">5</a></span><span class="nummer"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#">6</a></span></div>
+        <div id="cycleteaser1" style="position: relative; width: 336px; height: 104px;">
+        
+            <div style="display: none; position: absolute; top: 0px; left: 0px; z-index: 6; opacity: 1;" class="teaser_fiver_element">
+                <a href="http://www.heise.de/ct/artikel/Virtual-Reality-System-selbstgebaut-1742561.html" rel="nofollow"><a href="http://www.heise.de/ct/artikel/Virtual-Reality-System-selbstgebaut-1742561.html"><img src="./Karte_CTBOT_files/video-ccb8c67d55628262.png" alt=""></a></a>
+                
+                <a href="http://www.heise.de/ct/artikel/Virtual-Reality-System-selbstgebaut-1742561.html"><span class="titelzeile"><a href="http://www.heise.de/ct/artikel/Virtual-Reality-System-selbstgebaut-1742561.html">Mitten im Spiel</a></span></a>
+                <a href="http://www.heise.de/ct/artikel/Virtual-Reality-System-selbstgebaut-1742561.html"><span class="textzeile">Selbstgebaut: Mit einem Virtual-Reality-System mit Headtracking und Bewegungssteuerung</span></a>
+            </div>
+        
+            <div class="teaser_fiver_element" style="position: absolute; top: 0px; left: 0px; z-index: 5; display: none;">
+                <a href="http://www.heise.de/ct/artikel/Dual-SIM-Smartphones-1737676.html" rel="nofollow"><a href="http://www.heise.de/ct/artikel/Dual-SIM-Smartphones-1737676.html"><img src="./Karte_CTBOT_files/dual-sim-100.jpg-dfa5831e853c70a1.jpeg" alt=""></a></a>
+                
+                <a href="http://www.heise.de/ct/artikel/Dual-SIM-Smartphones-1737676.html"><span class="titelzeile"><a href="http://www.heise.de/ct/artikel/Dual-SIM-Smartphones-1737676.html">Dual-SIM-Smartphones</a></span></a>
+                <a href="http://www.heise.de/ct/artikel/Dual-SIM-Smartphones-1737676.html"><span class="textzeile">Dual-SIM-Telefone sind praktisch um Vorteile verschiedener Anbieter zu kombinieren.</span></a>
+            </div>
+        
+            <div class="teaser_fiver_element" style="position: absolute; top: 0px; left: 0px; z-index: 4; display: none;">
+                <a href="http://www.heise.de/ct/artikel/Firefox-OS-Erster-Blick-auf-die-Oberflaeche-1741633.html" rel="nofollow"><a href="http://www.heise.de/ct/artikel/Firefox-OS-Erster-Blick-auf-die-Oberflaeche-1741633.html"><img src="./Karte_CTBOT_files/ffos-05e8cee262c873c5.png" alt=""></a></a>
+                
+                <a href="http://www.heise.de/ct/artikel/Firefox-OS-Erster-Blick-auf-die-Oberflaeche-1741633.html"><span class="titelzeile"><a href="http://www.heise.de/ct/artikel/Firefox-OS-Erster-Blick-auf-die-Oberflaeche-1741633.html">Firefox OS</a></span></a>
+                <a href="http://www.heise.de/ct/artikel/Firefox-OS-Erster-Blick-auf-die-Oberflaeche-1741633.html"><span class="textzeile">Ein erster Blick auf die Oberfläche Unser Video zeigt die Oberfläche.</span></a>
+            </div>
+        
+            <div class="teaser_fiver_element" style="position: absolute; top: 0px; left: 0px; z-index: 3; display: none;">
+                <a href="http://www.heise.de/ct/artikel/Videobearbeitung-per-Skript-1741905.html" rel="nofollow"><a href="http://www.heise.de/ct/artikel/Videobearbeitung-per-Skript-1741905.html"><img src="./Karte_CTBOT_files/Bildschirmfoto_2012-11-01_um_18.46.03-956510fb5fbd1793.png" alt=""></a></a>
+                
+                <a href="http://www.heise.de/ct/artikel/Videobearbeitung-per-Skript-1741905.html"><span class="titelzeile"><a href="http://www.heise.de/ct/artikel/Videobearbeitung-per-Skript-1741905.html">Skriptvideobearbeitung</a></span></a>
+                <a href="http://www.heise.de/ct/artikel/Videobearbeitung-per-Skript-1741905.html"><span class="textzeile">Unser Videokodierskript encode.cmd bereitet per Drag &amp; Drop Clips für die Webseite auf.</span></a>
+            </div>
+        
+            <div class="teaser_fiver_element" style="position: absolute; top: 0px; left: 0px; z-index: 2; display: block;">
+                <a href="http://www.heise.de/ct/artikel/iPod-touch-iPod-nano-1742181.html" rel="nofollow"><a href="http://www.heise.de/ct/artikel/iPod-touch-iPod-nano-1742181.html"><img src="./Karte_CTBOT_files/Bildschirmfoto_2012-11-02_um_19.06.25.png-3b800bcb54975b9c.jpeg" alt=""></a></a>
+                
+                <a href="http://www.heise.de/ct/artikel/iPod-touch-iPod-nano-1742181.html"><span class="titelzeile"><a href="http://www.heise.de/ct/artikel/iPod-touch-iPod-nano-1742181.html">iPod touch &amp; iPod nano</a></span></a>
+                <a href="http://www.heise.de/ct/artikel/iPod-touch-iPod-nano-1742181.html"><span class="textzeile">Apple verpasst den iPods ein Update: Touch und Nano sind kaum wiederzuerkennen.</span></a>
+            </div>
+        
+            <div class="teaser_fiver_element" style="position: absolute; top: 0px; left: 0px; display: none; z-index: 1;">
+                <a href="http://ct.de/videos" rel="nofollow"><a href="http://ct.de/videos"><img src="./Karte_CTBOT_files/ctmagazin.jpg-c34b984cbcff6c82.jpeg" alt=""></a></a>
+                
+                <a href="http://ct.de/videos"><span class="titelzeile"><a href="http://ct.de/videos">Alle Videos ...</a></span></a>
+                <a href="http://ct.de/videos"><span class="textzeile">... zu c't-Artikeln gibt es unter der Adresse www.ct.de/videos.</span></a>
+            </div>
+        
+        </div>
+    </div>
+
+
+
+                        
+
+
+
+
+
+	<div class="teaser_service" style="width:95%;">
+	
+		<a href="http://www.heise.de/ct/hotline/"><img src="./Karte_CTBOT_files/service_hotline_breit-c18cfb6ef775b636.gif" alt=""></a>
+	
+	
+		<ul>
+		
+			<li><a href="http://www.heise.de/ct/hotline/Tastenkuerzel-in-Photoshop-Elements-1770918.html">Tastenkürzel in Photoshop Elements</a></li>
+		
+			<li><a href="http://www.heise.de/ct/hotline/Kein-Lizenzverlust-durch-Upgrade-1770924.html">Kein Lizenzverlust durch Upgrade</a></li>
+		
+			<li><a href="http://www.heise.de/ct/hotline/Systemwiederherstellung-im-UEFI-Modus-1770912.html">Systemwiederherstellung im UEFI-Modus</a></li>
+		
+		</ul>
+	
+	</div>
+
+
+
+
+                        
+<div class="foren_beitraege">
+    <a href="http://www.heise.de/ct/hotline/foren/forum-152218/list/"><img src="./Karte_CTBOT_files/service_foren_breit.gif" alt="Leserforen"></a>
+    <p>
+	<a href="http://www.heise.de/ct/foren/">Artikel</a> |
+	<a href="http://www.heise.de/ct/hotline/foren/">Hotline</a> |
+	<a href="http://www.heise.de/ct/hotline/foren/forum-152218/list/">Hilfe</a> |
+	<a href="http://www.heise.de/ct/foren/forum-2/list/">Allgemein</a>
+    </p>	
+	
+	<h4>Häufig diskutierte Themen</h4>
+	
+	
+	
+	  <ul>
+	    
+	      <li>
+	        <a href="http://www.heise.de/ct/foren/S-Auf-verlorenem-Posten/forum-245298/list/">Auf verlorenem Posten</a>
+	      </li>
+	    
+	      <li>
+	        <a href="http://www.heise.de/ct/foren/S-Wuensch-dir-mal-wieder-was/forum-169249/list/">Wünsch dir mal wieder was</a>
+	      </li>
+	    
+	      <li>
+	        <a href="http://www.heise.de/ct/foren/S-Touchen-und-Tippen/forum-245325/list/">Touchen und Tippen</a>
+	      </li>
+	    
+	  </ul>
+	
+	
+</div>
+
+                        
+
+
+
+    <div class="teaser_frei">
+	<p><a href="http://www.heise.de/open/artikel/Die-Neuerungen-von-OpenSuse-12-2-1699388.html">
+	
+	    <a href="http://www.heise.de/open/artikel/Die-Neuerungen-von-OpenSuse-12-2-1699388.html"><img src="./Karte_CTBOT_files/opensuse-2fb2a1ed65a9fa17.png" alt=""></a>
+	
+	
+	    <a href="http://www.heise.de/open/artikel/Die-Neuerungen-von-OpenSuse-12-2-1699388.html"><span class="dachzeile">heise open</span></a>
+	
+	<a href="http://www.heise.de/open/artikel/Die-Neuerungen-von-OpenSuse-12-2-1699388.html"><span class="titelzeile"><a href="http://www.heise.de/open/artikel/Die-Neuerungen-von-OpenSuse-12-2-1699388.html">OpenSuse 12.2</a></span></a>
+	
+	    <a href="http://www.heise.de/open/artikel/Die-Neuerungen-von-OpenSuse-12-2-1699388.html"><span class="textzeile">Die neue Version bringt aktuelle Anwendungen, den Boot-Loader Grub2 und das moderne Init-System Systemd.</span></a>
+	
+	</a></p>
+	<div class="clear"></div>
+    </div>
+
+
+
+                        
+
+
+
+    <div class="teaser_frei">
+	<p><a href="http://www.heise.de/thema/Tatort-Internet">
+	
+	    <a href="http://www.heise.de/thema/Tatort-Internet"><img src="./Karte_CTBOT_files/eye-red1-b3c43390712b3d1b.png" alt=""></a>
+	
+	
+	    <a href="http://www.heise.de/thema/Tatort-Internet"><span class="dachzeile">heise Security</span></a>
+	
+	<a href="http://www.heise.de/thema/Tatort-Internet"><span class="titelzeile"><a href="http://www.heise.de/thema/Tatort-Internet">Tatort Internet - die Serie</a></span></a>
+	
+	    <a href="http://www.heise.de/thema/Tatort-Internet"><span class="textzeile">Experten untersuchen Angriffe im Internet nach allen Regeln der Kunst und Sie können ihnen dabei über die Schulter schauen. </span></a>
+	
+	</a></p>
+	<div class="clear"></div>
+    </div>
+
+
+
+                        
+                        
+                        <script type="text/javascript">
+    $(document).ready( function() {
+        $('div#software_tabbox').tabs();
+    });
+</script>
+
+<div id="software_tabbox" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+    <h4><a href="http://www.heise.de/download/" title="heise Software-Verzeichnis">Software-Verzeichnis</a></h4>
+    
+    <p class="teaser_mit_bild_und_text">
+	<a href="http://www.heise.de/download/special-top-downloads-2012-150881.html" title="Themen-Special: Top-Downloads 2012"><a href="http://www.heise.de/download/special-top-downloads-2012-150881.html"><img src="./Karte_CTBOT_files/sps88.jpg" alt=""></a></a>
+	<a href="http://www.heise.de/download/special-top-downloads-2012-150881.html"><span class="titelzeile"><a href="http://www.heise.de/download/special-top-downloads-2012-150881.html" title="Themen-Special: Top-Downloads 2012">Top-Downloads 2012</a></span></a>
+	<a href="http://www.heise.de/download/special-top-downloads-2012-150881.html"><span class="textzeile">Welche Programme wurden am häufigsten heruntergeladen? Die Bildergalerie präsentiert die Top 30.</span></a>
+    </p>
+    
+
+    <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+	<li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#software_tabs-1" class="update">Updates</a></li>
+	<li class="ui-state-default ui-corner-top"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#software_tabs-2" class="neu">Neuzugänge</a></li>
+	<li class="ui-state-default ui-corner-top"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#software_tabs-3" class="top">Top-3</a></li>
+	<li class="ui-state-default ui-corner-top"><a href="http://www.heise.de/ct/artikel/An-der-naechsten-Ecke-links-290662.html#software_tabs-4" class="best">Bestbewertet</a></li>
+    </ul>    
+
+    
+    <div id="software_tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/wincatalog-2012-1114221.html" title="WinCatalog 2012 für Windows XP, Vista, 7, 8">WinCatalog 2012</a>
+		<a href="http://www.heise.de/download/wincatalog-2012-1114221.html"><span class="info">Katalogisierung von Ordnern, Dateien und wechselbaren Datenträgern</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/terminplaner-117457.html" title="Terminplaner für Windows 95, 98, ME, NT, 2000, XP, Server 2003, Vista">Terminplaner</a>
+		<a href="http://www.heise.de/download/terminplaner-117457.html"><span class="info">Kalenderprogramm, das neben vielen Kalenderfunktionen übersichtlich Termine und Aufgaben verwaltet</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/macx-youtube-downloader-1187736.html" title="MacX YouTube Downloader für Mac OS X">MacX YouTube Downloader</a>
+		<a href="http://www.heise.de/download/macx-youtube-downloader-1187736.html"><span class="info">Lädt Videos in einstellbarer Qualität von YouTube herunter und speichert diese auf der Festplatte&nbsp;...</span></a>
+	    </p>
+	
+	<p class="rss">
+	    <a href="http://www.heise.de/download/updates-50000304000/" title="Alle Updates im heise Software-Verzeichnis">Alle Updates</a>
+	</p>
+    </div>
+    
+    <div id="software_tabs-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/fussball-manager-1189836.html" title="Fussball Manager für Windows XP, Vista, 7">Fussball Manager</a>
+		<a href="http://www.heise.de/download/fussball-manager-1189836.html"><span class="info">Bekannte Fußball-Simulation, bei der der Spieler das komplette Management eines Fußballvereins steuern muss&nbsp;...</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/axxon-next-1189818.html" title="Axxon Next für Windows XP, Server 2003, Server 2008, Vista, 7">Axxon Next</a>
+		<a href="http://www.heise.de/download/axxon-next-1189818.html"><span class="info">Videoüberwachungssoftware zur Nutzung mit IP-Kameras; bietet unter anderem Video- und Audioanalysetools, einen interaktiven Lageplan und ein eigenes&nbsp;...</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/mandelbrot-set-explorer-1189808.html" title="Mandelbrot set explorer für Windows XP, Vista, 7, 8">Mandelbrot set explorer</a>
+		<a href="http://www.heise.de/download/mandelbrot-set-explorer-1189808.html"><span class="info">Tool für die explorative Untersuchung der Mandelbrotmenge; eine grafische Darstellung lässt sich per Maus untersuchen&nbsp;...</span></a>
+	    </p>
+	
+	<p class="rss">
+	    <a href="http://www.heise.de/download/neuzugaenge-50000311000/" title="Alle Neuzugänge im heise Software-Verzeichnis">Alle Neuzugänge</a>
+	</p>
+    </div>
+    
+    <div id="software_tabs-3" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/irfanview.html" title="IrfanView für Windows 2000, XP, Vista, 7">IrfanView</a>
+		<a href="http://www.heise.de/download/irfanview.html"><span class="info">Schneller Viewer für diverse Bildformate, spielt über Plug-ins auch andere Multimedia-Formate ab und kann unter anderem Bilder mit diversen Effekten&nbsp;...</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/windows-xp-service-pack-3-sp3.html" title="Windows XP Service Pack 3 (SP3) für Windows XP">Windows XP Service Pack 3 (SP3)</a>
+		<a href="http://www.heise.de/download/windows-xp-service-pack-3-sp3.html"><span class="info">Aktualisiert alle 32-Bit-Versionen von Windows XP von Starter bis Professional&nbsp;...</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/h2testw.html" title="H2testw für Windows 2000, XP, Server 2003, Server 2008, Vista, 7, 8">H2testw</a>
+		<a href="http://www.heise.de/download/h2testw.html"><span class="info">Integritätstest für Datenträger, vor allem zur Erkennung manipulierter USB-Sticks (siehe auch c't 1/08, S. 24)&nbsp;...</span></a>
+	    </p>
+	
+	<p class="rss">
+	    <a href="http://www.heise.de/download/top-downloads-50000505000/" title="Alle Top-Downloads im heise Software-Verzeichnis">Alle Top-Downloads</a>
+	</p>
+    </div>
+    
+    <div id="software_tabs-4" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/wsus-offline-update-ct.html" title="WSUS Offline Update (c&#39;t Offline Update) für Windows 2000, XP, Server 2003, Server 2008, Server 2012, Vista, 7, 8, Linux">WSUS Offline Update (c't Offline Update)</a>
+		<a href="http://www.heise.de/download/wsus-offline-update-ct.html"><span class="info">Skriptsammlung, die sämtliche Updates für Windows XP, Server 2003, Server 2008, Vista oder Windows 7 sowie für Office herunterlädt und daraus&nbsp;...</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/truecrypt.html" title="TrueCrypt für Windows XP, Vista, 7, Linux, Mac OS X, Mac OS X/Intel">TrueCrypt</a>
+		<a href="http://www.heise.de/download/truecrypt.html"><span class="info">Legt verschlüsselte Festplattenpartitionen an, die nur unter Zuhilfenahme des richtigen Passworts gelesen und beschrieben werden können&nbsp;...</span></a>
+	    </p>
+	
+	    <p class="teaser_mit_bild_und_text">
+		<a href="http://www.heise.de/download/hbci-fuer-ms-money-99-hbcifm99-118317.html" title="HBCI für MS Money 99 (HBCIFM99) für Windows 95, 98, ME, NT, 2000, XP, Server 2003, Server 2008, Vista, 7">HBCI für MS Money 99 (HBCIFM99)</a>
+		<a href="http://www.heise.de/download/hbci-fuer-ms-money-99-hbcifm99-118317.html"><span class="info">HBCI-Homebanking-Modul für MS Money 99 Version 2000</span></a>
+	    </p>
+	
+	<p class="rss">
+	    <a href="http://www.heise.de/download/bestbewertet-50000606000/" title="Alle am besten bewerteten Programme im heise Software-Verzeichnis">Alle am besten bewerteten Programme</a>
+	</p>
+    </div>
+    
+
+</div>
+
+                        
+
+
+
+    <div class="teaser_frei">
+	<p><a href="http://www.heise-shop.de/_pid_237.html">
+	
+	    <a href="http://www.heise-shop.de/_pid_237.html"><img src="./Karte_CTBOT_files/f002d2c77f3174ad.png" alt=""></a>
+	
+	
+	    <a href="http://www.heise-shop.de/_pid_237.html"><span class="dachzeile">c't kompakt</span></a>
+	
+	<a href="http://www.heise-shop.de/_pid_237.html"><span class="titelzeile"><a href="http://www.heise-shop.de/_pid_237.html">Programmieren</a></span></a>
+	
+	    <a href="http://www.heise-shop.de/_pid_237.html"><span class="textzeile">Crashkurse und Ratgeber zu Frameworks, App-Entwicklung &amp; Programmiersprachen. Auf DVD: E-Book iOS-Programmierung, alle wichtigen Entwicklungsumgebungen<br>
+</span></a>
+	
+	</a></p>
+	<div class="clear"></div>
+    </div>
+
+
+
+                    
+                    <div class="contentbanner"></div>
+                    <div class="sales"></div>
+                    <div class="clear"></div>
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+    <div id="bannerzone">
+        <div class="leaderboard"><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var dfp_ord; if (!dfp_ord) { dfp_ord = Math.floor(Math.random()*1000000000)+1000000000; }
+var rb = false; document.write('<script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=728x90,468x60;tile=3;ord=_ORD_?" type="text/javascript"><\/script>'.replace('_ORD_', dfp_ord));
+//--><!]]>
+</script><script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=728x90,468x60;tile=3;ord=1308251664?" type="text/javascript"></script>
+<noscript>&lt;div&gt;&lt;a href="http://ad-emea.doubleclick.net/N6514/jump/ct/ct-inhalt;sz=728x90,468x60;tile=3;ord=6017317434?" target="_blank"&gt;&lt;img alt="" src="http://ad-emea.doubleclick.net/N6514/ad/ct/ct-inhalt;sz=728x90,468x60;tile=3;ord=6017317434?" /&gt;&lt;/a&gt;&lt;/div&gt;</noscript>
+</div>
+        <div class="heiseadvert"></div>
+        <div class="skyscraper"><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var dfp_ord; if (!dfp_ord) { dfp_ord = Math.floor(Math.random()*1000000000)+1000000000; }
+if (typeof rb != "undefined" && rb != true) document.write('<script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=120x600,120x800,160x600,160x800;tile=4;ord=_ORD_?" type="text/javascript"><\/script>'.replace('_ORD_', dfp_ord));
+//--><!]]>
+</script><script src="http://ad-emea.doubleclick.net/N6514/adj/ct/ct-inhalt;sz=120x600,120x800,160x600,160x800;tile=4;ord=1308251664?" type="text/javascript"></script>
+<noscript>&lt;div&gt;&lt;a href="http://ad-emea.doubleclick.net/N6514/jump/ct/ct-inhalt;sz=120x600,120x800,160x600,160x800;tile=4;ord=6017317434?" target="_blank"&gt;&lt;img alt="" src="http://ad-emea.doubleclick.net/N6514/ad/ct/ct-inhalt;sz=120x600,120x800,160x600,160x800;tile=4;ord=6017317434?" /&gt;&lt;/a&gt;&lt;/div&gt;</noscript>
+</div>
+    </div>
+</div>
+
+
+
+
+
+<div style="display: inline;"><img id="ivw_pixel_intern" src="./Karte_CTBOT_files/An-der-naechsten-Ecke-links-290662.html" width="1" height="1" alt=""></div>
+    
+    <script type="text/javascript">
+        <!--//--><![CDATA[//><!--
+            var AVW = '<' + 'div style="display: inline;"><' + 'img id="avw_pixel_intern" src="/avw-bin/ivw/CP/mbe/ct/ct-inhalt" width="1" height="1" alt="" /><' + '/div>';
+            document.write(AVW);
+        //--><!]]>
+    </script><div style="display: inline;"><img id="avw_pixel_intern" src="./Karte_CTBOT_files/ct-inhalt" width="1" height="1" alt=""></div>
+    
+        <script type="text/javascript">
+            <!--//--><![CDATA[//><!--
+            var IVW='<div style="display: inline;"><img id="ivw_pixel" src="http://heise.ivwbox.de/cgi-bin/ivw/CP/ct;%2Fct%2Fartikel%2FAn-der-naechsten-Ecke-links-290662.html?r=https%3A%2F%2Fwww.google.de%2F';
+            document.write(IVW + '&amp;d=' + (Math.random()*100000) + '" width="1" height="1" alt="" /><' + '/div>');
+            //--><!]]>
+        </script><div style="display: inline;"><img id="ivw_pixel" src="./Karte_CTBOT_files/ct" width="1" height="1" alt=""></div>
+        <script type="text/javascript" src="./Karte_CTBOT_files/mclient-1.0.js"></script>
+        <noscript>
+            &lt;div style="display: inline;"&gt;&lt;img id="ivw_pixel_noscript" src="http://heise.ivwbox.de/cgi-bin/ivw/CP/ct;/ct/artikel/An-der-naechsten-Ecke-links-290662.html?r=https%3A%2F%2Fwww.google.de%2F&amp;amp;d=" width="1" height="1" alt="" /&gt;&lt;/div&gt;
+        </noscript>
+        <script type="text/javascript">
+            <!--//--><![CDATA[//><!--
+            window.onunload=function() {};
+            //--><!]]>
+        </script>
+        
+            <!-- SZMFRABO VERSION="1.2" -->
+            <script type="text/javascript">
+                <!--//--><![CDATA[//><!--
+                var szmvars="heise//CP//ct";
+                //--><!]]>
+            </script>
+            <script src="./Karte_CTBOT_files/survey.js" type="text/javascript"></script>
+            <!-- /SZMFRABO -->
+        
+
+
+<!-- RL -->
+
+    <!-- RL_PATH:%2Fho%2Fcms%2F6%2F160%2F174%2F2006%2F09%2F04%2F290662 -->
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var screenInfo = escape( screen.width + 'x' + screen.height + 'x' + screen.colorDepth );
+var cookiesEnabled = 0;
+if (navigator.cookieEnabled) cookiesEnabled=1;
+var referrer = escape(document.referrer);
+referrer = referrer.replace( /(\/software\/download).*$/, "$1/" );
+document.write(
+'<div style="display: inline;"><img id="rl_pixel" src="http://rl.heise.de/images/pic.gif?r=' + referrer + ';tp=1073741824%7C1073827193%7C1073839048%7C1073843792%7C1073851456%7C1073865879%7C1073866035;m=Heise;tid=1073866036;random=' + (Math.random()*100000) + ';con=1;json=1;tc=1073741824%7C1073827193%7C1073839048%7C1073843792%7C1073851456%7C1073865879%7C1073866035%7C1073866036;c=290662;b=265167;sep=%7C;tce=1;tn=04;tpn=heise%20online%7CRedaktioneller%20Content%7Cc%27t%7CArtikel%7CKnow-how%7C2006%7C09%7C04;url=http%3A%2F%2Fwww.heise.de%2Fct%2Fartikel%2FAn-der-naechsten-Ecke-links-290662.html;tit=An%20der%20n%E4chsten%20Ecke%20links%20...;tpu=1;sz=' + screenInfo + ';con=' + cookiesEnabled + ';cs=1" width="1" height="1" alt="" /><' + '/div>'
+);
+//--><!]]>
+</script><div style="display: inline;"><img id="rl_pixel" src="./Karte_CTBOT_files/pic.gif" width="1" height="1" alt=""></div>
+<noscript>
+  &lt;div style="display: inline;"&gt;&lt;img id="rl_pixel" src="http://rl.heise.de/images/pic.gif?r=https%3A%2F%2Fwww.google.de%2F;tp=1073741824%7C1073827193%7C1073839048%7C1073843792%7C1073851456%7C1073865879%7C1073866035;m=Heise;tid=1073866036;random=6989497738;json=0;tc=1073741824%7C1073827193%7C1073839048%7C1073843792%7C1073851456%7C1073865879%7C1073866035%7C1073866036;c=290662;b=265167;sep=%7C;tce=1;tn=04;tpn=heise%20online%7CRedaktioneller%20Content%7Cc%27t%7CArtikel%7CKnow-how%7C2006%7C09%7C04;url=http%3A%2F%2Fwww.heise.de%2Fct%2Fartikel%2FAn-der-naechsten-Ecke-links-290662.html;tit=An%20der%20n%E4chsten%20Ecke%20links%20...;tpu=1;con=1;cs=1" width="1" height="1" alt="" /&gt;&lt;/div&gt;
+</noscript>
+
+<!-- /RL -->
+
+
+<!-- Webtrekk 3.2.2, (c) www.webtrekk.com -->
+    <script type="text/javascript" src="./Karte_CTBOT_files/webtrekk-v3-bundle-heise.js"></script>
+    <script type="text/javascript">
+    <!--
+    var pageConfig = {
+        linkTrack : "standard", // Activate Link Tracking    [link or standard]
+        heatmap : "0",          // Activate Heatmap Tracking [1 = on | 0 = off]
+        form : "",              // Activate Form Tracking    [1 = on | 0 = off]
+        pixelSampling : "5",
+        contentId: "www.heise.de.ct.artikel.an-der-naechsten-ecke-links-290662"
+    };
+    var wt = new webtrekkV3(pageConfig);
+    wt.contentGroup = {};
+    wt.contentGroup['1']  = "www.heise.de";
+    wt.contentGroup['2']  = "ct";
+    wt.contentGroup['3']  = "artikel";
+    wt.contentGroup['4']  = "an-der-naechsten-ecke-links-290662";
+    
+    
+    
+    
+    wt.contentGroup['9']  = "an-der-naechsten-ecke-links-290662";
+    wt.contentGroup['10'] = "artikel";
+
+    
+    
+    
+    
+
+    wt.heatmapRefpoint = 'container_content';
+    wt.sendinfo();
+
+        jQuery(document).ready(function($) {
+            $('.bilderstrecke_vorschau').on('webtrekk_bilderstrecke', function(w) {
+                wt.sendinfo({
+                    linkId: 'bilderstrecke.' + w.action,
+                    customClickParameter: {
+                        1: '' + w.bilderstrecken_id, // Bilderstrecke-CID
+                        2: '' + w.source             // Bild-Nummer
+                    }
+                });
+            });
+        });
+
+    //-->
+    </script>
+
+
+<!-- /Webtrekk -->
+
+    <script type="text/javascript">
+        <!--//--><![CDATA[//><!--
+        // VGWORT-CROP-MARKER
+        var vgwort_token='576d7c715f584d7fa7d53ce00813dbf3';
+                document.write('<div style="display: inline;"><img src="http://heise.met.vgwort.de/na/' +  vgwort_token);
+        document.write('" width="1" height="1" alt="" /><' + '/div>');
+        //--><!]]>
+    </script><div style="display: inline;"><img src="./Karte_CTBOT_files/576d7c715f584d7fa7d53ce00813dbf3" width="1" height="1" alt=""></div>
+
+
+
+
+<div style="display: inline;"><img src="./Karte_CTBOT_files/jorge" width="1" height="1" alt=""></div>
+<div style="display: inline;"><img src="./Karte_CTBOT_files/casey" width="1" height="1" alt=""></div>
+
+	<ul id="navi_bottom">
+
+	
+		<li class="left"><a href="http://www.heise.de/Privacy-Policy-der-Heise-Zeitschriften-Verlag-GmbH-Co-KG-4860.html">Datenschutzhinweis</a> </li>
+	
+
+	
+		<li class="left"><a href="http://www.heise.de/ct/c-t-Impressum-4780.html">Impressum</a> </li>
+	
+
+	
+		<li class="left"><a href="mailto:www@ct.de">Kritik, Anregungen bitte an c't-WWW</a> </li>
+	
+
+	
+		<li class="left"><a href="http://www.heise.de/mediadaten/ct/">Mediadaten</a> </li>
+	
+
+
+<li class="bid_anzeige">
+265167
+</li>
+
+
+
+    <li class="right"><a href="http://www.interred.de/" rel="external" style="margin-right: 0;">Content Management</a> by <b style="margin-right: 0.5em;">Inter<span class="tx_red">Red</span></b></li>
+
+	
+		
+		<li class="right"><a href="http://www.heise-medien.de/zeitschriften/">Copyright © 2013 Heise Zeitschriften Verlag</a></li>
+		
+	
+
+	
+		<li class="international"><span class="international">International: <a href="http://www.h-online.com/">The H</a>, <a href="http://www.h-online.com/security/">The H Security</a>, <a href="http://www.h-online.com/open/">The H Open Source</a> </span></li>
+	
+</ul>
+
+
+
+
+
+<!-- Created with InterRed V12.0-x.x.x.x, http://www.interred.de/, by InterRed GmbH -->
+<!-- BID: 265167, iBID: 711212, CID: 290662, iCID: 1342175 -->
+<!-- Link: $(LB265167:Linktext)$ $(LC290662:Linktext)$ -->
+<!-- Generiert: 2012-06-11 18:40:14 -->
+
+<div id="sbi_camera_button" class="sbi_search" style="left: 0px; top: 0px; position: absolute; width: 29px; height: 27px; border: none; margin: 0px; padding: 0px; z-index: 2147483647; display: none;"></div></body></html>
