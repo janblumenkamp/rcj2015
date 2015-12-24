@@ -3,7 +3,7 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 ///////////////////////////////////um6.h////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	siehe um6.c
+//    siehe um6.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,7 @@
 #define UM6_C
 
 #include <avr/io.h>
-#include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
+#include <avr/pgmspace.h>     // Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
@@ -22,27 +22,27 @@
 typedef struct _um6_t UM6_t;
 
 struct _um6_t {
-	void (*put_c)(unsigned char c);
-	unsigned int (*get_c)(void);
+    void (*put_c)(unsigned char c);
+    unsigned int (*get_c)(void);
 
-	uint8_t gyr_drift_cnt;
-	uint8_t isBusy;
+    uint8_t gyr_drift_cnt;
+    uint8_t isBusy;
 
-	int16_t phi_old;
-	int16_t psi_old;
-	int16_t theta_old;
+    int16_t phi_old;
+    int16_t psi_old;
+    int16_t theta_old;
 
-	int16_t phi;
-	int32_t phi_t; //total
-	int16_t theta;
-	int16_t theta_t; //total
-	int16_t theta_off; //offset
-	int16_t psi;
-	int32_t psi_t; //total
-	int16_t accl_x;
-	int16_t accl_y;
-	int8_t isRamp;
-	int16_t gyr_x, gyr_y, gyr_z;
+    int16_t phi;
+    int32_t phi_t; //total
+    int16_t theta;
+    int16_t theta_t; //total
+    int16_t theta_off; //offset
+    int16_t psi;
+    int32_t psi_t; //total
+    int16_t accl_x;
+    int16_t accl_y;
+    int8_t isRamp;
+    int16_t gyr_x, gyr_y, gyr_z;
 };
 
 /////////////////////////////

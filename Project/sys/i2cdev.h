@@ -3,12 +3,12 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 /////////////////////////////////i2cdev.h///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	Siehe i2cdev.c
+//    Siehe i2cdev.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <avr/io.h>
-#include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
+#include <avr/pgmspace.h>     // Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
@@ -27,8 +27,8 @@
 #define I2C_REG_SRF10_MEASERUEMENT_S 0x51 //Laufzeit in µS
 
 struct _SRF {
-	int8_t state;
-	int16_t dist;
+    int8_t state;
+    int16_t dist;
 };
 
 #define NUMBER_OF_SRF 1
@@ -37,8 +37,8 @@ extern struct _SRF srf[NUMBER_OF_SRF];
 
 //IR (MLX90614)
 struct MLX_INFO {
-	int16_t is;
-	int16_t th;
+    int16_t is;
+    int16_t th;
 };
 
 

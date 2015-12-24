@@ -3,12 +3,12 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 /////////////////////////////////system.h///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	Siehe system.c
+//    Siehe system.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <avr/io.h>
-#include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
+#include <avr/pgmspace.h>     // Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
@@ -21,22 +21,22 @@
 extern uint8_t mcusr_mirror; //Für watchdogflag
 
 struct SPEED_t {
-	int16_t is; //Geschw. Istwert
-	int16_t to; //Geschw. Sollwert
+    int16_t is; //Geschw. Istwert
+    int16_t to; //Geschw. Sollwert
 };
 
 struct MOTOR_t {
-	struct SPEED_t speed;
-	int32_t enc; //Encoderwert
-	int32_t enc_abs; //Encodervalue (absolute), counts only into one direction (up).
+    struct SPEED_t speed;
+    int32_t enc; //Encoderwert
+    int32_t enc_abs; //Encodervalue (absolute), counts only into one direction (up).
 };
 
 typedef struct {
-	struct MOTOR_t d[2]; //d ~ direction (LEFT/RIGHT)
-	int8_t off;
-	int8_t off_invisible;
-	int32_t enc;
-}	MOTOR_ROB_t;
+    struct MOTOR_t d[2]; //d ~ direction (LEFT/RIGHT)
+    int8_t off;
+    int8_t off_invisible;
+    int32_t enc;
+}    MOTOR_ROB_t;
 
 extern MOTOR_ROB_t mot;
 

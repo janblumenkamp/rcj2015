@@ -3,7 +3,7 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 ///////////////////////////////////maze.h///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	Siehe maze.c
+//    Siehe maze.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,7 @@
 #define MAZE_H
 
 #include <avr/io.h>
-#include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
+#include <avr/pgmspace.h>     // Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
@@ -29,13 +29,13 @@ enum QUARTERS {NONE, NORTH, EAST, SOUTH, WEST};
 #define MAZE_SIZE_Y_USABLE (MAZE_SIZE_Y-1)
 #define MAZE_SIZE_Z_USABLE MAZE_SIZE_Z
 
-#define ROB_POS_X_MIN			1 //DARF NICHT UNTER 1 LIEGEN!!!
-#define ROB_POS_Y_MIN			1
+#define ROB_POS_X_MIN            1 //DARF NICHT UNTER 1 LIEGEN!!!
+#define ROB_POS_Y_MIN            1
 
-#define ROB_START_MAZE_X	ROB_POS_X_MIN //Startkoordinaten
-#define ROB_START_MAZE_Y	ROB_POS_Y_MIN //Kein Startfeld => starte bei y=1 
-#define ROB_START_MAZE_Z	0
-#define ROB_START_DIR			NORTH
+#define ROB_START_MAZE_X    ROB_POS_X_MIN //Startkoordinaten
+#define ROB_START_MAZE_Y    ROB_POS_Y_MIN //Kein Startfeld => starte bei y=1
+#define ROB_START_MAZE_Z    0
+#define ROB_START_DIR            NORTH
 
 enum XYZ {X = 1, Y, Z};
 
@@ -46,40 +46,40 @@ typedef struct _pos POS;
 typedef struct _matchingWalls MATCHINGWALLS;
 
 struct _tile {
-	unsigned beenthere:1;
-	signed ground:7;
-	int8_t wall_s;
-	int8_t wall_w;
-	int8_t obstacle;
-	signed victim_n:4;
-	signed victim_e:4;
-	signed victim_s:4;
-	signed victim_w:4;
-	uint8_t depthsearch;
+    unsigned beenthere:1;
+    signed ground:7;
+    int8_t wall_s;
+    int8_t wall_w;
+    int8_t obstacle;
+    signed victim_n:4;
+    signed victim_e:4;
+    signed victim_s:4;
+    signed victim_w:4;
+    uint8_t depthsearch;
 };
 
 struct _off {
-	int8_t x;
-	int8_t y;
+    int8_t x;
+    int8_t y;
 };
 
 struct _coord { //Coordinates (x, y and z) of an object
-	int8_t x;
-	int8_t y;
-	int8_t z;
+    int8_t x;
+    int8_t y;
+    int8_t z;
 };
 
 struct _pos { //Position (coordinates + orientation (direction) of an object)
-	COORD pos;
-	int8_t dir;
+    COORD pos;
+    int8_t dir;
 };
 
 #define MATCHINGWALLS_BUFF 8 //The amount of matchingwalls of the last @param driven tiles is saved and based of this it will be judged if there is a error or not
 
 struct _matchingWalls {
-	uint8_t buffer[MATCHINGWALLS_BUFF];
-	uint8_t next;
-	uint8_t lowmatches;
+    uint8_t buffer[MATCHINGWALLS_BUFF];
+    uint8_t next;
+    uint8_t lowmatches;
 };
 
 #define MAZE_ISWALL 4 //Above this threshold there is a wall
@@ -91,11 +91,11 @@ struct _matchingWalls {
 #define MAZE_UPDATEGROUNDFAC_DRIVE_SENS 20 //Gewichtung bei Untergrundsensor nach Erkennung
 #define MAZE_UPDATEGROUNDFAC_TURN 2 //Gewichtung bei Untergrundkorrektur während Drehen
 
-#define FRONT_FRONT_TH 	170 //Schwellwert nach vorne
-#define FRONT_TH 		170 //Schwellwert nach vorne (Sensoren L/R)
-#define BACK_TH 		170 //Schwellwert nach hinten "
-#define SIDE_TH 		170 //Schwellwert zur Seite
-#define BACK_BACK_TH	170
+#define FRONT_FRONT_TH     170 //Schwellwert nach vorne
+#define FRONT_TH         170 //Schwellwert nach vorne (Sensoren L/R)
+#define BACK_TH         170 //Schwellwert nach hinten "
+#define SIDE_TH         170 //Schwellwert zur Seite
+#define BACK_BACK_TH    170
 
 #define DIST_VICTIM_MIN 200
 
@@ -121,8 +121,8 @@ struct _matchingWalls {
 #define GROUNDSENS_R_TH_BLACKTILE 860 //Above this Threshold there is a black tile
 #define GROUNDSENS_L_TH_BLACKTILE 860 //Above this Threshold there is a black tile
 #define GROUNDSENS_L_TH_CHECKPOINT 630 //Below this Threshold there is a checkpoint
-#define GROUNDDIST_TH_LOP		50 //Below this Threshold of the sharp IR looking down there is a LOP
-#define GROUNDDIST_TH_NORMAL		200 //Above this Threshold of the sharp IR looking down there is no more LOP
+#define GROUNDDIST_TH_LOP        50 //Below this Threshold of the sharp IR looking down there is a LOP
+#define GROUNDDIST_TH_NORMAL        200 //Above this Threshold of the sharp IR looking down there is no more LOP
 #define GROUNDSENS_CNT_TH_CHECKPOINT 20 //More than n times below the Threshold of a checkpoint (IS checkpoint!)
 #define GROUNDSENS_CNT_TH_BLACKTILE 8 //More than n times below the Threshold of a black tile
 #define RAMP_CNT_ISRAMP 7 //More than n times above the Threshold of ramp (up and down)
@@ -130,16 +130,16 @@ struct _matchingWalls {
 #define MAZE_ERR_DEL_RADIUS_L 2 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Large Radius)
 #define MAZE_ERR_DEL_RADIUS_S 1 //If the robot detects an error the tiles in the radius of this are cleared (mistaken tiles) (Small Radius)
 
-#define TILE_LENGTH_MIN_DRIVE	16	//After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
+#define TILE_LENGTH_MIN_DRIVE    16    //After the robot drive this distance, he will start a new tile in the map, otherwise not!!!
 
 extern TILE maze[MAZE_SIZE_X][MAZE_SIZE_Y][MAZE_SIZE_Z];
 extern OFF offset[MAZE_SIZE_Z]; //Für jede Ebene eigenen Offset
-	extern int8_t offset_z; //Eigenen Offset für z, da sonst in beiden Offset [0,1] vorhanden wäre
+    extern int8_t offset_z; //Eigenen Offset für z, da sonst in beiden Offset [0,1] vorhanden wäre
 extern COORD rr_result; //RouteRequest startpositions
 extern COORD off_start; //offset startposition (change startposition via rotary-encoder)
 extern POS robot; //Positionsdaten über Roboter
 extern POS checkpoint; //Last passed checkpoint
-extern POS ramp[MAZE_SIZE_Z];	//Rampenanschlüsse
+extern POS ramp[MAZE_SIZE_Z];    //Rampenanschlüsse
 
 extern MATCHINGWALLS matchingWalls;
 
@@ -155,17 +155,17 @@ extern DOT dot; //drive one tail main struct!
 
 ///////
 enum MAZE_STATE_SOLVE { DRIVE_READY, FOLLOW_RIGHTWALL, FOLLOW_DFS, MAZE_ERR, RESTART, LOP_INIT, LOP_WAIT,
-												DRIVE_DOT, DRIVE_DOT_DRIVE, TURN_RIGHT, TURN_RIGHT_DRIVE, TURN_LEFT, TURN_LEFT_DRIVE, RAMP_UP, RAMP_DOWN,
-												VIC_DEPL, CHECK_BLACKTILE};
+                                                DRIVE_DOT, DRIVE_DOT_DRIVE, TURN_RIGHT, TURN_RIGHT_DRIVE, TURN_LEFT, TURN_LEFT_DRIVE, RAMP_UP, RAMP_DOWN,
+                                                VIC_DEPL, CHECK_BLACKTILE};
 
 enum MAZE_STATE_DRIVE_READY { DR_INIT, DR_UPDATEWALLS, DR_UPDATEVICTIMS, DR_CHECK, DR_MATCH}; //DR = DriveReady
 
 enum MAZE_RR {RR_WAIT, RR_CALCNEARESTTILE, RR_CALCROUTE,
-							RR_NEARDONE, RR_NEARNOPOSS, RR_NEARTIMEOUT,
-							RR_RTDONE, RR_RTNOPOSS, RR_RTTIMEOUT}; //RR = RouteRequest, RT = Route
-					
+                            RR_NEARDONE, RR_NEARNOPOSS, RR_NEARTIMEOUT,
+                            RR_RTDONE, RR_RTNOPOSS, RR_RTTIMEOUT}; //RR = RouteRequest, RT = Route
+
 enum MAZE_LR {LR_WAIT, LR_MATCH, LR_SUCCESS, LR_FAILURE}; //LR = LocalizationRequest;
-		
+
 enum DRIVE_ACTION {DA_DOT, DA_TURN_L, DA_TURN_R, DA_DEPLKIT, DA_RAMP_UP, DA_RAMP_DOWN}; // DA = DriveAction; Last driving action
 
 extern uint8_t maze_solve_state_path;

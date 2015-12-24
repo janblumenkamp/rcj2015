@@ -3,7 +3,7 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 /////////////////////////////////drive.c////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	siehe drive.c
+//    see drive.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,14 +33,14 @@ typedef struct _d_deplKit D_DEPLOYKIT;
 
 #define STEER_ALIGN_DONE 1
 
-#define TIMER_ALIGN	500 //Maximal so lange ausrichten, dann abbrechen
+#define TIMER_ALIGN    500 //Maximal so lange ausrichten, dann abbrechen
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 ///drive_rotate
 enum DRIVE_ROTATE {ROTATE_INIT, ROTATE, ROTATE_END, ROTATE_FINISHED};
 
-#define TIMER_ROTATE	1000 //Wenn steer zu klein und Opfererkennung => zurücksetzen => dreht nicht => abbrechen
+#define TIMER_ROTATE    1000 //Wenn steer zu klein und Opfererkennung => zurücksetzen => dreht nicht => abbrechen
 
 #define ENC_DEGROTFAC 4.8
 
@@ -54,21 +54,21 @@ enum DRIVE_ROTATE {ROTATE_INIT, ROTATE, ROTATE_END, ROTATE_FINISHED};
 #define STEER_ROTATE_TH_TIMER 20 //Unter diesem Wert (Betrag) wird ein Timer aktivierter, in dem Zeitraum 0 erreicht werden muss, ansonsten abbruch.
 
 struct _d_rotate {
-	unsigned state:7;
-	unsigned use_enc:1; //Use the um6 or the encoders for rotating?
+    unsigned state:7;
+    unsigned use_enc:1; //Use the um6 or the encoders for rotating?
 
-	int16_t angle; //Angle to rotate
-	int8_t speed_limit; //Maximum rotating speed
+    int16_t angle; //Angle to rotate
+    int8_t speed_limit; //Maximum rotating speed
 
-	int32_t um6_psi_t_start;
-	int32_t enc_l_start;
-	int32_t enc_r_start;
+    int32_t um6_psi_t_start;
+    int32_t enc_l_start;
+    int32_t enc_r_start;
 
-	uint32_t timer;
+    uint32_t timer;
 
-	int16_t steer;
+    int16_t steer;
 
-	uint8_t progress; //How much did the robot already move (%)
+    uint8_t progress; //How much did the robot already move (%)
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,62 +83,62 @@ enum DOT_STATES         {DOT_INIT, DOT_ALIGN_BACK, DOT_ALIGN, DOT_DRIVE, DOT_ROT
 #define ENC_FAC_CM_R 22.3
 #define ENC_FAC_CM_LR 22.3
 
-#define TILE1_FRONT_FRONT 		50	//mm
-#define TILE1_FRONT_TH_FRONT	200
-#define TILE1_BACK_BACK			50	//Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
-#define TILE1_BACK_TH_BACK		230
+#define TILE1_FRONT_FRONT         50    //mm
+#define TILE1_FRONT_TH_FRONT    200
+#define TILE1_BACK_BACK            50    //Wenn eine Wand direkt hinter dem Roboter ist, ist bei diesem Rücksensorwert der Roboter in der Mitte
+#define TILE1_BACK_TH_BACK        230
 
-#define TILE1_SIDE_TH			120
+#define TILE1_SIDE_TH            120
 
-#define DIST_SOLL	54	//IR; Seitenabstand
+#define DIST_SOLL    54    //IR; Seitenabstand
 
-#define TILE_LENGTH				30	//cm
-#define TILE_DIST_COLLISION_AV	25	//Only if the robot has driven less than this distance, the collision avoidance is active.
-#define DIST_ADD_COLLISION		1	//This distance is added to the distance-to-drive after the robot avoided a collision
-#define DIST_ADD_COLLISION_MAX	5
+#define TILE_LENGTH                30    //cm
+#define TILE_DIST_COLLISION_AV    25    //Only if the robot has driven less than this distance, the collision avoidance is active.
+#define DIST_ADD_COLLISION        1    //This distance is added to the distance-to-drive after the robot avoided a collision
+#define DIST_ADD_COLLISION_MAX    5
 
-#define SPEED_COLLISION_AVOIDANCE		20	//After the robot detected a collision, he turns with this speed at the point until the object in the way is gone
-#define TURN_ANGLE_COLLISION_AVOIDED	12	//After the object in the way is gone, the robot turns on this angle to be sure
+#define SPEED_COLLISION_AVOIDANCE        20    //After the robot detected a collision, he turns with this speed at the point until the object in the way is gone
+#define TURN_ANGLE_COLLISION_AVOIDED    12    //After the object in the way is gone, the robot turns on this angle to be sure
 
-#define COLLISIONAVOIDANCE_SENS_TH_1	40	//If one front sensor is UNDER this threshold
-#define COLLISIONAVOIDANCE_SENS_TH_2	150	//and the other two front sensors are ABOVE this threshold, there will happen a collision!
+#define COLLISIONAVOIDANCE_SENS_TH_1    40    //If one front sensor is UNDER this threshold
+#define COLLISIONAVOIDANCE_SENS_TH_2    150    //and the other two front sensors are ABOVE this threshold, there will happen a collision!
 
-#define KP_DOT_DIR	1.3
-#define KP_DOT_DIST	KP_DOT_DIR * 0.6
+#define KP_DOT_DIR    1.3
+#define KP_DOT_DIST    KP_DOT_DIR * 0.6
 
-#define KP_ALIGN_FRONT	0.6
-#define KP_ALIGN_BACK	0.6
+#define KP_ALIGN_FRONT    0.6
+#define KP_ALIGN_BACK    0.6
 
-#define DELTADIST_MAX	15	//Highest allowed distance difference from one point to the next (the sensorvalues go up in two steps if there is a big difference)
+#define DELTADIST_MAX    15    //Highest allowed distance difference from one point to the next (the sensorvalues go up in two steps if there is a big difference)
 
-#define STEER_ALIGN_BACK_END	2	//Below this steering the alignment on the back is good and stops.
-#define STEER_DOT_ALIGN_TOP_END		2	//----------------"----------------------- top --------"---------
+#define STEER_ALIGN_BACK_END    2    //Below this steering the alignment on the back is good and stops.
+#define STEER_DOT_ALIGN_TOP_END        2    //----------------"----------------------- top --------"---------
 
 
-#define TIMER_DOT_ALIGN			3000 //So lange wird maximal vorne/hinten angepasst
+#define TIMER_DOT_ALIGN            3000 //So lange wird maximal vorne/hinten angepasst
 
 
 struct _dot {
-	unsigned state:7; //statemachine
-	unsigned abort:1; //abort driving one tile, drive back!
+    unsigned state:7; //statemachine
+    unsigned abort:1; //abort driving one tile, drive back!
 
-	uint32_t timer; //Timer for all drive functions (to abort after time...)
+    uint32_t timer; //Timer for all drive functions (to abort after time...)
 
-	uint8_t aligned_turn; //The robot had to align via the front Sensors (collision avoidance)?
+    uint8_t aligned_turn; //The robot had to align via the front Sensors (collision avoidance)?
 
-	int32_t enc_comp[2]; //Compare angle of robot (driven not straight? Has to correct angle (important if there is no wall)?)
-	int16_t corr_angle;
+    int32_t enc_comp[2]; //Compare angle of robot (driven not straight? Has to correct angle (important if there is no wall)?)
+    int16_t corr_angle;
 
-	int32_t enc_lr_start;
-	int16_t enc_lr_add; //Add this length to the distance-to-drive after an (avoided) collision
+    int32_t enc_lr_start;
+    int16_t enc_lr_add; //Add this length to the distance-to-drive after an (avoided) collision
 
-	int16_t um6_phi_t_start; //Slow down when getting odd (Ramp etc.)
+    int16_t um6_phi_t_start; //Slow down when getting odd (Ramp etc.)
 
-	int16_t steer; //Steering value for all the steering stuff. Has to be global, dont know why.
+    int16_t steer; //Steering value for all the steering stuff. Has to be global, dont know why.
 
-	int8_t maxspeed; //Maximum speed to drive
+    int8_t maxspeed; //Maximum speed to drive
 
-	D_ROTATE r; //For intern rotate function
+    D_ROTATE r; //For intern rotate function
 };
 
 
@@ -147,11 +147,11 @@ struct _dot {
 enum DRIVE_TURN {TURN_INIT, TURN, TURN_ALIGN, TURN_ALIGN_BACK, TURN_END, TURN_FINISHED};
 
 struct _d_turn {
-	unsigned state:7;
-	unsigned no_align:1; //dont alignment functions?
-	uint8_t newRobDir; //Planned robot direction after turn
+    unsigned state:7;
+    unsigned no_align:1; //dont alignment functions?
+    uint8_t newRobDir; //Planned robot direction after turn
 
-	D_ROTATE r; //For intern rotate function
+    D_ROTATE r; //For intern rotate function
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -160,15 +160,15 @@ enum DRIVE_DEPLKIT_CONF {DEPLOY_RIGHT, DEPLOY_LEFT, DEPLOY_RIGHT_TURN_BACK, DEPL
 enum DRIVE_DEPLKIT {DK_INIT, DK_TURN_A, DK_ALIGN_A, DK_DEPL, DK_TURN_B, DK_ALIGN_B, DK_CHECK_TURN, DK_END, DK_FINISHED};
 
 struct _d_deplKit {
-	unsigned state:5;
-	unsigned config_dir:1; //Deploy in which direction (LEFT/RIGHT?)
-	unsigned config_turnBack:1; //Tturn back after deployment?
-	unsigned alignedToBackwall:1;
+    unsigned state:5;
+    unsigned config_dir:1; //Deploy in which direction (LEFT/RIGHT?)
+    unsigned config_turnBack:1; //Tturn back after deployment?
+    unsigned alignedToBackwall:1;
 
-	unsigned amount_to:4; //Amount of kits to deploy
-	unsigned amount_is:4; //Amount of kits already deployed
+    unsigned amount_to:4; //Amount of kits to deploy
+    unsigned amount_is:4; //Amount of kits already deployed
 
-	D_TURN turn; //Turning instruction
+    D_TURN turn; //Turning instruction
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -177,6 +177,7 @@ struct _d_deplKit {
 extern int32_t ramp_enc_start;
 
 ////////////////////////////////////////////////////////////////////////////////////
+/// Prototypes
 extern int32_t enc_lr_start_dot;
 
 extern int8_t ramp_checkpoint;
@@ -192,8 +193,6 @@ extern uint8_t drive_align_back(uint8_t dist_to);
 extern void drive_rotate(D_ROTATE *r);
 
 extern void drive_turn(D_TURN *t);
-
-extern uint8_t drive_instructions(char *instructions, uint8_t amount);
 
 extern uint8_t drive_neutralPos(void);
 

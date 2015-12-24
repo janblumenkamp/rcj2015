@@ -3,7 +3,7 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 ///////////////////////////////mazefunctions.h//////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	See mazefunctions.c
+//    See mazefunctions.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,11 +13,11 @@ typedef struct _matchStages MATCHSTAGES;
 //a is bigger than stage b) and returns the Position in wich stage b matches
 //into stage a
 struct _matchStages {
-	uint8_t stage_a;
-	uint8_t stage_b;
-	POS match;
-	int8_t accordance;
-	uint8_t ambiguity;
+    uint8_t stage_a;
+    uint8_t stage_b;
+    POS match;
+    int8_t accordance;
+    uint8_t ambiguity;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ extern void maze_setObstacle(COORD *_coord, int8_t dir, int8_t value);
 
 extern void maze_corrObstacle(COORD *_coord, int8_t dir, int8_t value);
 
-extern int8_t maze_getObstacle	(COORD *_coord, int8_t dir);
+extern int8_t maze_getObstacle    (COORD *_coord, int8_t dir);
 
 extern uint8_t maze_tileIsVisitable(COORD *_coord, int8_t dir);
 

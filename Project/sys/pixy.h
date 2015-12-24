@@ -3,7 +3,7 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 //////////////////////////////////pixy.h////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	Siehe pixy.c
+//    Siehe pixy.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,7 @@
 #define PIXY_H
 
 #include <avr/io.h>
-#include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
+#include <avr/pgmspace.h>     // Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
@@ -28,11 +28,11 @@
 enum PIXY_SM {GET_START_1, GET_START_2, GET_BLOCKS};
 
 struct _PIXY_BLOCK {
-	uint8_t signature;
-	uint8_t x;
-	uint8_t y;
-	uint8_t width;
-	uint8_t height;
+    uint8_t signature;
+    uint8_t x;
+    uint8_t y;
+    uint8_t width;
+    uint8_t height;
 };
 
 extern struct _PIXY_BLOCK pixy_blocks[NUMBER_OF_PIXY_BLOCKS];

@@ -3,12 +3,12 @@
 ///////////////////////////RoboCup Junior 2014//////////////////////////////////
 ///////////////////////////////bluetooth.h//////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//	siehe bluetooth.c
+//    siehe bluetooth.c
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <avr/io.h>
-#include <avr/pgmspace.h> 	// Program memory (=Flash ROM) access routines.
+#include <avr/pgmspace.h>     // Program memory (=Flash ROM) access routines.
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
@@ -20,10 +20,10 @@
 //////////////////////////////////////////
 
 typedef struct {
-	uint8_t active; //Stream active or not?
-	uint8_t textcolor; //VT100 terminal command colors
-	uint8_t bgcolor;
-	int8_t (*put_c)(unsigned char c); //Called if next char of given stream is processed
+    uint8_t active; //Stream active or not?
+    uint8_t textcolor; //VT100 terminal command colors
+    uint8_t bgcolor;
+    int8_t (*put_c)(unsigned char c); //Called if next char of given stream is processed
 } stream_t;
 
 extern stream_t str_pcui;
